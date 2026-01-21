@@ -1,0 +1,90 @@
+.loginContainer {
+  background-color: #0f1111;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+}
+
+.logo {
+  width: 120px;
+  margin-bottom: 20px;
+}
+
+.loginCard {
+  background-color: #1a1d23;
+  border: 1px solid #333;
+  border-radius: 8px;
+  width: 350px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  color: white;
+  font-size: 1.8rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.label {
+  color: white;
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border-radius: 3px;
+  border: 1px solid #888;
+}
+
+.signInBtn {
+  background-color: #f0c14b; /* Amazon-style yellow/gold */
+  border: 1px solid #a88734;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  font-weight: bold;
+}
+
+.disclaimer {
+  font-size: 0.75rem;
+  color: #a7acb2;
+  margin-top: 15px;
+  line-height: 1.4;
+}
+
+.footer {
+  width: 350px;
+  margin-top: 20px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #888;
+  margin-bottom: 15px;
+}
+
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #333;
+}
+
+.createAccountBtn {
+  width: 100%;
+  padding: 10px;
+  background-color: transparent;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 3px;
+  cursor: pointer;
+}

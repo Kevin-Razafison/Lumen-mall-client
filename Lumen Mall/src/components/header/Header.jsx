@@ -3,6 +3,7 @@ import Logo from './Logo'
 import styles from './Header.module.css'
 import SearchBar from './SearchBar'
 import DeliveryStatus from './DeliveryStatus'
+import UserAccount from './UserAccount'
 
 const Header = () => {
     return(
@@ -10,6 +11,7 @@ const Header = () => {
             <Logo />
             <SearchBar />
             <DeliveryStatus />
+            <UserAccount />
         </header>   
     )
 }

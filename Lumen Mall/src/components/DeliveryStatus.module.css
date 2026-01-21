@@ -1,0 +1,24 @@
+.container{
+    height: 95%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.container:hover{
+    border: 1px white solid;
+}
+.iconSection{
+    height: 40%;
+    width: 30%;
+}
+
+.iconSection img{
+    height: 100%;
+}
+
+.textSection{
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+}

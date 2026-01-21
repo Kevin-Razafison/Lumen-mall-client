@@ -1,0 +1,47 @@
+.cartContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Aligns the "Cart" text with the bottom of the icon */
+  color: white;
+  cursor: pointer;
+  border: 1px solid transparent;
+  
+}
+
+.cartContainer:hover {
+  border: 1px solid white;
+}
+
+.iconWrapper {
+  position: relative; 
+  display: flex;
+  align-items: center;
+  height: 40%;
+  width: 30%;
+}
+
+.cartIcon {
+  font-size: 12px;
+  height: 100%;
+}
+
+.badge {
+  position: absolute;
+  top: -15px;      /* Moves it up */
+  left: 20px;     /* Moves it slightly left of the icon edge */
+  background-color: #f08804; /* Or the Amazon/Mall orange/red */
+  color: #131921; /* Dark text for contrast */
+  font-weight: bold;
+  font-size: 14px;
+  border-radius: 50%;
+  padding: 0 4px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.cartText {
+  font-size: 12px;
+  padding-top: 25px;
+  font-weight: bold;
+  margin-left: 2px;
+}

@@ -4,6 +4,7 @@ import styles from './Header.module.css'
 import SearchBar from './SearchBar'
 import DeliveryStatus from './DeliveryStatus'
 import UserAccount from './UserAccount'
+import CartWidget from './CartWidget'
 
 const Header = () => {
     return(
@@ -12,6 +13,7 @@ const Header = () => {
             <SearchBar />
             <DeliveryStatus />
             <UserAccount />
+            <CartWidget />
         </header>   
     )
 }

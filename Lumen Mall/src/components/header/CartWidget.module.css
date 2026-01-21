@@ -30,7 +30,7 @@
   top: -15px;      /* Moves it up */
   left: 20px;     /* Moves it slightly left of the icon edge */
   background-color: #f08804; /* Or the Amazon/Mall orange/red */
-  color: #131921; /* Dark text for contrast */
+  color: white; /* Dark text for contrast */
   font-weight: bold;
   font-size: 14px;
   border-radius: 50%;

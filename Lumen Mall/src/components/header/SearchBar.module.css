@@ -2,6 +2,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    margin-left: 35px;
     flex: 1;
     max-width: 500px;
 }
@@ -39,6 +40,6 @@
 }
 
 .searchButton img{
-    height: 60%;
-    width: 60%;
+    height: 40%;
+    width: 20%;
 }

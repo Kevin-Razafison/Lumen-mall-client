@@ -16,6 +16,7 @@ const Home = () => (
       <h2 className="section-title">New Arrivals</h2>
       <div className="product-grid">
         <ProductCard 
+          id="drone-01"
           image={droneImg} 
           name="Drone" 
           description="Mesure a merakondroud..." 
@@ -40,11 +41,11 @@ const Home = () => (
 const AppContent = () => {
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
-
+  const isCartPage = location.pathname === '/cart';
   return (
     <>
       {!isLoginPage && <Header />}
-      
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />

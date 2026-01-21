@@ -3,14 +3,21 @@ import { createContext, useState, useContext } from 'react';
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cartCount, setCartCount] = useState(0);
+  const [cartItems, setCartItems] = useState([]);
 
-  const addToCart = () => {
-    setCartCount(prev => prev + 1);
+  const addToCart = (product) => {
+    setCartItems((prevItems) => [...prevItems, product]);
   };
 
+  const removeFromCart = (productId) => {
+    setCartItems((prevItems) => prevItems.filter(item => item.id !== productId));
+  };
+
+  const cartCount = cartItems.length;
+  const totalPrice = cartItems.reduce((acc, item) => acc + parseFloat(item.price), 0);
+
   return (
-    <CartContext.Provider value={{ cartCount, addToCart }}>
+    <CartContext.Provider value={{ cartItems, cartCount, totalPrice, addToCart, removeFromCart }}>
       {children}
     </CartContext.Provider>
   );

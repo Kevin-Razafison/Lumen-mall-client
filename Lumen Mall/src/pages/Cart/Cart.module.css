@@ -10,7 +10,7 @@
   max-width: 1200px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 3fr 1fr; /* 75% for items, 25% for subtotal */
+  grid-template-columns: 3fr 1fr; 
   gap: 20px;
 }
 
@@ -20,8 +20,15 @@
   border-radius: 8px;
 }
 
-.title { font-size: 1.8rem; margin-bottom: 10px; }
-.divider { border: 0.5px solid #333; margin-bottom: 20px; }
+.title { 
+  font-size: 1.8rem; 
+  margin-bottom: 10px; 
+}
+
+.divider { 
+  border: 0.5px solid #333; 
+  margin-bottom: 20px; 
+}
 
 .cartItem {
   display: flex;
@@ -30,16 +37,53 @@
   border-bottom: 1px solid #333;
 }
 
-.itemImg { width: 150px; height: 150px; object-fit: contain; background: white; border-radius: 4px; }
-.itemDetails { flex: 1; }
-.itemHeader { display: flex; justify-content: space-between; align-items: flex-start; }
-.price { font-weight: bold; font-size: 1.2rem; }
-.stockStatus { color: #00b127; font-size: 0.8rem; margin: 5px 0; }
+.itemImg { 
+  width: 150px; 
+  height: 150px; 
+  object-fit: contain; 
+  background: white; 
+  border-radius: 4px; 
+}
 
-.qtySelect { padding: 5px; border-radius: 4px; margin-right: 15px; }
-.deleteBtn { background: none; border: none; color: #007185; cursor: pointer; }
+.itemDetails { 
+  flex: 1; 
+}
+.itemHeader { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: flex-start; 
+}
 
-/* Subtotal Box */
+.itemDescription {
+  font-size: 0.9rem;
+  color: #a7acb2; 
+  margin: 0;
+  line-height: 1.4;
+  max-width: 500px; 
+}
+
+.price { 
+  font-weight: bold; 
+  font-size: 1.2rem; 
+}
+.stockStatus { 
+  color: #00b127; 
+  font-size: 0.8rem; 
+  margin: 5px 0; 
+}
+
+.qtySelect { 
+  padding: 5px;
+  border-radius: 4px; 
+  margin-right: 15px; 
+}
+.deleteBtn { 
+  background: none; 
+  border: none; 
+  color: #007185; 
+  cursor: pointer; }
+
+
 .subtotalBox {
   background-color: #1a1d23;
   padding: 20px;
@@ -48,6 +92,26 @@
 
 .subtotalText { font-size: 1.1rem; margin-bottom: 15px; }
 
+.deleteBtn {
+  background: none;
+  border: none;
+  color: #007185; 
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 5px 10px;
+  margin-left: 10px;
+  border-left: 1px solid #333; 
+  transition: all 0.2s ease;
+}
+
+.deleteBtn:hover {
+  color: #c45500; 
+  text-decoration: underline;
+}
+
+.deleteBtn:active {
+  color: #b12704; 
+}
 .checkoutBtn {
   width: 100%;
   background-color: #f0c14b;
@@ -58,4 +122,7 @@
   cursor: pointer;
 }
 
-.checkoutBtn:disabled { background-color: #555; cursor: not-allowed; }
+.checkoutBtn:disabled { 
+  background-color: #555; 
+  cursor: not-allowed; 
+}

@@ -1,6 +1,9 @@
 import styles from './ProductCard.module.css';
+import { useCart } from '../../context/CartContext'
 
-const ProductCard = ({ image, name, description, price }) => {
+const ProductCard = ({ id, name, price, image, description}) => {
+const {addToCart} = useCart();
+
   return (
     <div className={styles.card}>
       <div className={styles.imageWrapper}>
@@ -11,7 +14,12 @@ const ProductCard = ({ image, name, description, price }) => {
         <p className={styles.description}>{description}</p>
         <div className={styles.footer}>
           <span className={styles.price}>${price}</span>
-          <button className={styles.addBtn}>Add to Cart</button>
+          <button 
+        className={styles.addBtn} 
+        onClick={() => addToCart({ id, name, price, image, description })}
+      >
+        Add to Cart
+      </button>
         </div>
       </div>
     </div>

@@ -1,0 +1,39 @@
+.navWrapper {
+  width: 100%;
+  padding-top: 10px;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.navItem {
+  background: none;
+  border: none;
+  color: #a7acb2; 
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 15px 5px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.navItem:hover {
+  color: #ffffff;
+}
+
+.active {
+  color: #ffffff;
+  border-bottom: 2px solid #ffffff; 
+}
+
+.divider {
+  border: 0;
+  border-top: 1px solid #333; 
+  margin: 0;
+}

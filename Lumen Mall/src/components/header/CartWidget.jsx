@@ -1,17 +1,20 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import { useCart } from "../../context/CartContext";
 import styles from './CartWidget.module.css'
 
-const CartWidget = ({itemCount = 0 }) =>{
+const CartWidget = () =>{
+    const { cartCount } = useCart()
     return(
-        <div className={styles.cartContainer}>
+        <Link to="/cart" className={styles.cartContainer}>
             <div className={styles.iconWrapper}>
                 <img src="/icons/icons-shopping-cart.png" alt="shopping-cart" className={styles.cartIcon} />
-                {itemCount >=0 && (
-                    <span className={styles.badge}>{itemCount}</span>
+                {cartCount >=0 && (
+                    <span className={styles.badge}>{cartCount}</span>
                 )}  
             </div>
             <span className={styles.cartText}>Cart</span>
-        </div>
+        </Link>
     )
 }
 

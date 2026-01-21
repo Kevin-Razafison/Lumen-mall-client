@@ -1,0 +1,11 @@
+.headerContainer {
+    height: 75px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    background-color: #161822;
+    color: #E0E0E0;
+    position: fixed;
+    z-index: 1;
+} 

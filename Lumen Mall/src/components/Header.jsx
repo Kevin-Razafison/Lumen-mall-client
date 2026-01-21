@@ -1,15 +1,11 @@
 import React from 'react'
+import styles from './Header.module.css'
 
-const header = () => {
+const Header = () => {
     return(
-        <header className='header-container'>
-            <Logo />
-            <SearchBar />
-            <div className='nav-action'>
-                <DeliveryStatus country="Madagascar" />
-                <UserAccount />
-                <CartWidget itemCount={0} />
-            </div>
+        <header className={styles.headerContainer}>
         </header>   
     )
 }
+
+export default Header

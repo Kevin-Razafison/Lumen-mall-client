@@ -1,0 +1,50 @@
+.footer {
+  width: 100%;
+  margin-top: 50px; /* Separates it from the product grid */
+}
+
+.backToTop {
+  background-color: #373737; /* Dark gray from your image */
+  color: white;
+  text-align: center;
+  padding: 15px 0;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.backToTop:hover {
+  background-color: #484848;
+}
+
+.footerMain {
+  background-color: #0f1111; /* Deep dark background */
+  padding: 40px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.linksContainer {
+  display: flex;
+  gap: 100px; /* Large gap between 'about' and 'Privacy Policy' */
+  max-width: 1200px;
+}
+
+.link {
+  color: white;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: text-decoration 0.2s;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.copyright {
+  background-color: #0f1111;
+  color: #a7acb2;
+  text-align: center;
+  padding-bottom: 20px;
+  font-size: 0.8rem;
+}

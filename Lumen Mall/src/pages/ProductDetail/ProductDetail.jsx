@@ -1,4 +1,5 @@
 import { useParams } from 'react-router-dom';
+import { useState } from 'react';
 import { useCart } from '../../context/CartContext';
 import { products } from '../../data/product.js'; 
 import styles from './ProductDetail.module.css';
@@ -7,6 +8,14 @@ const ProductDetail = () => {
   const { productId } = useParams();
   const { addToCart } = useCart();
 
+  const [added, setAdded] = useState(false);
+
+    const handleAdd = () => {
+    addToCart(product);
+    setAdded(true);
+    
+    setTimeout(() => setAdded(false), 2000);
+    };
  
   const product = products.find((p) => p.id === productId);
 
@@ -41,10 +50,10 @@ const ProductDetail = () => {
         </div>
 
         <button 
-          className={styles.addBtn}
-          onClick={() => addToCart(product)}
+        className={`${styles.addBtn} ${added ? styles.added : ''}`}
+        onClick={handleAdd}
         >
-          Add to Cart
+        {added ? "✓ Added to Cart" : "Add to Cart"}
         </button>
       </div>
     </div>

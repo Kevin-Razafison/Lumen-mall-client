@@ -33,3 +33,8 @@
   font-weight: bold;
   cursor: pointer;
 }
+
+.addBtn.added {
+  background-color: #067D62; /* A nice forest green */
+  color: white;
+}

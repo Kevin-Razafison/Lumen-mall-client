@@ -1,26 +1,37 @@
-import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import styles from './CategoryNav.module.css';
 
 const CategoryNav = () => {
-  const categories = ['Electronics', 'Smart Home', 'Wearables', 'Audio'];
-  const [activeCategory, setActiveCategory] = useState('Electronics');
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Get the current active category from the URL
+  const activeCategory = searchParams.get('category') || 'All';
+
+  const categories = ['All', 'Electronics', 'Smart Home', 'Wearables', 'Audio'];
+  
+  const handleCategoryClick = (category) => {
+    if (category === 'All') {
+      searchParams.delete('category'); // Clear the category filter
+    } else {
+      searchParams.set('category', category);
+    }
+    setSearchParams(searchParams);
+  };
 
   return (
-    <nav className={styles.navWrapper}>
-      <div className={styles.container}>
+    <nav className={styles.nav}>
+      <ul className={styles.list}>
         {categories.map((cat) => (
-          <button
-            key={cat}
-            className={`${styles.navItem} ${activeCategory === cat ? styles.active : ''}`}
-            onClick={() => setActiveCategory(cat)}
+          <li 
+            key={cat} 
+            className={`${styles.item} ${activeCategory === cat ? styles.active : ''}`}
+            onClick={() => handleCategoryClick(cat)}
           >
             {cat}
-          </button>
+          </li>
         ))}
-      </div>
-      <hr className={styles.divider} />
+      </ul>
     </nav>
   );
 };
-
-export default CategoryNav;
+export default CategoryNav

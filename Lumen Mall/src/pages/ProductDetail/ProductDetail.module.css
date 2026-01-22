@@ -38,3 +38,25 @@
   background-color: #067D62; /* A nice forest green */
   color: white;
 }
+
+.purchaseActions {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.qtyBox {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-weight: 500;
+}
+
+.qtySelect {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #f8f8f8;
+  cursor: pointer;
+}

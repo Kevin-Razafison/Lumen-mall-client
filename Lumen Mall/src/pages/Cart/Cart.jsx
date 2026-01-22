@@ -4,9 +4,9 @@ import { Link } from 'react-router-dom'
 import styles from './Cart.module.css';
 
 const Cart = () => {
-  const { cartItems, totalPrice, removeFromCart } = useCart();
+  // We add 'updateQuantity' and 'cartCount' to the destructuring here
+  const { cartItems, totalPrice, removeFromCart, updateQuantity, cartCount } = useCart();
 
-  // 1. The Empty State Check
   if (cartItems.length === 0) {
     return (
       <div className={styles.emptyContainer}>
@@ -20,7 +20,6 @@ const Cart = () => {
     );
   }
 
-  // 2. The Active Cart View
   return (
     <div className={styles.cartPage}>
       <div className={styles.container}>
@@ -28,9 +27,8 @@ const Cart = () => {
           <h1 className={styles.title}>Shopping Cart</h1>
           <hr className={styles.divider} />
           
-          {/* Use parentheses () here for an implicit return of the JSX */}
-          {cartItems.map((item, index) => (
-            <div key={index} className={styles.cartItem}>
+          {cartItems.map((item) => (
+            <div key={item.id} className={styles.cartItem}>
               <img src={item.image} alt={item.name} className={styles.itemImg} />
               <div className={styles.itemDetails}>
                 <div className={styles.itemHeader}>
@@ -38,7 +36,23 @@ const Cart = () => {
                   <p className={styles.itemDescription}>{item.description}</p>
                   <p className={styles.price}>${item.price}</p>
                 </div>
+                
+                {/* NEW: Quantity Selector Section */}
                 <div className={styles.itemActions}>
+                  <div className={styles.qtyContainer}>
+                    <label htmlFor={`qty-${item.id}`}>Qantity:</label>
+                    <select 
+                      id={`qty-${item.id}`}
+                      className={styles.qtySelect}
+                      value={item.quantity}
+                      onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
+                    >
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                        <option key={num} value={num}>{num}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
                   <button 
                     className={styles.deleteBtn} 
                     onClick={() => removeFromCart(item.id)}
@@ -53,8 +67,9 @@ const Cart = () => {
 
         <div className={styles.checkoutSection}>
           <div className={styles.subtotalBox}>
+            {/* We use cartCount here to show total items including quantities */}
             <p className={styles.subtotalText}>
-              Subtotal ({cartItems.length} items): <strong>${totalPrice.toFixed(2)}</strong>
+              Subtotal ({cartCount} items): <strong>${totalPrice.toFixed(2)}</strong>
             </p>
             <button className={styles.checkoutBtn}>Proceed to Checkout</button>
           </div>

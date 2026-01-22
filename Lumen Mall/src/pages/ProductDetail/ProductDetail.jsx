@@ -8,16 +8,19 @@ const ProductDetail = () => {
   const { productId } = useParams();
   const { addToCart } = useCart();
 
+  // 1. Add quantity state
+  const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
-    const handleAdd = () => {
-    addToCart(product);
-    setAdded(true);
-    
-    setTimeout(() => setAdded(false), 2000);
-    };
- 
+  // 2. Find product first so handleAdd can access it
   const product = products.find((p) => p.id === productId);
+
+  const handleAdd = () => {
+    // 3. Pass both product and quantity to your updated context
+    addToCart(product, quantity);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
 
   if (!product) {
     return <div className={styles.notFound}>Product not found!</div>;
@@ -49,12 +52,28 @@ const ProductDetail = () => {
           </ul>
         </div>
 
-        <button 
-        className={`${styles.addBtn} ${added ? styles.added : ''}`}
-        onClick={handleAdd}
-        >
-        {added ? "✓ Added to Cart" : "Add to Cart"}
-        </button>
+        {/* 4. Quantity Selector UI */}
+        <div className={styles.purchaseActions}>
+          <div className={styles.qtyBox}>
+            <label htmlFor="qtySelect">Quantity:</label>
+            <select 
+              id="qtySelect"
+              value={quantity} 
+              onChange={(e) => setQuantity(parseInt(e.target.value))}
+              className={styles.qtySelect}
+            >
+              {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </div>
+
+          <button 
+            className={`${styles.addBtn} ${added ? styles.added : ''}`}
+            onClick={handleAdd}
+            disabled={added}
+          >
+            {added ? "✓ Added to Cart" : "Add to Cart"}
+          </button>
+        </div>
       </div>
     </div>
   );

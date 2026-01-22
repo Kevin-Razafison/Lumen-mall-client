@@ -7,36 +7,8 @@ import ProductCard from './components/ProductCard/ProductCard'
 import Footer from './components/Footer/Footer'
 import Login from './pages/Login/Login'
 import Cart from './pages/Cart/Cart'
+import Home from './pages/Home/Home'
 
-const Home = () => (
-  <main>
-    <Hero />
-    <CategoryNav />
-    <section className="product-section">
-      <h2 className="section-title">New Arrivals</h2>
-      <div className="product-grid">
-        <ProductCard 
-          id="drone-01"
-          image={droneImg} 
-          name="Drone" 
-          description="Mesure a merakondroud..." 
-          price="20.90" 
-        />
-      </div>
-    </section>
-    <section className="product-section">
-      <h2 className="section-title">All Product</h2>
-      <div className="product-grid">
-        <ProductCard 
-          image={droneImg} 
-          name="Drone" 
-          description="Mesure a merakondroud..." 
-          price="20.90" 
-        />
-      </div>
-    </section>
-  </main>
-);
 
 const AppContent = () => {
   const location = useLocation();

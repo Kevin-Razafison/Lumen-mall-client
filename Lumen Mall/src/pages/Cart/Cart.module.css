@@ -167,3 +167,22 @@
 .shopBtn:hover {
   background-color: #ddb347;
 }
+.itemLink {
+  text-decoration: none; /* Removes the underline */
+  color: inherit;        /* Keeps the white/gold color you already set */
+  display: block;        /* Makes the whole area clickable */
+}
+
+.itemLink:hover .itemName {
+  text-decoration: underline; /* Optional: subtle hint that it's clickable */
+  color: #f0c14b;            /* Optional: glow effect on hover */
+}
+
+.itemImg {
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.itemImg:hover {
+  opacity: 0.8;
+}

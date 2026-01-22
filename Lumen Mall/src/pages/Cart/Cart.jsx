@@ -29,15 +29,19 @@ const Cart = () => {
           
           {cartItems.map((item) => (
             <div key={item.id} className={styles.cartItem}>
-              <img src={item.image} alt={item.name} className={styles.itemImg} />
+              <Link to={`/product/${item.id}`} className={styles.itemLink}>
+                <img src={item.image} alt={item.name} className={styles.itemImg} />
+              </Link>
+              
               <div className={styles.itemDetails}>
                 <div className={styles.itemHeader}>
-                  <h3 className={styles.itemName}>{item.name}</h3>
+                  <Link to={`/product/${item.id}`} className={styles.itemLink}>
+                    <h3 className={styles.itemName}>{item.name}</h3>
+                  </Link>
                   <p className={styles.itemDescription}>{item.description}</p>
                   <p className={styles.price}>${item.price}</p>
                 </div>
                 
-                {/* NEW: Quantity Selector Section */}
                 <div className={styles.itemActions}>
                   <div className={styles.qtyContainer}>
                     <label htmlFor={`qty-${item.id}`}>Qantity:</label>
@@ -67,7 +71,7 @@ const Cart = () => {
 
         <div className={styles.checkoutSection}>
           <div className={styles.subtotalBox}>
-            {/* We use cartCount here to show total items including quantities */}
+            
             <p className={styles.subtotalText}>
               Subtotal ({cartCount} items): <strong>${totalPrice.toFixed(2)}</strong>
             </p>

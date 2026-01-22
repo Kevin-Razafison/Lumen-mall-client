@@ -2,7 +2,7 @@ import { useLocation } from 'react-router-dom';
 import Hero from '../../components/Hero/Hero'; 
 import CategoryNav from '../../components/Hero/CategoryNav';
 import ProductCard from '../../components/ProductCard/ProductCard';
-import {products} from '../../data/product.js'
+import {products } from '../../data/product.js'
 
 const Home = () => {
   const location = useLocation();

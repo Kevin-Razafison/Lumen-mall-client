@@ -1,13 +1,14 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import styles from './Logo.module.css'
 import logo from '../../assets/Lumen-Mall-logo.png'
 
 
 const Logo = () => {
     return (
-        <div className={styles.LogoContainer}>
+        <Link to="/" className={styles.LogoContainer}>
             <img src={logo} alt="logo" className={styles.LogoImg} />
-        </div>
+        </Link>
     )
 }
 

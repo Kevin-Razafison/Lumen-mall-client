@@ -113,6 +113,8 @@
   color: #b12704; 
 }
 .checkoutBtn {
+  text-decoration: none;
+  color: white;
   width: 100%;
   background-color: #f0c14b;
   border: 1px solid #a88734;
@@ -168,14 +170,14 @@
   background-color: #ddb347;
 }
 .itemLink {
-  text-decoration: none; /* Removes the underline */
-  color: inherit;        /* Keeps the white/gold color you already set */
-  display: block;        /* Makes the whole area clickable */
+  text-decoration: none; 
+  color: inherit;        
+  display: block;        
 }
 
 .itemLink:hover .itemName {
-  text-decoration: underline; /* Optional: subtle hint that it's clickable */
-  color: #f0c14b;            /* Optional: glow effect on hover */
+  text-decoration: underline; 
+  color: #f0c14b;            
 }
 
 .itemImg {

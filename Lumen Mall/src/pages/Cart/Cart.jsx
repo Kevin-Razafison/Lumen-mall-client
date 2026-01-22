@@ -75,7 +75,9 @@ const Cart = () => {
             <p className={styles.subtotalText}>
               Subtotal ({cartCount} items): <strong>${totalPrice.toFixed(2)}</strong>
             </p>
-            <button className={styles.checkoutBtn}>Proceed to Checkout</button>
+            <Link to="/checkout" className={styles.checkoutBtn}>
+              Proceed to Checkout
+            </Link>          
           </div>
         </div>
       </div>

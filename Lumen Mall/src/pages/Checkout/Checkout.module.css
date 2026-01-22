@@ -1,0 +1,93 @@
+.checkoutContainer {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 20px;
+  color: white;
+}
+
+.mainTitle {
+  margin-bottom: 30px;
+  font-size: 2rem;
+}
+
+.checkoutGrid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 40px;
+}
+
+.shippingForm, .orderSummary {
+  background: #1a1a1a;
+  padding: 30px;
+  border-radius: 12px;
+}
+
+.sectionTitle {
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+}
+
+.inputGroup {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.inputGroup label {
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.inputGroup input {
+  padding: 12px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: white;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.placeOrderBtn {
+  width: 100%;
+  padding: 15px;
+  background: #f0c14b;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: #ccc;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.totalAmount {
+  color: #f0c14b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .checkoutGrid {
+    grid-template-columns: 1fr;
+  }
+}

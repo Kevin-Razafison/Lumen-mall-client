@@ -9,7 +9,7 @@ import Login from './pages/Login/Login'
 import Cart from './pages/Cart/Cart'
 import Home from './pages/Home/Home'
 import ProductDetail from './pages/ProductDetail/ProductDetail';
-
+import Checkout from './pages/Checkout/Checkout';
 
 const AppContent = () => {
   const location = useLocation();
@@ -25,6 +25,7 @@ const AppContent = () => {
         <Route path="*" element={<Home />} /> 
         <Route path="/cart" element={<Cart />} />
         <Route path='/product/:productId' element={<ProductDetail />} />
+        <Route path="/checkout" element={<Checkout />} />
       </Routes>
 
       {!isLoginPage && <Footer />}

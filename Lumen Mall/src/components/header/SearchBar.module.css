@@ -8,10 +8,11 @@
 }
 
 .searchInput{
-    width: 75%;
+    width: 100%;
     height: 30px;
     border: 1px solid #616161;
     padding-left: 10px;
+    padding-right: 40px;
     font-size: 15px;
     border-radius: 5px;
     background-color: #424242;
@@ -42,4 +43,30 @@
 .searchButton img{
     height: 70%;
     width: 50%;
+}
+
+.inputWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.clearButton {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.clearButton:hover {
+    color: white;
 }

@@ -1,13 +1,24 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom"; // Add these
 import styles from './SearchBar.module.css'
 
 const SearchBar = () => {
     const [query, setQuery] = useState('');
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
 
     const handleSearch = (e) => {
         e.preventDefault();
-        console.log("Searching for:", query);
+        
+        const newParams = new URLSearchParams(searchParams);
+        
+        if (query.trim()) {
+            newParams.set('search', query);
+        } else {
+            newParams.delete('search');
+        }
+
+        navigate(`/?${newParams.toString()}`);
     };
 
     return(
@@ -20,10 +31,10 @@ const SearchBar = () => {
                 onChange={(e) => setQuery(e.target.value)}
             />
             <button type="submit" className={styles.searchButton}>
-                <img src="/icons/icons-search.png" alt="seach-icon" />            
+                <img src="/icons/icons-search.png" alt="search-icon" />            
             </button>
         </form>
     )
 }
 
-export default SearchBar
+export default SearchBar;

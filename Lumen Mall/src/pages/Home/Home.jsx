@@ -4,6 +4,7 @@ import Hero from '../../components/Hero/Hero';
 import CategoryNav from '../../components/Hero/CategoryNav';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import {products } from '../../data/product.js'
+import styles from './Home.module.css'
 
 const Home = () => {
   const [searchParams] = useSearchParams();
@@ -11,7 +12,6 @@ const Home = () => {
   const searchTerm = searchParams.get('search')?.toLowerCase() || '';
   const categoryTerm = searchParams.get('category') || '';
 
-  // 1. Filter Logic
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm);
     const matchesCategory = categoryTerm ? product.category === categoryTerm : true;
@@ -29,11 +29,17 @@ const Home = () => {
           {categoryTerm ? `${categoryTerm}` : searchTerm ? `Results for "${searchTerm}"` : "New Arrivals"}
         </h2>
         
-        <div className="product-grid">
-          {filteredProducts.map(product => (
+      <div className="product-grid">
+        {filteredProducts.length > 0 ? (
+          filteredProducts.map(product => (
             <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
+          ))
+        ) : (
+          <div className={styles.noResults}>
+            <p>No products found matching "{searchTerm}"</p>
+          </div>
+        )}
+</div>
       </section>
     </main>
   );

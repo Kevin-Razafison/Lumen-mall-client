@@ -1,0 +1,16 @@
+.noResults {
+  grid-column: 1 / -1; 
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+}
+
+.noResults p {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.noResults span {
+  color: #f0c14b; 
+  font-weight: bold;
+}

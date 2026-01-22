@@ -1,4 +1,4 @@
-import droneImg from '../assets/drone-product-image.png'; // Use your actual path
+import droneImg from '../assets/drone-product-image.png'; 
 
 export const products = [
   {

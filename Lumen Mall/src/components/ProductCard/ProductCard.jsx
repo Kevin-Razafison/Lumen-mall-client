@@ -1,14 +1,15 @@
 import styles from './ProductCard.module.css';
 import { useCart } from '../../context/CartContext'
+import { Link } from 'react-router-dom';
 
 const ProductCard = ({ id, name, price, image, description}) => {
 const {addToCart} = useCart();
 
   return (
     <div className={styles.card}>
-      <div className={styles.imageWrapper}>
+      <Link to={`/product/${id}`} className={styles.imageWrapper}>
         <img src={image} alt={name} className={styles.productImage} />
-      </div>
+      </Link>
       <div className={styles.details}>
         <h3 className={styles.title}>{name}</h3>
         <p className={styles.description}>{description}</p>

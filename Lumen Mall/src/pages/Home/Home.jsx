@@ -14,7 +14,7 @@ const Home = () => {
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm);
-    const matchesCategory = categoryTerm ? product.category === categoryTerm : true;
+    const matchesCategory = categoryTerm ? product.category.toLowerCase() === categoryTerm.toLowerCase() : true;
     
     return matchesSearch && matchesCategory;
   });
@@ -29,17 +29,27 @@ const Home = () => {
           {categoryTerm ? `${categoryTerm}` : searchTerm ? `Results for "${searchTerm}"` : "New Arrivals"}
         </h2>
         
-      <div className="product-grid">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map(product => (
-            <ProductCard key={product.id} {...product} />
-          ))
-        ) : (
-          <div className={styles.noResults}>
-            <p>No products found matching "{searchTerm}"</p>
-          </div>
-        )}
-</div>
+        <div className="product-grid">
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map(product => (
+              <ProductCard key={product.id} {...product} />
+            ))
+          ) : (
+            
+            searchTerm && (
+              <div className={styles.noResults}>
+                <p>No products found matching <span>"{searchTerm}"</span></p>
+                <p>Try checking your spelling or choosing a different category.</p>
+              </div>
+            )
+          )}
+          
+          {filteredProducts.length === 0 && !searchTerm && (
+            <div className={styles.noResults}>
+              <p>Coming Soon: More products in {categoryTerm}!</p>
+            </div>
+          )}
+        </div>
       </section>
     </main>
   );

@@ -1,0 +1,42 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal {
+  background: #1a1a1a;
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  color: white;
+  border: 1px solid #333;
+}
+
+.modal input {
+  width: 100%;
+  padding: 12px;
+  margin: 15px 0;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: white;
+  border-radius: 6px;
+}
+
+.modal button {
+  width: 100%;
+  padding: 12px;
+  background: #f0c14b;
+  border: none;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+}

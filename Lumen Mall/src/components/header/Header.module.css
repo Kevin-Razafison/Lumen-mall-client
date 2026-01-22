@@ -10,3 +10,38 @@
     position: fixed;
     z-index: 1;
 } 
+.deliverTo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  transition: border 0.2s;
+}
+
+.deliverTo:hover {
+  border: 1px solid #ccc; /* Subtle hover effect like Amazon */
+}
+
+.pinIcon {
+  font-size: 1.4rem;
+  color: white;
+}
+
+.deliverText {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.deliverText span:first-child {
+  font-size: 0.75rem;
+  color: #ccc;
+}
+
+.locationName {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: white;
+}

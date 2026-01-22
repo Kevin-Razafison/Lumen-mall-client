@@ -1,34 +1,42 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation as useRouteLocation } from 'react-router-dom';
+import { useState } from 'react'; // Add this
 import Header from './components/header/Header'
-import Hero from './components/Hero/Hero'
-import CategoryNav from './components/Hero/CategoryNav'
-import droneImg from '../public/drone-product-image.png'
-import ProductCard from './components/ProductCard/ProductCard'
 import Footer from './components/Footer/Footer'
 import Login from './pages/Login/Login'
 import Cart from './pages/Cart/Cart'
 import Home from './pages/Home/Home'
 import ProductDetail from './pages/ProductDetail/ProductDetail';
 import Checkout from './pages/Checkout/Checkout';
+import LocationModal from './components/Modals/LocationModal'; // Add this
 
 const AppContent = () => {
-  const location = useLocation();
-  const isLoginPage = location.pathname === '/login';
-  const isCartPage = location.pathname === '/cart';
+  // Rename router's useLocation to avoid conflict with your custom one
+  const routeLocation = useRouteLocation();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const isLoginPage = routeLocation.pathname === '/login';
+
   return (
     <>
-      {!isLoginPage && <Header />}
+      {/* Pass the function to open the modal to the Header */}
+      {!isLoginPage && <Header openLocationModal={() => setIsModalOpen(true)} />}
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="*" element={<Home />} /> 
         <Route path="/cart" element={<Cart />} />
         <Route path='/product/:productId' element={<ProductDetail />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="*" element={<Home />} /> 
       </Routes>
 
       {!isLoginPage && <Footer />}
+
+      {/* Place the Modal here */}
+      <LocationModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </>
   );
 };

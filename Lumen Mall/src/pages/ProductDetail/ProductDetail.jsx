@@ -1,35 +1,64 @@
 import { useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Added useEffect
 import { useCart } from '../../context/CartContext';
-import { products } from '../../data/product.js'; 
 import styles from './ProductDetail.module.css';
 
 const ProductDetail = () => {
   const { productId } = useParams();
   const { addToCart } = useCart();
 
-  // 1. Add quantity state
+  // 1. States for Data, Loading, and UI
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
-  // 2. Find product first so handleAdd can access it
-  const product = products.find((p) => p.id === productId);
+  // 2. Fetch the specific product from your Java Backend
+  useEffect(() => {
+    setLoading(true);
+    fetch(`http://localhost:8080/api/products/${productId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Product not found");
+        return res.json();
+      })
+      .then((data) => {
+        setProduct(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Fetch error:", err);
+        setLoading(false);
+      });
+  }, [productId]);
 
   const handleAdd = () => {
-    // 3. Pass both product and quantity to your updated context
-    addToCart(product, quantity);
+    // Ensure we pass the mapped image and numeric price to the cart
+    const cartItem = {
+      ...product,
+      image: product.imageUrl || '/drone-product-image.png'
+    };
+    addToCart(cartItem, quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
+
+  if (loading) {
+    return <div className={styles.loading}>Loading product details...</div>;
+  }
 
   if (!product) {
     return <div className={styles.notFound}>Product not found!</div>;
   }
 
+  // Fallback for image logic
+  const displayImage = (product.imageUrl && product.imageUrl !== 'url') 
+    ? product.imageUrl 
+    : '/drone-product-image.png';
+
   return (
     <div className={styles.container}>
       <div className={styles.imageSection}>
-        <img src={product.image} alt={product.name} />
+        <img src={displayImage} alt={product.name} />
       </div>
 
       <div className={styles.infoSection}>
@@ -39,20 +68,23 @@ const ProductDetail = () => {
         
         <div className={styles.priceTag}>
           <span className={styles.currency}>$</span>
-          <span className={styles.amount}>{product.price}</span>
+          {/* Handle numeric price from Postgres */}
+          <span className={styles.amount}>
+            {typeof product.price === 'number' ? product.price.toFixed(2) : product.price}
+          </span>
         </div>
 
         <div className={styles.description}>
           <h3>About this item</h3>
           <p>{product.description}</p>
+          {/* Note: If these features aren't in your DB yet, they are static for now */}
           <ul>
-            <li>4K HDR Video Recording</li>
-            <li>30-minute Flight Time</li>
-            <li>GPS Auto-Return Home</li>
+            <li>High-performance Lumen Hardware</li>
+            <li>Optimized for CachyOS performance</li>
+            <li>Exclusive Tech Support</li>
           </ul>
         </div>
 
-        {/* 4. Quantity Selector UI */}
         <div className={styles.purchaseActions}>
           <div className={styles.qtyBox}>
             <label htmlFor="qtySelect">Quantity:</label>

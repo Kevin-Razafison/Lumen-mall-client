@@ -11,6 +11,7 @@ import LocationModal from './components/Modals/LocationModal';
 import Orders from './pages/Orders/Orders';
 import Register from './pages/Login/Register';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminDashboard from './pages/Admin/AdminDashboard';
 
 const AppContent = () => {
   const routeLocation = useRouteLocation();

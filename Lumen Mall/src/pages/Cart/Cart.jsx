@@ -14,7 +14,6 @@ const Cart = () => {
         <p>Check your saved items or continue shopping for the latest tech.</p>
         <div className={styles.emptyActions}>
           <Link to="/" className={styles.shopBtn}>Return to Shopping</Link>
-          {/* Added Order History even for empty cart so you can always find it */}
           <Link to="/orders" className={styles.historyBtn}>View Past Orders</Link>
         </div>
       </div>
@@ -29,13 +28,19 @@ const Cart = () => {
           <hr className={styles.divider} />
           
           {cartItems.map((item) => {
-          const displayImage = item.imageUrl ? item.imageUrl : '/drone-product-image.png';
+            // FIX: Check for item.image (from ProductCard) OR item.imageUrl
+            const displayImage = item.image || item.imageUrl || '/drone-product-image.png';
 
             return (
-                <div key={item.id} className={styles.cartItem}>
-                    <Link to={`/product/${item.id}`} className={styles.itemLink}>
-                      <img src={displayImage} alt={item.name} className={styles.itemImg} />
-                    </Link>
+              <div key={item.id} className={styles.cartItem}>
+                <Link to={`/product/${item.id}`} className={styles.itemLink}>
+                  <img 
+                    src={displayImage} 
+                    alt={item.name} 
+                    className={styles.itemImg} 
+                    onError={(e) => { e.target.src = '/drone-product-image.png'; }}
+                  />
+                </Link>
                 
                 <div className={styles.itemDetails}>
                   <div className={styles.itemHeader}>
@@ -75,7 +80,6 @@ const Cart = () => {
             );
           })}
 
-          {/* NEW NAVIGATION SECTION AT THE BOTTOM OF ITEMS */}
           <div className={styles.cartNavigation}>
              <Link to="/" className={styles.continueShopping}>← Continue Shopping</Link>
              <Link to="/orders" className={styles.historyBtn}>View Order History</Link>

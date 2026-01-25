@@ -8,6 +8,7 @@ const AdminDashboard = () => {
   const [inventory, setInventory] = useState([]); 
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ name: '', price: '', description: '', category: '' });
+  const [orders, setOrders] = useState([]);
   const [newProduct, setNewProduct] = useState({
     name: '',
     description: '',
@@ -19,6 +20,8 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (activeTab === 'inventory') {
       fetchInventory();
+    } else if(activeTab === 'orders'){
+      fetchOrders();
     }
   }, [activeTab]);
 
@@ -29,6 +32,42 @@ const AdminDashboard = () => {
       setInventory(data);
     } catch (err) {
       console.error("Failed to fetch inventory:", err);
+    }
+  };
+
+  const fetchOrders = async () => {
+    if (!user?.email || !user?.password) return; // Safety check for auth
+    const authHeader = btoa(`${user.email}:${user.password}`);
+    try {
+      const response = await fetch('http://localhost:8080/api/orders/all', {
+        headers: { 'Authorization': `Basic ${authHeader}` }
+      });
+      const data = await response.json();
+      // Ensure data is an array so .map() doesn't fail
+      setOrders(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch orders:", err);
+      setOrders([]); // Fallback to empty array on error
+    }
+  };
+
+  const handleStatusChange = async (orderId, newStatus) => {
+    const authHeader = btoa(`${user.email}:${user.password}`);
+    try {
+      const response = await fetch(`http://localhost:8080/api/orders/${orderId}/status`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${authHeader}`
+        },
+        body: JSON.stringify(newStatus)
+      });
+
+      if (response.ok) {
+        setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+      }
+    } catch (err) {
+      console.error("Status update failed:", err);
     }
   };
 
@@ -122,7 +161,7 @@ const AdminDashboard = () => {
           <li onClick={() => setActiveTab('dashboard')} className={activeTab === 'dashboard' ? styles.active : ''}>Dashboard</li>
           <li onClick={() => setActiveTab('inventory')} className={activeTab === 'inventory' ? styles.active : ''}>Inventory</li>
           <li onClick={() => setActiveTab('addProduct')} className={activeTab === 'addProduct' ? styles.active : ''}>Add Product</li>
-          <li>Orders</li>
+          <li onClick={() => setActiveTab('orders')} className={activeTab === 'orders' ? styles.active : ''}>Orders</li>
         </ul>
       </aside>
       
@@ -131,8 +170,18 @@ const AdminDashboard = () => {
           <>
             <h1>Dashboard Overview</h1>
             <div className={styles.statsGrid}>
-              <div className={styles.statCard}>Total Sales: $12,400</div>
-              <div className={styles.statCard}>Total Products: {inventory.length}</div>
+              <div className={styles.statCard}>
+                <h3>Total Orders</h3>
+                <p>{orders.length}</p>
+              </div>
+              <div className={styles.statCard}>
+                <h3>Total Products</h3>
+                <p>{inventory.length}</p>
+              </div>
+              <div className={styles.statCard}>
+                <h3>Revenue</h3>
+                <p>${orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0).toFixed(2)}</p>
+              </div>
             </div>
           </>
         )}
@@ -230,6 +279,56 @@ const AdminDashboard = () => {
               )}
               <button type="submit" className={styles.submitBtn}>Save Product</button>
             </form>
+          </section>
+        )}
+
+        {activeTab === 'orders' && (
+          <section className={styles.inventorySection}>
+            <h1>Customer Orders</h1>
+            <table className={styles.inventoryTable}>
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.length > 0 ? (
+                  orders.map(order => (
+                    <tr key={order.id}>
+                      <td>#{order.id}</td>
+                      <td>{order.userEmail}</td>
+                      <td>${Number(order.totalPrice || 0).toFixed(2)}</td>
+                      <td>
+                        <span className={styles.statusBadge}>{order.status || 'PENDING'}</span>
+                      </td>
+                      <td>
+                        {order.orderDate 
+                          ? new Date(order.orderDate).toLocaleDateString() 
+                          : 'N/A'}
+                      </td>
+                      <td>
+                        <select 
+                          value={order.status} 
+                          className={styles.statusSelect}
+                          onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                        >
+                          <option value="PENDING">Pending</option>
+                          <option value="SHIPPED">Shipped</option>
+                          <option value="COMPLETED">Completed</option>
+                          <option value="CANCELLED">Cancelled</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr><td colSpan="5" style={{textAlign: 'center'}}>No orders found.</td></tr>
+                )}
+              </tbody>
+            </table>
           </section>
         )}
       </main>

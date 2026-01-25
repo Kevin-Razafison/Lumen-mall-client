@@ -17,8 +17,12 @@ const Checkout = () => {
     zipCode: '',
   });
 
-  // NEW: State for payment method
   const [paymentMethod, setPaymentMethod] = useState('Credit Card');
+  const [paymentDetails, setPaymentDetails] = useState({
+    cardNumber: '',
+    expiry: '',
+    cvv: ''
+  });
 
   useEffect(() => {
     if (user) {
@@ -34,40 +38,44 @@ const Checkout = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handlePaymentChange = (e) => {
+    setPaymentDetails({ ...paymentDetails, [e.target.name]: e.target.value });
+  };
+
   const handleSubmit = async (e) => {
-      e.preventDefault();
-      
-      const orderData = {
-        customerName: formData.fullName,
-        customerEmail: formData.email,
-        totalAmount: totalPrice,
-        paymentMethod: paymentMethod, // NEW: Include payment method in payload
-        items: cartItems.map(item => ({
-          productId: item.id,
-          quantity: item.quantity,
-          price: item.price
-        }))
-      };
-
-      try {
-        const response = await fetch('http://localhost:8080/api/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderData)
-        });
-
-        if (response.ok) {
-          alert(`Order placed successfully using ${paymentMethod}!`);
-          clearCart();
-          navigate('/');
-        } else {
-          throw new Error('Failed to place order');
-        }
-      } catch (error) {
-        console.error("Order failed:", error);
-        alert("Error processing order. Please try again.");
-      }
+    e.preventDefault();
+    
+    const orderData = {
+      customerName: formData.fullName,
+      customerEmail: formData.email,
+      totalAmount: totalPrice,
+      paymentMethod: paymentMethod,
+      items: cartItems.map(item => ({
+        productId: item.id,
+        quantity: item.quantity,
+        price: item.price
+      }))
     };
+
+    try {
+      const response = await fetch('http://localhost:8080/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
+
+      if (response.ok) {
+        alert(`Payment successful via ${paymentMethod}!`);
+        clearCart();
+        navigate('/');
+      } else {
+        throw new Error('Failed to place order');
+      }
+    } catch (error) {
+      console.error("Order failed:", error);
+      alert("Error processing payment. Please try again.");
+    }
+  };
 
   return (
     <div className={styles.checkoutContainer}>
@@ -106,35 +114,55 @@ const Checkout = () => {
           <h2 className={styles.sectionTitle} style={{ marginTop: '2rem' }}>Payment Method</h2>
           <div className={styles.paymentOptions}>
             <label className={styles.radioLabel}>
-              <input 
-                type="radio" 
-                value="Credit Card" 
-                checked={paymentMethod === 'Credit Card'} 
-                onChange={(e) => setPaymentMethod(e.target.value)} 
-              />
+              <input type="radio" value="Credit Card" checked={paymentMethod === 'Credit Card'} onChange={(e) => setPaymentMethod(e.target.value)} />
               Credit Card
             </label>
             <label className={styles.radioLabel}>
-              <input 
-                type="radio" 
-                value="PayPal" 
-                checked={paymentMethod === 'PayPal'} 
-                onChange={(e) => setPaymentMethod(e.target.value)} 
-              />
+              <input type="radio" value="PayPal" checked={paymentMethod === 'PayPal'} onChange={(e) => setPaymentMethod(e.target.value)} />
               PayPal
             </label>
             <label className={styles.radioLabel}>
-              <input 
-                type="radio" 
-                value="Bank Transfer" 
-                checked={paymentMethod === 'Bank Transfer'} 
-                onChange={(e) => setPaymentMethod(e.target.value)} 
-              />
+              <input type="radio" value="Bank Transfer" checked={paymentMethod === 'Bank Transfer'} onChange={(e) => setPaymentMethod(e.target.value)} />
               Bank Transfer
             </label>
           </div>
 
-          <button type="submit" className={styles.placeOrderBtn}>Place Order</button>
+          {paymentMethod === 'Credit Card' && (
+            <div className={styles.paymentDetailBox}>
+              <div className={styles.inputGroup}>
+                <label>Card Number</label>
+                <input type="text" name="cardNumber" placeholder="0000 0000 0000 0000" maxLength="16" onChange={handlePaymentChange} required />
+              </div>
+              <div className={styles.row}>
+                <div className={styles.inputGroup}>
+                  <label>Expiry</label>
+                  <input type="text" name="expiry" placeholder="MM/YY" maxLength="5" onChange={handlePaymentChange} required />
+                </div>
+                <div className={styles.inputGroup}>
+                  <label>CVV</label>
+                  <input type="password" name="cvv" placeholder="***" maxLength="3" onChange={handlePaymentChange} required />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {paymentMethod === 'PayPal' && (
+            <div className={styles.paymentDetailBox}>
+              <p className={styles.infoText}>You will be redirected to PayPal to complete your purchase securely.</p>
+            </div>
+          )}
+
+          {paymentMethod === 'Bank Transfer' && (
+            <div className={styles.paymentDetailBox}>
+              <p className={styles.infoText}>
+                <strong>IBAN:</strong> LU98 7654 3210 0123 4567<br/>
+                <strong>SWIFT:</strong> LUMENLUXX<br/>
+                Please use your Email as the transfer reference.
+              </p>
+            </div>
+          )}
+
+          <button type="submit" className={styles.placeOrderBtn}>Confirm & Pay</button>
         </form>
 
         <div className={styles.orderSummary}>

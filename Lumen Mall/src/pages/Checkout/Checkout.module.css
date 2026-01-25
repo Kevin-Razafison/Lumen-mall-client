@@ -95,10 +95,10 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    background: #2a2a2a; /* Matches your input background */
+    background: #2a2a2a; 
     padding: 20px;
     border-radius: 8px;
-    border: 1px solid #444; /* Matches your input borders */
+    border: 1px solid #444; 
     margin-bottom: 2rem;
     margin-top: 10px;
 }
@@ -124,4 +124,23 @@
     height: 20px;
     cursor: pointer;
     accent-color: #f0c14b; 
+}
+.paymentDetailBox {
+    background: #2a2a2a;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px dashed #444;
+    margin-bottom: 20px;
+    animation: slideDown 0.3s ease-out;
+}
+
+.infoText {
+    font-size: 0.9rem;
+    color: #ccc;
+    line-height: 1.5;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }

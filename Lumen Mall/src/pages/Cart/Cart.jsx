@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom'
 import styles from './Cart.module.css';
 
 const Cart = () => {
-  // We add 'updateQuantity' and 'cartCount' to the destructuring here
   const { cartItems, totalPrice, removeFromCart, updateQuantity, cartCount } = useCart();
 
   if (cartItems.length === 0) {
@@ -27,51 +26,60 @@ const Cart = () => {
           <h1 className={styles.title}>Shopping Cart</h1>
           <hr className={styles.divider} />
           
-          {cartItems.map((item) => (
-            <div key={item.id} className={styles.cartItem}>
-              <Link to={`/product/${item.id}`} className={styles.itemLink}>
-                <img src={item.image} alt={item.name} className={styles.itemImg} />
-              </Link>
-              
-              <div className={styles.itemDetails}>
-                <div className={styles.itemHeader}>
-                  <Link to={`/product/${item.id}`} className={styles.itemLink}>
-                    <h3 className={styles.itemName}>{item.name}</h3>
-                  </Link>
-                  <p className={styles.itemDescription}>{item.description}</p>
-                  <p className={styles.price}>${item.price}</p>
-                </div>
+          {cartItems.map((item) => {
+            // Ensure we use the correct image property from our DB mapping
+            const displayImage = (item.imageUrl && item.imageUrl !== 'url') 
+              ? item.imageUrl 
+              : '/drone-product-image.png';
+
+            return (
+              <div key={item.id} className={styles.cartItem}>
+                <Link to={`/product/${item.id}`} className={styles.itemLink}>
+                  <img src={displayImage} alt={item.name} className={styles.itemImg} />
+                </Link>
                 
-                <div className={styles.itemActions}>
-                  <div className={styles.qtyContainer}>
-                    <label htmlFor={`qty-${item.id}`}>Qantity:</label>
-                    <select 
-                      id={`qty-${item.id}`}
-                      className={styles.qtySelect}
-                      value={item.quantity}
-                      onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
-                    >
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                        <option key={num} value={num}>{num}</option>
-                      ))}
-                    </select>
+                <div className={styles.itemDetails}>
+                  <div className={styles.itemHeader}>
+                    <Link to={`/product/${item.id}`} className={styles.itemLink}>
+                      <h3 className={styles.itemName}>{item.name}</h3>
+                    </Link>
+                    <p className={styles.itemDescription}>{item.description}</p>
+                    {/* Ensure price shows as currency */}
+                    <p className={styles.price}>
+                      ${Number(item.price).toFixed(2)}
+                    </p>
                   </div>
                   
-                  <button 
-                    className={styles.deleteBtn} 
-                    onClick={() => removeFromCart(item.id)}
-                  >
-                    Delete
-                  </button>
+                  <div className={styles.itemActions}>
+                    <div className={styles.qtyContainer}>
+                      <label htmlFor={`qty-${item.id}`}>Quantity:</label>
+                      <select 
+                        id={`qty-${item.id}`}
+                        className={styles.qtySelect}
+                        value={item.quantity}
+                        onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
+                      >
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                          <option key={num} value={num}>{num}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    <button 
+                      className={styles.deleteBtn} 
+                      onClick={() => removeFromCart(item.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className={styles.checkoutSection}>
           <div className={styles.subtotalBox}>
-            
             <p className={styles.subtotalText}>
               Subtotal ({cartCount} items): <strong>${totalPrice.toFixed(2)}</strong>
             </p>

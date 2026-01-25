@@ -1,21 +1,35 @@
-import { useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Hero from '../../components/Hero/Hero'; 
 import CategoryNav from '../../components/Hero/CategoryNav';
 import ProductCard from '../../components/ProductCard/ProductCard';
-import {products } from '../../data/product.js'
-import styles from './Home.module.css'
+import styles from './Home.module.css';
 
 const Home = () => {
   const [searchParams] = useSearchParams();
+  const [products, setProducts] = useState([]); // State for DB products
+  const [loading, setLoading] = useState(true);
   
   const searchTerm = searchParams.get('search')?.toLowerCase() || '';
   const categoryTerm = searchParams.get('category') || '';
 
+  // Fetch data from Spring Boot
+  useEffect(() => {
+    fetch("http://localhost:8080/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Backend connection failed:", err);
+        setLoading(false);
+      });
+  }, []);
+
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm);
     const matchesCategory = categoryTerm ? product.category.toLowerCase() === categoryTerm.toLowerCase() : true;
-    
     return matchesSearch && matchesCategory;
   });
 
@@ -29,27 +43,36 @@ const Home = () => {
           {categoryTerm ? `${categoryTerm}` : searchTerm ? `Results for "${searchTerm}"` : "New Arrivals"}
         </h2>
         
-        <div className="product-grid">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map(product => (
-              <ProductCard key={product.id} {...product} />
-            ))
-          ) : (
-            
-            searchTerm && (
+        {loading ? (
+          <div className={styles.loading}>Connecting to Lumen Servers...</div>
+        ) : (
+          <div className="product-grid">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map(product => (
+                <ProductCard 
+                  key={product.id} 
+                  id={product.id}
+                  name={product.name}
+                  description={product.description}
+                  price={product.price}
+                  image={product.imageUrl || '../assets/drone-product-image.png'} 
+                  category={product.category}
+                />
+              ))
+            ) : (
               <div className={styles.noResults}>
-                <p>No products found matching <span>"{searchTerm}"</span></p>
-                <p>Try checking your spelling or choosing a different category.</p>
+                {searchTerm ? (
+                  <>
+                    <p>No products found matching <span>"{searchTerm}"</span></p>
+                    <p>Try checking your spelling or choosing a different category.</p>
+                  </>
+                ) : (
+                  <p>Coming Soon: More products in {categoryTerm}!</p>
+                )}
               </div>
-            )
-          )}
-          
-          {filteredProducts.length === 0 && !searchTerm && (
-            <div className={styles.noResults}>
-              <p>Coming Soon: More products in {categoryTerm}!</p>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </section>
     </main>
   );

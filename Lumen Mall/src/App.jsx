@@ -10,6 +10,7 @@ import Checkout from './pages/Checkout/Checkout';
 import LocationModal from './components/Modals/LocationModal';
 import Orders from './pages/Orders/Orders';
 import Register from './pages/Login/Register';
+import ProtectedRoute from './components/ProtectedRoute';
 
 const AppContent = () => {
   const routeLocation = useRouteLocation();

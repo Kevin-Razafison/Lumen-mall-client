@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styles from './Login.module.css';
 import logo from '../../assets/Lumen-Mall-logo.png'; 
 import { Link } from 'react-router-dom';
@@ -11,6 +11,9 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const { login } = useAuth(); // Get login function
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname || "/";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,7 +27,7 @@ const Login = () => {
       if (response.ok) {
         const userData = await response.json();
         login(userData); // Save to context & localStorage
-        navigate('/'); // Go home
+        navigate(from, {replace: true});
       } else {
         alert("Invalid email or password");
       }

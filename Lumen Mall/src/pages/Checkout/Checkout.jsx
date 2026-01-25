@@ -1,18 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import styles from './Checkout.module.css';
 import { useNavigate } from 'react-router-dom';
 
 const Checkout = () => {
-  const { cartItems, totalPrice, clearCart } = useCart(); // Add clearCart here
+  const { user } = useAuth();
+  const { cartItems, totalPrice, clearCart } = useCart();
   const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-    fullName: '',
+
+  const [formData, setFormData] = useState({
+    fullName: '', // Make sure this matches the key in useEffect
     email: '',
     address: '',
     city: '',
     zipCode: '',
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: user.fullName || '', // Changed 'name' to 'fullName'
+        email: user.email || ''
+      }));
+    }
+  }, [user]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,7 +34,6 @@ const Checkout = () => {
   const handleSubmit = async (e) => {
       e.preventDefault();
       
-      // This matches the Order.java and OrderItem.java structure exactly
       const orderData = {
         customerName: formData.fullName,
         customerEmail: formData.email,
@@ -36,9 +48,7 @@ const Checkout = () => {
       try {
         const response = await fetch('http://localhost:8080/api/orders', {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json' 
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(orderData)
         });
 
@@ -51,7 +61,7 @@ const Checkout = () => {
         }
       } catch (error) {
         console.error("Order failed:", error);
-        alert("There was an error processing your order. Please try again.");
+        alert("Error processing order. Please try again.");
       }
     };
 
@@ -60,29 +70,65 @@ const Checkout = () => {
       <h1 className={styles.mainTitle}>Checkout</h1>
       
       <div className={styles.checkoutGrid}>
-        {/* Left Column: Shipping Form */}
         <form className={styles.shippingForm} onSubmit={handleSubmit}>
           <h2 className={styles.sectionTitle}>Shipping Address</h2>
+          
           <div className={styles.inputGroup}>
             <label>Full Name</label>
-            <input type="text" name="fullName" required onChange={handleChange} placeholder="Name" />
+            <input 
+              type="text" 
+              name="fullName" 
+              required 
+              value={formData.fullName} // Crucial for auto-fill
+              onChange={handleChange} 
+              placeholder="Name" 
+            />
           </div>
+
           <div className={styles.inputGroup}>
             <label>Email Address</label>
-            <input type="email" name="email" required onChange={handleChange} placeholder="name@example.com" />
+            <input 
+              type="email" 
+              name="email" 
+              required 
+              value={formData.email} // Crucial for auto-fill
+              onChange={handleChange} 
+              placeholder="name@example.com" 
+            />
           </div>
+
           <div className={styles.inputGroup}>
             <label>Street Address</label>
-            <input type="text" name="address" required onChange={handleChange} placeholder="123 Drone Lane" />
+            <input 
+              type="text" 
+              name="address" 
+              required 
+              value={formData.address}
+              onChange={handleChange} 
+              placeholder="123 Drone Lane" 
+            />
           </div>
+
           <div className={styles.row}>
             <div className={styles.inputGroup}>
               <label>City</label>
-              <input type="text" name="city" required onChange={handleChange} />
+              <input 
+                type="text" 
+                name="city" 
+                required 
+                value={formData.city}
+                onChange={handleChange} 
+              />
             </div>
             <div className={styles.inputGroup}>
               <label>Zip Code</label>
-              <input type="text" name="zipCode" required onChange={handleChange} />
+              <input 
+                type="text" 
+                name="zipCode" 
+                required 
+                value={formData.zipCode}
+                onChange={handleChange} 
+              />
             </div>
           </div>
           <button type="submit" className={styles.placeOrderBtn}>Place Order</button>

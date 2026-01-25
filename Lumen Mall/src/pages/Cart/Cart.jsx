@@ -28,7 +28,6 @@ const Cart = () => {
           <hr className={styles.divider} />
           
           {cartItems.map((item) => {
-            // FIX: Check for item.image (from ProductCard) OR item.imageUrl
             const displayImage = item.image || item.imageUrl || '/drone-product-image.png';
 
             return (

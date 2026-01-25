@@ -12,14 +12,17 @@ import Orders from './pages/Orders/Orders';
 import Register from './pages/Login/Register';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminDashboard from './pages/Admin/AdminDashboard';
+import OrderSuccess from './pages/Checkout/OrderSuccess';
 
 const AppContent = () => {
   const routeLocation = useRouteLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // This checks if the current path is either Login or Register
-  const isAuthPage = ['/login', '/register'].includes(routeLocation.pathname) || routeLocation.pathname.startsWith('/admin');
-
+ const isAuthPage = [
+    '/login', 
+    '/register', 
+    '/order-success' 
+  ].includes(routeLocation.pathname) || routeLocation.pathname.startsWith('/admin');
   return (
     <>
       {/* Only show Header if NOT on an auth page */}
@@ -49,6 +52,10 @@ const AppContent = () => {
             <Checkout />
           </ProtectedRoute>
         } 
+      />
+      <Route 
+          path="/order-success" 
+          element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} 
       />
 
       <Route 

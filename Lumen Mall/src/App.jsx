@@ -23,16 +23,34 @@ const AppContent = () => {
       {/* Only show Header if NOT on an auth page */}
       {!isAuthPage && <Header openLocationModal={() => setIsModalOpen(true)} />}
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} /> {/* Moved up for clarity */}
-        <Route path="/cart" element={<Cart />} />
-        <Route path='/product/:productId' element={<ProductDetail />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/orders" element={<Orders />} />
-        <Route path="*" element={<Home />} /> 
-      </Routes>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/cart" element={<Cart />} />
+      <Route path='/product/:productId' element={<ProductDetail />} />
+      
+      {/* PROTECTED ROUTES */}
+      <Route 
+        path="/orders" 
+        element={
+          <ProtectedRoute>
+            <Orders />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route 
+        path="/checkout" 
+        element={
+          <ProtectedRoute>
+            <Checkout />
+          </ProtectedRoute>
+        } 
+      />
+
+      <Route path="*" element={<Home />} /> 
+    </Routes>
 
       {/* Only show Footer if NOT on an auth page */}
       {!isAuthPage && <Footer />}

@@ -18,7 +18,7 @@ const AppContent = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   // This checks if the current path is either Login or Register
-  const isAuthPage = ['/login', '/register'].includes(routeLocation.pathname);
+  const isAuthPage = ['/login', '/register'].includes(routeLocation.pathname) || routeLocation.pathname.startsWith('/admin');
 
   return (
     <>

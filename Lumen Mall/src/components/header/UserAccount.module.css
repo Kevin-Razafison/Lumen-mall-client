@@ -24,3 +24,66 @@
     flex-direction: column;
     font-size: 12px;
 }
+.mainWrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 100%;
+}
+
+.container {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    cursor: pointer;
+    text-decoration: none;
+    color: white;
+    border: 1px solid transparent; /* Prevents "jumping" on hover */
+    transition: border 0.1s;
+}
+
+.container:hover {
+    border: 1px white solid;
+}
+
+.iconSection {
+    display: flex;
+    align-items: center;
+    margin-right: 4px;
+}
+
+.iconSection img {
+    height: 24px; /* Fixed size works better for header icons */
+    filter: invert(1); /* If your icon is black, this makes it white for dark theme */
+}
+
+.textSection {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.greeting {
+    font-size: 11px;
+    color: #cccccc;
+}
+
+.actionText {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.logoutBtn {
+    background: #f0c14b;
+    border: 1px solid #a88734;
+    border-radius: 3px;
+    padding: 4px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.logoutBtn:hover {
+    background: #ddb347;
+}

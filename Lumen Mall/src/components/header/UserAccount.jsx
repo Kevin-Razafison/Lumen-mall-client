@@ -7,8 +7,8 @@ const UserAccount = () => {
     const { user, logout, isAuthenticated } = useAuth();
 
     return (
-        <div className={styles.container}>
-            <Link to={isAuthenticated ? "/profile" : "/login"} className={styles.linkWrapper}>
+        <div className={styles.mainWrapper}>
+            <Link to={isAuthenticated ? "/profile" : "/login"} className={styles.container}>
                 <div className={styles.iconSection}>
                     <img src="/icons/icons-user.png" alt="user-icon" />
                 </div>
@@ -22,7 +22,6 @@ const UserAccount = () => {
                 </div>
             </Link>
             
-            {/* Optional: Add a logout button that appears only when logged in */}
             {isAuthenticated && (
                 <button onClick={logout} className={styles.logoutBtn}>Sign Out</button>
             )}

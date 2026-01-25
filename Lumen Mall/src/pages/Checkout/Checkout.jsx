@@ -10,18 +10,21 @@ const Checkout = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    fullName: '', // Make sure this matches the key in useEffect
+    fullName: '',
     email: '',
     address: '',
     city: '',
     zipCode: '',
   });
 
+  // NEW: State for payment method
+  const [paymentMethod, setPaymentMethod] = useState('Credit Card');
+
   useEffect(() => {
     if (user) {
       setFormData(prev => ({
         ...prev,
-        fullName: user.fullName || '', // Changed 'name' to 'fullName'
+        fullName: user.fullName || '',
         email: user.email || ''
       }));
     }
@@ -38,6 +41,7 @@ const Checkout = () => {
         customerName: formData.fullName,
         customerEmail: formData.email,
         totalAmount: totalPrice,
+        paymentMethod: paymentMethod, // NEW: Include payment method in payload
         items: cartItems.map(item => ({
           productId: item.id,
           quantity: item.quantity,
@@ -53,7 +57,7 @@ const Checkout = () => {
         });
 
         if (response.ok) {
-          alert(`Order placed successfully for ${formData.fullName}!`);
+          alert(`Order placed successfully using ${paymentMethod}!`);
           clearCart();
           navigate('/');
         } else {
@@ -75,62 +79,61 @@ const Checkout = () => {
           
           <div className={styles.inputGroup}>
             <label>Full Name</label>
-            <input 
-              type="text" 
-              name="fullName" 
-              required 
-              value={formData.fullName} // Crucial for auto-fill
-              onChange={handleChange} 
-              placeholder="Name" 
-            />
+            <input type="text" name="fullName" required value={formData.fullName} onChange={handleChange} />
           </div>
 
           <div className={styles.inputGroup}>
             <label>Email Address</label>
-            <input 
-              type="email" 
-              name="email" 
-              required 
-              value={formData.email} // Crucial for auto-fill
-              onChange={handleChange} 
-              placeholder="name@example.com" 
-            />
+            <input type="email" name="email" required value={formData.email} onChange={handleChange} />
           </div>
 
           <div className={styles.inputGroup}>
             <label>Street Address</label>
-            <input 
-              type="text" 
-              name="address" 
-              required 
-              value={formData.address}
-              onChange={handleChange} 
-              placeholder="123 Drone Lane" 
-            />
+            <input type="text" name="address" required value={formData.address} onChange={handleChange} />
           </div>
 
           <div className={styles.row}>
             <div className={styles.inputGroup}>
               <label>City</label>
-              <input 
-                type="text" 
-                name="city" 
-                required 
-                value={formData.city}
-                onChange={handleChange} 
-              />
+              <input type="text" name="city" required value={formData.city} onChange={handleChange} />
             </div>
             <div className={styles.inputGroup}>
               <label>Zip Code</label>
-              <input 
-                type="text" 
-                name="zipCode" 
-                required 
-                value={formData.zipCode}
-                onChange={handleChange} 
-              />
+              <input type="text" name="zipCode" required value={formData.zipCode} onChange={handleChange} />
             </div>
           </div>
+
+          <h2 className={styles.sectionTitle} style={{ marginTop: '2rem' }}>Payment Method</h2>
+          <div className={styles.paymentOptions}>
+            <label className={styles.radioLabel}>
+              <input 
+                type="radio" 
+                value="Credit Card" 
+                checked={paymentMethod === 'Credit Card'} 
+                onChange={(e) => setPaymentMethod(e.target.value)} 
+              />
+              Credit Card
+            </label>
+            <label className={styles.radioLabel}>
+              <input 
+                type="radio" 
+                value="PayPal" 
+                checked={paymentMethod === 'PayPal'} 
+                onChange={(e) => setPaymentMethod(e.target.value)} 
+              />
+              PayPal
+            </label>
+            <label className={styles.radioLabel}>
+              <input 
+                type="radio" 
+                value="Bank Transfer" 
+                checked={paymentMethod === 'Bank Transfer'} 
+                onChange={(e) => setPaymentMethod(e.target.value)} 
+              />
+              Bank Transfer
+            </label>
+          </div>
+
           <button type="submit" className={styles.placeOrderBtn}>Place Order</button>
         </form>
 

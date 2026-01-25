@@ -188,3 +188,45 @@
 .itemImg:hover {
   opacity: 0.8;
 }
+.cartNavigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #333;
+}
+
+.continueShopping {
+  text-decoration: none;
+  color: #007185;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.continueShopping:hover {
+  color: #f0c14b;
+  text-decoration: underline;
+}
+
+.historyBtn {
+  text-decoration: none;
+  background-color: #232f3e; /* Dark slate to match the UI */
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #3d454d;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.historyBtn:hover {
+  background-color: #37475a;
+  border-color: #f0c14b;
+}
+
+.emptyActions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}

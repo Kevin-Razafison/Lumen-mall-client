@@ -8,6 +8,7 @@ import Home from './pages/Home/Home';
 import ProductDetail from './pages/ProductDetail/ProductDetail';
 import Checkout from './pages/Checkout/Checkout';
 import LocationModal from './components/Modals/LocationModal';
+import Orders from './pages/Orders/Orders';
 
 const AppContent = () => {
   const routeLocation = useRouteLocation();
@@ -25,6 +26,7 @@ const AppContent = () => {
         <Route path='/product/:productId' element={<ProductDetail />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="*" element={<Home />} /> 
+        <Route path="/orders" element={<Orders />} />
       </Routes>
 
       {!isLoginPage && <Footer />}

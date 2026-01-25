@@ -18,10 +18,10 @@ const Checkout = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => { // Added async
+  const handleSubmit = async (e) => {
       e.preventDefault();
       
-      // Prepare the order data to send to Java
+      // This matches the Order.java and OrderItem.java structure exactly
       const orderData = {
         customerName: formData.fullName,
         customerEmail: formData.email,
@@ -34,19 +34,24 @@ const Checkout = () => {
       };
 
       try {
-        // In the future, we will hit this endpoint:
-        // await fetch('http://localhost:8080/api/orders', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(orderData)
-        // });
+        const response = await fetch('http://localhost:8080/api/orders', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json' 
+          },
+          body: JSON.stringify(orderData)
+        });
 
-        alert(`Order placed successfully for ${formData.fullName}!`);
-        clearCart();
-        navigate('/');
+        if (response.ok) {
+          alert(`Order placed successfully for ${formData.fullName}!`);
+          clearCart();
+          navigate('/');
+        } else {
+          throw new Error('Failed to place order');
+        }
       } catch (error) {
         console.error("Order failed:", error);
-        alert("Something went wrong with your order.");
+        alert("There was an error processing your order. Please try again.");
       }
     };
 

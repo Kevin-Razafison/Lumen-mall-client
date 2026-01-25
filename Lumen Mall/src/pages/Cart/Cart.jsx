@@ -12,9 +12,11 @@ const Cart = () => {
         <img src={cartIcon} className={styles.emptyIcon} alt="Empty Cart" />
         <h2>Your Lumen Mall Cart is empty</h2>
         <p>Check your saved items or continue shopping for the latest tech.</p>
-        <Link to="/" className={styles.shopBtn}>
-          Return to Shopping
-        </Link>
+        <div className={styles.emptyActions}>
+          <Link to="/" className={styles.shopBtn}>Return to Shopping</Link>
+          {/* Added Order History even for empty cart so you can always find it */}
+          <Link to="/orders" className={styles.historyBtn}>View Past Orders</Link>
+        </div>
       </div>
     );
   }
@@ -27,7 +29,6 @@ const Cart = () => {
           <hr className={styles.divider} />
           
           {cartItems.map((item) => {
-            // Ensure we use the correct image property from our DB mapping
             const displayImage = (item.imageUrl && item.imageUrl !== 'url') 
               ? item.imageUrl 
               : '/drone-product-image.png';
@@ -44,7 +45,6 @@ const Cart = () => {
                       <h3 className={styles.itemName}>{item.name}</h3>
                     </Link>
                     <p className={styles.itemDescription}>{item.description}</p>
-                    {/* Ensure price shows as currency */}
                     <p className={styles.price}>
                       ${Number(item.price).toFixed(2)}
                     </p>
@@ -76,6 +76,12 @@ const Cart = () => {
               </div>
             );
           })}
+
+          {/* NEW NAVIGATION SECTION AT THE BOTTOM OF ITEMS */}
+          <div className={styles.cartNavigation}>
+             <Link to="/" className={styles.continueShopping}>← Continue Shopping</Link>
+             <Link to="/orders" className={styles.historyBtn}>View Order History</Link>
+          </div>
         </div>
 
         <div className={styles.checkoutSection}>

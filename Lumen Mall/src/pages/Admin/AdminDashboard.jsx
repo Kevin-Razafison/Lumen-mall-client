@@ -6,6 +6,8 @@ const AdminDashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [inventory, setInventory] = useState([]); // State for the product list
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({ name: '', price: '', description: '' });
   const [newProduct, setNewProduct] = useState({
     name: '',
     description: '',
@@ -13,6 +15,7 @@ const AdminDashboard = () => {
     imageUrl: '',
     category: 'Drones'
   });
+
 
   // Fetch inventory whenever the tab changes to 'inventory'
   useEffect(() => {
@@ -84,7 +87,9 @@ const AdminDashboard = () => {
     try {
       const response = await fetch(`http://localhost:8080/api/products/${productId}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Basic ${authHeader}` }
+        headers: { 
+          'Authorization': `Basic ${authHeader}` 
+        }
       });
 
       if (response.ok) {
@@ -96,6 +101,27 @@ const AdminDashboard = () => {
       console.error("Delete error:", err);
     }
   };
+
+  const handleUpdateProduct = async (productId) => {
+      const authHeader = btoa(`${user.email}:${user.password}`);
+      try {
+        const response = await fetch(`http://localhost:8080/api/products/${productId}`, {
+          method: 'PUT',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${authHeader}`
+          },
+          body: JSON.stringify(editForm),
+        });
+
+        if (response.ok) {
+          setInventory(inventory.map(p => p.id === productId ? { ...p, ...editForm } : p));
+          setEditingId(null); // Exit edit mode
+        }
+      } catch (err) {
+        console.error("Update failed:", err);
+      }
+    };
 
   return (
     <div className={styles.adminContainer}>
@@ -136,24 +162,39 @@ const AdminDashboard = () => {
               <tbody>
                 {inventory.map(product => (
                   <tr key={product.id}>
+                    <td><img src={product.imageUrl || '/drone-product-image.png'} alt="thumb" className={styles.tableThumb} /></td>
                     <td>
-                      <img 
-                        src={product.imageUrl || '/drone-product-image.png'} 
-                        alt="thumb" 
-                        className={styles.tableThumb} 
-                        onError={(e) => e.target.src = '/drone-product-image.png'}
-                      />
+                      {editingId === product.id ? (
+                        <input 
+                          value={editForm.name} 
+                          onChange={(e) => setEditForm({...editForm, name: e.target.value})} 
+                        />
+                      ) : product.name}
                     </td>
-                    <td><strong>{product.name}</strong></td>
-                    <td>${Number(product.price).toFixed(2)}</td>
-                    <td>{product.category}</td>
                     <td>
-                      <button 
-                        onClick={() => handleDeleteProduct(product.id)} 
-                        className={styles.deleteBtn}
-                      >
-                        Delete
-                      </button>
+                      {editingId === product.id ? (
+                        <input 
+                          type="number" 
+                          value={editForm.price} 
+                          onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
+                        />
+                      ) : `$${Number(product.price).toFixed(2)}`}
+                    </td>
+                    <td>
+                      {editingId === product.id ? (
+                        <>
+                          <button onClick={() => handleUpdateProduct(product.id)} className={styles.saveBtn}>Save</button>
+                          <button onClick={() => setEditingId(null)} className={styles.cancelBtn}>Cancel</button>
+                        </>
+                      ) : (
+                        <>
+                          <button onClick={() => {
+                            setEditingId(product.id);
+                            setEditForm({ name: product.name, price: product.price, description: product.description, category: product.category });
+                          }} className={styles.editBtn}>Edit</button>
+                          <button onClick={() => handleDeleteProduct(product.id)} className={styles.deleteBtn}>Delete</button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))}

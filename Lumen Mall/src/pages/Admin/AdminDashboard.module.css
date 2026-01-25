@@ -180,3 +180,39 @@
 .deleteBtn:hover {
     background-color: #cc0000;
 }
+
+.editBtn {
+    background-color: #232f3e;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.saveBtn {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.cancelBtn {
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.inventoryTable input {
+    padding: 4px;
+    border: 1px solid #febd69;
+    border-radius: 4px;
+    width: 100%;
+}

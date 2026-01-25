@@ -315,6 +315,7 @@ const AdminDashboard = () => {
                   <th>Total</th>
                   <th>Status</th>
                   <th>Date</th>
+                  <th>Payment</th>
                 </tr>
               </thead>
               <tbody>
@@ -344,6 +345,7 @@ const AdminDashboard = () => {
                           <option value="CANCELLED">Cancelled</option>
                         </select>
                       </td>
+                      <td>{order.paymentMethod || 'Not Specified'}</td>
                     </tr>
                   ))
                 ) : (

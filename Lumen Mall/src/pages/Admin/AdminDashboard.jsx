@@ -5,9 +5,9 @@ import { useAuth } from '../../context/AuthContext';
 const AdminDashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [inventory, setInventory] = useState([]); // State for the product list
+  const [inventory, setInventory] = useState([]); 
   const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({ name: '', price: '', description: '' });
+  const [editForm, setEditForm] = useState({ name: '', price: '', description: '', category: '' });
   const [newProduct, setNewProduct] = useState({
     name: '',
     description: '',
@@ -16,8 +16,6 @@ const AdminDashboard = () => {
     category: 'Drones'
   });
 
-
-  // Fetch inventory whenever the tab changes to 'inventory'
   useEffect(() => {
     if (activeTab === 'inventory') {
       fetchInventory();
@@ -55,9 +53,7 @@ const AdminDashboard = () => {
       alert("Security Error: Please log back in.");
       return;
     }
-
     const authHeader = btoa(`${user.email}:${user.password}`);
-
     try {
       const response = await fetch('http://localhost:8080/api/products', {
         method: 'POST',
@@ -71,8 +67,8 @@ const AdminDashboard = () => {
       if (response.ok) {
         alert("Product added successfully!");
         setNewProduct({ name: '', description: '', price: '', imageUrl: '', category: 'Drones' });
-        fetchInventory(); // Refresh list
-        setActiveTab('inventory'); // Switch to see the new item
+        fetchInventory(); 
+        setActiveTab('inventory'); 
       }
     } catch (err) {
       console.error("Connection error:", err);
@@ -81,21 +77,16 @@ const AdminDashboard = () => {
 
   const handleDeleteProduct = async (productId) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
-
     const authHeader = btoa(`${user.email}:${user.password}`);
-
     try {
       const response = await fetch(`http://localhost:8080/api/products/${productId}`, {
         method: 'DELETE',
-        headers: { 
-          'Authorization': `Basic ${authHeader}` 
-        }
+        headers: { 'Authorization': `Basic ${authHeader}` }
       });
-
       if (response.ok) {
         setInventory(inventory.filter(p => p.id !== productId));
       } else {
-        alert("Failed to delete. Check admin permissions.");
+        alert("Failed to delete.");
       }
     } catch (err) {
       console.error("Delete error:", err);
@@ -103,25 +94,25 @@ const AdminDashboard = () => {
   };
 
   const handleUpdateProduct = async (productId) => {
-      const authHeader = btoa(`${user.email}:${user.password}`);
-      try {
-        const response = await fetch(`http://localhost:8080/api/products/${productId}`, {
-          method: 'PUT',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Basic ${authHeader}`
-          },
-          body: JSON.stringify(editForm),
-        });
+    const authHeader = btoa(`${user.email}:${user.password}`);
+    try {
+      const response = await fetch(`http://localhost:8080/api/products/${productId}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${authHeader}`
+        },
+        body: JSON.stringify(editForm),
+      });
 
-        if (response.ok) {
-          setInventory(inventory.map(p => p.id === productId ? { ...p, ...editForm } : p));
-          setEditingId(null); // Exit edit mode
-        }
-      } catch (err) {
-        console.error("Update failed:", err);
+      if (response.ok) {
+        setInventory(inventory.map(p => p.id === productId ? { ...p, ...editForm } : p));
+        setEditingId(null); 
       }
-    };
+    } catch (err) {
+      console.error("Update failed:", err);
+    }
+  };
 
   return (
     <div className={styles.adminContainer}>
@@ -180,21 +171,39 @@ const AdminDashboard = () => {
                         />
                       ) : `$${Number(product.price).toFixed(2)}`}
                     </td>
+                    
+                    {/* FIXED: Added missing Category column to align the row with the header */}
                     <td>
-                      {editingId === product.id ? (
-                        <>
-                          <button onClick={() => handleUpdateProduct(product.id)} className={styles.saveBtn}>Save</button>
-                          <button onClick={() => setEditingId(null)} className={styles.cancelBtn}>Cancel</button>
-                        </>
-                      ) : (
-                        <>
-                          <button onClick={() => {
-                            setEditingId(product.id);
-                            setEditForm({ name: product.name, price: product.price, description: product.description, category: product.category });
-                          }} className={styles.editBtn}>Edit</button>
-                          <button onClick={() => handleDeleteProduct(product.id)} className={styles.deleteBtn}>Delete</button>
-                        </>
-                      )}
+                       {editingId === product.id ? (
+                        <input 
+                          value={editForm.category} 
+                          onChange={(e) => setEditForm({...editForm, category: e.target.value})} 
+                        />
+                      ) : product.category}
+                    </td>
+
+                    <td>
+                      <div className={styles.actionGroup}>
+                        {editingId === product.id ? (
+                          <>
+                            <button onClick={() => handleUpdateProduct(product.id)} className={styles.saveBtn}>Save</button>
+                            <button onClick={() => setEditingId(null)} className={styles.cancelBtn}>Cancel</button>
+                          </>
+                        ) : (
+                          <>
+                            <button onClick={() => {
+                              setEditingId(product.id);
+                              setEditForm({ 
+                                name: product.name, 
+                                price: product.price, 
+                                description: product.description, 
+                                category: product.category 
+                              });
+                            }} className={styles.editBtn}>Edit</button>
+                            <button onClick={() => handleDeleteProduct(product.id)} className={styles.deleteBtn}>Delete</button>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

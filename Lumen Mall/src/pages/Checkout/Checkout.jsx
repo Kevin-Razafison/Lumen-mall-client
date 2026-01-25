@@ -18,18 +18,37 @@ const Checkout = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => { // Added async
       e.preventDefault();
-    
-    // 1. Show the success message
-    alert(`Order placed successfully for ${formData.fullName}!`);
-    
-    // 2. Clear the global cart state and localStorage
-    clearCart();
-    
-    // 3. Send them back to the Home page
-    navigate('/');
-  };
+      
+      // Prepare the order data to send to Java
+      const orderData = {
+        customerName: formData.fullName,
+        customerEmail: formData.email,
+        totalAmount: totalPrice,
+        items: cartItems.map(item => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: item.price
+        }))
+      };
+
+      try {
+        // In the future, we will hit this endpoint:
+        // await fetch('http://localhost:8080/api/orders', {
+        //   method: 'POST',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify(orderData)
+        // });
+
+        alert(`Order placed successfully for ${formData.fullName}!`);
+        clearCart();
+        navigate('/');
+      } catch (error) {
+        console.error("Order failed:", error);
+        alert("Something went wrong with your order.");
+      }
+    };
 
   return (
     <div className={styles.checkoutContainer}>

@@ -74,16 +74,20 @@ const ProductDetail = () => {
           </span>
         </div>
 
-        <div className={styles.description}>
-          <h3>About this item</h3>
-          <p>{product.description}</p>
-          {/* Note: If these features aren't in your DB yet, they are static for now */}
-          <ul>
-            <li>High-performance Lumen Hardware</li>
-            <li>Optimized for CachyOS performance</li>
-            <li>Exclusive Tech Support</li>
-          </ul>
-        </div>
+      <div className={styles.description}>
+        <h3>About this item</h3>
+        <p>{product.description}</p>
+        
+        <ul className={styles.featureList}>
+          {product.features && product.features.length > 0 ? (
+            product.features.map((feature, index) => (
+              <li key={index}>{feature}</li>
+            ))
+          ) : (
+            <li>Lumen Certified Quality</li>
+          )}
+        </ul>
+      </div>
 
         <div className={styles.purchaseActions}>
           <div className={styles.qtyBox}>

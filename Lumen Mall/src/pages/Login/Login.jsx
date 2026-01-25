@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import styles from './Login.module.css';
 import logo from '../../assets/Lumen-Mall-logo.png'; 
+import { Link } from 'react-router-dom';
+
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -45,11 +47,15 @@ const Login = () => {
         </p>
       </div>
 
+
       <div className={styles.footer}>
         <div className={styles.divider}>
           <h5>New to Lumen Mall?</h5>
         </div>
-        <button className={styles.createAccountBtn}>Create your Lumen account</button>
+        {/* Wrap your button in a Link or change it to a Link styled as a button */}
+        <Link to="/register" className={styles.createAccountBtn} style={{textAlign: 'center', display: 'block'}}>
+          Create your Lumen account
+        </Link>
       </div>
     </div>
   );

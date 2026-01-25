@@ -9,27 +9,33 @@ import ProductDetail from './pages/ProductDetail/ProductDetail';
 import Checkout from './pages/Checkout/Checkout';
 import LocationModal from './components/Modals/LocationModal';
 import Orders from './pages/Orders/Orders';
+import Register from './pages/Login/Register';
 
 const AppContent = () => {
   const routeLocation = useRouteLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const isLoginPage = routeLocation.pathname === '/login';
+  
+  // This checks if the current path is either Login or Register
+  const isAuthPage = ['/login', '/register'].includes(routeLocation.pathname);
 
   return (
     <>
-      {!isLoginPage && <Header openLocationModal={() => setIsModalOpen(true)} />}
+      {/* Only show Header if NOT on an auth page */}
+      {!isAuthPage && <Header openLocationModal={() => setIsModalOpen(true)} />}
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} /> {/* Moved up for clarity */}
         <Route path="/cart" element={<Cart />} />
         <Route path='/product/:productId' element={<ProductDetail />} />
         <Route path="/checkout" element={<Checkout />} />
-        <Route path="*" element={<Home />} /> 
         <Route path="/orders" element={<Orders />} />
+        <Route path="*" element={<Home />} /> 
       </Routes>
 
-      {!isLoginPage && <Footer />}
+      {/* Only show Footer if NOT on an auth page */}
+      {!isAuthPage && <Footer />}
 
       <LocationModal 
         isOpen={isModalOpen} 

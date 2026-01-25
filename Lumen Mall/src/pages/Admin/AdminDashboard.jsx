@@ -9,6 +9,7 @@ const AdminDashboard = () => {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ name: '', price: '', description: '', category: '' });
   const [orders, setOrders] = useState([]);
+  const [users, setUsers] = useState([]);
   const [newProduct, setNewProduct] = useState({
     name: '',
     description: '',
@@ -18,11 +19,9 @@ const AdminDashboard = () => {
   });
 
   useEffect(() => {
-    if (activeTab === 'inventory') {
-      fetchInventory();
-    } else if(activeTab === 'orders'){
-      fetchOrders();
-    }
+    if (activeTab === 'inventory') fetchInventory();
+    else if (activeTab === 'orders') fetchOrders();
+    else if (activeTab === 'users') fetchUsers();
   }, [activeTab]);
 
   const fetchInventory = async () => {
@@ -43,14 +42,26 @@ const AdminDashboard = () => {
         headers: { 'Authorization': `Basic ${authHeader}` }
       });
       const data = await response.json();
-      // Ensure data is an array so .map() doesn't fail
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch orders:", err);
-      setOrders([]); // Fallback to empty array on error
+      setOrders([]); 
     }
   };
 
+  const fetchUsers = async () => {
+    if (!user?.email || !user?.password) return;
+    const authHeader = btoa(`${user.email}:${user.password}`);
+    try {
+      const response = await fetch('http://localhost:8080/api/users/all', {
+        headers: { 'Authorization': `Basic ${authHeader}` }
+      });
+      const data = await response.json();
+      setUsers(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch users:", err);
+    }
+  };
   const handleStatusChange = async (orderId, newStatus) => {
     const authHeader = btoa(`${user.email}:${user.password}`);
     try {
@@ -167,6 +178,7 @@ const AdminDashboard = () => {
                   <li onClick={() => setActiveTab('inventory')} className={activeTab === 'inventory' ? styles.active : ''}>Inventory</li>
                   <li onClick={() => setActiveTab('addProduct')} className={activeTab === 'addProduct' ? styles.active : ''}>Add Product</li>
                   <li onClick={() => setActiveTab('orders')} className={activeTab === 'orders' ? styles.active : ''}>Orders</li>
+                  <li onClick={() => setActiveTab('users')} className={activeTab === 'users' ? styles.active : ''}>Users</li>
                 </ul>
               </nav>
 
@@ -336,6 +348,42 @@ const AdminDashboard = () => {
                   ))
                 ) : (
                   <tr><td colSpan="5" style={{textAlign: 'center'}}>No orders found.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </section>
+        )}
+
+        {activeTab === 'users' && (
+          <section className={styles.inventorySection}>
+            <h1>User Management</h1>
+            <table className={styles.inventoryTable}>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.length > 0 ? (
+                  users.map(u => (
+                    <tr key={u.id}>
+                      <td>{u.id}</td>
+                      <td>{u.email}</td>
+                      <td>
+                        <span className={u.role === 'ADMIN' ? styles.adminBadge : styles.userBadge}>
+                          {u.role}
+                        </span>
+                      </td>
+                      <td>
+                        <button className={styles.editBtn}>Change Role</button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr><td colSpan="4">No users found.</td></tr>
                 )}
               </tbody>
             </table>

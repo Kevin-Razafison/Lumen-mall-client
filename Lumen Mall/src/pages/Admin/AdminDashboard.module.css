@@ -288,3 +288,21 @@
     background: #ff4d4d;
     color: white;
 }
+
+.adminBadge {
+    background-color: #fff3e0;
+    color: #e65100;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.userBadge {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}

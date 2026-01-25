@@ -11,6 +11,7 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 
   // If the route is admin-only and the user is NOT an admin, kick them to home
   if (adminOnly && user.role !== 'ROLE_ADMIN') {
+    console.log("Access Denied. User role is:", user.role)
     return <Navigate to="/" replace />;
   }
 

@@ -7,13 +7,12 @@ import styles from './Home.module.css';
 
 const Home = () => {
   const [searchParams] = useSearchParams();
-  const [products, setProducts] = useState([]); // State for DB products
+  const [products, setProducts] = useState([]); 
   const [loading, setLoading] = useState(true);
   
   const searchTerm = searchParams.get('search')?.toLowerCase() || '';
   const categoryTerm = searchParams.get('category') || '';
 
-  // Fetch data from Spring Boot
   useEffect(() => {
     fetch("http://localhost:8080/api/products")
       .then((res) => res.json())
@@ -55,17 +54,15 @@ const Home = () => {
                   name={product.name}
                   description={product.description}
                   price={product.price}
-                  image={product.imageUrl || '../assets/drone-product-image.png'} 
+                  // Logic: Use product.imageUrl if it exists, otherwise use public fallback
+                  image={product.imageUrl || '/drone-product-image.png'}                      
                   category={product.category}
                 />
               ))
             ) : (
               <div className={styles.noResults}>
                 {searchTerm ? (
-                  <>
-                    <p>No products found matching <span>"{searchTerm}"</span></p>
-                    <p>Try checking your spelling or choosing a different category.</p>
-                  </>
+                  <p>No products found matching <span>"{searchTerm}"</span></p>
                 ) : (
                   <p>Coming Soon: More products in {categoryTerm}!</p>
                 )}

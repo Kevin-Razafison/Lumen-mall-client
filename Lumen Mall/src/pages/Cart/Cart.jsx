@@ -29,15 +29,13 @@ const Cart = () => {
           <hr className={styles.divider} />
           
           {cartItems.map((item) => {
-            const displayImage = (item.imageUrl && item.imageUrl !== 'url') 
-              ? item.imageUrl 
-              : '/drone-product-image.png';
+          const displayImage = item.imageUrl ? item.imageUrl : '/drone-product-image.png';
 
             return (
-              <div key={item.id} className={styles.cartItem}>
-                <Link to={`/product/${item.id}`} className={styles.itemLink}>
-                  <img src={displayImage} alt={item.name} className={styles.itemImg} />
-                </Link>
+                <div key={item.id} className={styles.cartItem}>
+                    <Link to={`/product/${item.id}`} className={styles.itemLink}>
+                      <img src={displayImage} alt={item.name} className={styles.itemImg} />
+                    </Link>
                 
                 <div className={styles.itemDetails}>
                   <div className={styles.itemHeader}>

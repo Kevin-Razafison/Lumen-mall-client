@@ -69,3 +69,64 @@
     font-weight: bold;
     font-size: 1.1rem;
 }
+
+.active {
+    background-color: #37475a;
+    font-weight: bold;
+    color: #febd69;
+}
+.formSection{
+    margin-left: 35px;
+}
+.productForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 500px;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.productForm input, .productForm textarea {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.productForm textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.submitBtn {
+    background-color: #febd69;
+    border: none;
+    padding: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.submitBtn:hover {
+    background-color: #f3a847;
+}
+
+.fileUploadGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.imagePreview {
+    border: 1px dashed #ddd;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    background: #fafafa;
+}

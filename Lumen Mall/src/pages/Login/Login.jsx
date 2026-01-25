@@ -18,16 +18,10 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:8080/api/users/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        login(userData); // Save to context & localStorage
-        navigate(from, {replace: true});
+      const success = await login(email, password);
+      
+      if (success) {
+        navigate(from, { replace: true });
       } else {
         alert("Invalid email or password");
       }
@@ -35,7 +29,6 @@ const Login = () => {
       alert("Server error. Is the backend running?");
     }
   };
-
   return (
     <div className={styles.loginContainer}>
         <img src={logo} alt="Lumen Mall" className={styles.logo} />

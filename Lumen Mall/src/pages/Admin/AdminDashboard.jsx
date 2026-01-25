@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './AdminDashboard.module.css';
 import { useAuth } from '../../context/AuthContext';
-
+import LogoImg from '../../assets/Lumen-Mall-logo.png'
 const AdminDashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -155,15 +155,25 @@ const AdminDashboard = () => {
 
   return (
     <div className={styles.adminContainer}>
-      <aside className={styles.sidebar}>
-        <h2>Lumen Admin</h2>
-        <ul>
-          <li onClick={() => setActiveTab('dashboard')} className={activeTab === 'dashboard' ? styles.active : ''}>Dashboard</li>
-          <li onClick={() => setActiveTab('inventory')} className={activeTab === 'inventory' ? styles.active : ''}>Inventory</li>
-          <li onClick={() => setActiveTab('addProduct')} className={activeTab === 'addProduct' ? styles.active : ''}>Add Product</li>
-          <li onClick={() => setActiveTab('orders')} className={activeTab === 'orders' ? styles.active : ''}>Orders</li>
-        </ul>
-      </aside>
+        <aside className={styles.sidebar}>
+              <div className={styles.logoSection}>
+                <img src={LogoImg} alt="Lumen Logo" className={styles.adminLogo} />
+                <h2>Lumen Admin</h2>
+              </div>
+
+              <nav className={styles.navMenu}>
+                <ul>
+                  <li onClick={() => setActiveTab('dashboard')} className={activeTab === 'dashboard' ? styles.active : ''}>Dashboard</li>
+                  <li onClick={() => setActiveTab('inventory')} className={activeTab === 'inventory' ? styles.active : ''}>Inventory</li>
+                  <li onClick={() => setActiveTab('addProduct')} className={activeTab === 'addProduct' ? styles.active : ''}>Add Product</li>
+                  <li onClick={() => setActiveTab('orders')} className={activeTab === 'orders' ? styles.active : ''}>Orders</li>
+                </ul>
+              </nav>
+
+              <div className={styles.sidebarFooter}>
+                <button className={styles.logoutBtn} onClick={() => window.location.href = '/'}>Exit Dashboard</button>
+              </div>
+            </aside>
       
       <main className={styles.content}>
         {activeTab === 'dashboard' && (

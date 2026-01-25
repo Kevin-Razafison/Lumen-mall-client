@@ -50,6 +50,15 @@ const AppContent = () => {
         } 
       />
 
+      <Route 
+        path="/admin" 
+        element={
+          <ProtectedRoute adminOnly={true}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } 
+      />
+
       <Route path="*" element={<Home />} /> 
     </Routes>
 

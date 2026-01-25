@@ -42,7 +42,7 @@ const Checkout = () => {
     setPaymentDetails({ ...paymentDetails, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
     
     const orderData = {
@@ -65,9 +65,17 @@ const Checkout = () => {
       });
 
       if (response.ok) {
-        alert(`Payment successful via ${paymentMethod}!`);
+        const savedOrder = await response.json(); 
+        
         clearCart();
-        navigate('/');
+        
+        navigate('/order-success', { 
+          state: { 
+            orderId: savedOrder.id, 
+            email: formData.email, 
+            total: totalPrice 
+          } 
+        });
       } else {
         throw new Error('Failed to place order');
       }

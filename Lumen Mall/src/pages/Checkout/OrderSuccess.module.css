@@ -1,0 +1,69 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 20px;
+  color: white;
+}
+
+.successCard {
+  background: #1a1a1a;
+  padding: 40px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+  border: 1px solid #333;
+}
+
+.iconCircle {
+  width: 70px;
+  height: 70px;
+  background: #2e7d32;
+  color: white;
+  font-size: 2.5rem;
+  line-height: 70px;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+}
+
+.title { font-size: 2rem; margin-bottom: 10px; }
+.subtitle { color: #aaa; margin-bottom: 30px; }
+
+.details {
+  background: #2a2a2a;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 25px;
+  text-align: left;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.detailRow strong { color: #f0c14b; }
+
+.instructions {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 30px;
+}
+
+.homeBtn {
+  width: 100%;
+  padding: 15px;
+  background: #f0c14b;
+  border: none;
+  border-radius: 6px;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.homeBtn:hover { opacity: 0.9; }

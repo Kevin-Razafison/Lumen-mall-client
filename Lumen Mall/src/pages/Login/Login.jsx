@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.css';
 import logo from '../../assets/Lumen-Mall-logo.png'; 
 import { Link } from 'react-router-dom';
@@ -7,10 +9,28 @@ import { Link } from 'react-router-dom';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { login } = useAuth(); // Get login function
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Logging in with:", email, password);
+    try {
+      const response = await fetch('http://localhost:8080/api/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        login(userData); // Save to context & localStorage
+        navigate('/'); // Go home
+      } else {
+        alert("Invalid email or password");
+      }
+    } catch (err) {
+      alert("Server error. Is the backend running?");
+    }
   };
 
   return (

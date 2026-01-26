@@ -1,75 +1,116 @@
 .ordersContainer {
-    max-width: 900px;
-    margin-top: 100px;
-    margin-left: 40px;
-    padding: 20px;
+    max-width: 1000px;
+    margin: 120px auto 40px; /* Centered with top margin */
+    padding: 0 20px;
     font-family: 'Inter', system-ui, sans-serif;
-    color: #333;
 }
 
-.ordersContainer h1 {
-    border-bottom: 2px solid #eee;
-    padding-bottom: 10px;
-    margin-bottom: 30px;
+.title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 40px;
 }
 
 .orderList {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 30px;
 }
 
 .orderCard {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
     background: #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
+}
+
+.orderCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
 }
 
 .orderHeader {
     background: #f8f9fa;
-    padding: 15px 20px;
+    padding: 20px 25px;
     display: flex;
     justify-content: space-between;
-    font-weight: 600;
+    align-items: center;
     border-bottom: 1px solid #eee;
-    color: #555;
+}
+
+.orderId {
+    font-weight: 700;
+    color: #333;
+}
+
+.orderDate {
+    color: #666;
+    font-size: 0.9rem;
 }
 
 .orderBody {
-    padding: 20px;
+    padding: 25px;
 }
 
 .itemRow {
-    padding: 8px 0;
-    border-bottom: 1px dashed #eee;
-    font-size: 0.95rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .itemRow:last-child {
     border-bottom: none;
 }
 
+.itemDetails strong {
+    color: #0071e3; /* Apple-style blue for Product IDs */
+}
+
 .orderFooter {
-    padding: 15px 20px;
+    padding: 20px 25px;
+    background: #fafafa;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #eee;
+}
+
+/* Status Badges */
+.statusBadge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+/* Logic for different statuses if you add them later */
+.statusPaid { background: #e8f5e9; color: #2e7d32; }
+
+.totalBox {
     text-align: right;
-    background: #fff;
-    font-size: 1.1rem;
-    color: #222;
 }
 
-.loader {
-    text-align: center;
-    margin-top: 100px;
-    font-size: 1.2rem;
+.totalBox span {
+    font-size: 0.9rem;
     color: #666;
+    margin-right: 10px;
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
-    .orderHeader {
-        flex-direction: column;
-        gap: 5px;
-    }
+.totalBox strong {
+    font-size: 1.4rem;
+    color: #1a1a1a;
+}
+
+.noOrders {
+    text-align: center;
+    padding: 100px 20px;
+    background: #f9f9f9;
+    border-radius: 12px;
 }

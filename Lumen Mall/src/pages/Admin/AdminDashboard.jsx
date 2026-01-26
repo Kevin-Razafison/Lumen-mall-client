@@ -23,6 +23,7 @@ const AdminDashboard = () => {
   
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('All');
+  
 
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -91,20 +92,35 @@ const AdminDashboard = () => {
   };
 
   const handleStatusChange = async (orderId, newStatus) => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/orders/${orderId}/status`, {
+          method: 'PUT',
+          headers: secureHeaders,
+          body: JSON.stringify(newStatus)
+        });
+        if (response.ok) {
+          setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+        }
+      } catch (err) {
+        console.error("Status update failed:", err);
+      }
+    };
+    const handleRoleChange = async (userId, newRole) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/orders/${orderId}/status`, {
+      const response = await fetch(`http://localhost:8080/api/users/${userId}/role`, {
         method: 'PUT',
-        headers: secureHeaders,
-        body: JSON.stringify(newStatus)
+        headers: secureHeaders, // Your JWT headers
+        body: JSON.stringify(newRole)
       });
+
       if (response.ok) {
-        setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+        setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
+        console.log(`User ${userId} promoted/demoted to ${newRole}`);
       }
     } catch (err) {
-      console.error("Status update failed:", err);
+      console.error("Role update failed:", err);
     }
   };
-
   const handleChange = (e) => {
     setNewProduct({ ...newProduct, [e.target.name]: e.target.value });
   };
@@ -483,9 +499,17 @@ const AdminDashboard = () => {
                           {u.role}
                         </span>
                       </td>
-                      <td>
-                        <button className={styles.editBtn}>Change Role</button>
-                      </td>
+                        <td>
+                          <select 
+                            value={u.role} 
+                            onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                            className={styles.statusSelect}
+                            disabled={u.id === user.id} 
+                          >
+                            <option value="ROLE_USER">USER</option>
+                            <option value="ROLE_ADMIN">ADMIN</option>
+                          </select>
+                        </td>
                     </tr>
                   ))
                 ) : (

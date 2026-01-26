@@ -230,3 +230,9 @@
   gap: 15px;
   align-items: center;
 }
+.itemSubtitle {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+  margin: 4px 0;
+}

@@ -46,7 +46,15 @@ const Cart = () => {
                     <Link to={`/product/${item.id}`} className={styles.itemLink}>
                       <h3 className={styles.itemName}>{item.name}</h3>
                     </Link>
+                    
                     <p className={styles.itemDescription}>{item.description}</p>
+                    
+                    {item.features && item.features.length > 0 && (
+                      <p className={styles.itemSubtitle}>
+                        {item.features.slice(0, 2).join(' • ')}
+                      </p>
+                    )}
+                    
                     <p className={styles.price}>
                       ${Number(item.price).toFixed(2)}
                     </p>

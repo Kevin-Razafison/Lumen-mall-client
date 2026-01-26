@@ -3,23 +3,34 @@ import styles from './AdminDashboard.module.css';
 import { useAuth } from '../../context/AuthContext';
 import LogoImg from '../../assets/Lumen-Mall-logo.png';
 
-// Categories synced with your CategoryNav
 const PRODUCT_CATEGORIES = ['Electronics', 'Smart Home', 'Wearables', 'Audio', 'Drones'];
 
 const AdminDashboard = () => {
+  const [featureInput, setFeatureInput] = useState('');
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [inventory, setInventory] = useState([]); 
   const [editingId, setEditingId] = useState(null);
-  const [editForm, setEditForm] = useState({ name: '', price: '', description: '', category: '' });
+  const [editForm, setEditForm] = useState({ 
+    name: '', 
+    price: '', 
+    description: '', 
+    category: '',
+    features: [] // <--- Add this
+  });
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('All');
+
   const [newProduct, setNewProduct] = useState({
     name: '',
     description: '',
     price: '',
     imageUrl: '',
-    category: 'Electronics' // Default starting category
+    category: 'Electronics',
+    features: [] 
   });
 
   const secureHeaders = {
@@ -32,6 +43,14 @@ const AdminDashboard = () => {
     else if (activeTab === 'orders') fetchOrders();
     else if (activeTab === 'users') fetchUsers();
   }, [activeTab]);
+
+  // Derived State: Filters the inventory in real-time
+  const filteredInventory = inventory.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          product.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = filterCategory === 'All' || product.category === filterCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   const fetchInventory = async () => {
     try {
@@ -98,6 +117,23 @@ const AdminDashboard = () => {
         setNewProduct({ ...newProduct, imageUrl: reader.result });
       };
       reader.readAsDataURL(file);
+    }
+  };
+  const addFeature = (type) => {
+    if (!featureInput.trim()) return;
+    if (type === 'new') {
+      setNewProduct({ ...newProduct, features: [...newProduct.features, featureInput.trim()] });
+    } else {
+      setEditForm({ ...editForm, features: [...editForm.features, featureInput.trim()] });
+    }
+    setFeatureInput('');
+  };
+
+  const removeFeature = (index, type) => {
+    if (type === 'new') {
+      setNewProduct({ ...newProduct, features: newProduct.features.filter((_, i) => i !== index) });
+    } else {
+      setEditForm({ ...editForm, features: editForm.features.filter((_, i) => i !== index) });
     }
   };
 
@@ -206,7 +242,31 @@ const AdminDashboard = () => {
 
         {activeTab === 'inventory' && (
           <section className={styles.inventorySection}>
-            <h1>Product Inventory</h1>
+            <div className={styles.inventoryHeader}>
+              <h1>Product Inventory</h1>
+              
+              {/* NEW: Search and Filter Bar */}
+              <div className={styles.filterControls}>
+                <input 
+                  type="text" 
+                  placeholder="Search by name..." 
+                  className={styles.searchInput}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <select 
+                  className={styles.categoryFilter}
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                >
+                  <option value="All">All Categories</option>
+                  {PRODUCT_CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             <table className={styles.inventoryTable}>
               <thead>
                 <tr>
@@ -218,66 +278,75 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {inventory.map(product => (
-                  <tr key={product.id}>
-                    <td><img src={product.imageUrl || '/drone-product-image.png'} alt="thumb" className={styles.tableThumb} /></td>
-                    <td>
-                      {editingId === product.id ? (
-                        <input 
-                          value={editForm.name} 
-                          onChange={(e) => setEditForm({...editForm, name: e.target.value})} 
-                        />
-                      ) : product.name}
-                    </td>
-                    <td>
-                      {editingId === product.id ? (
-                        <input 
-                          type="number" 
-                          value={editForm.price} 
-                          onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
-                        />
-                      ) : `$${Number(product.price).toFixed(2)}`}
-                    </td>
-                    <td>
-                       {editingId === product.id ? (
-                        <select 
-                          value={editForm.category} 
-                          onChange={(e) => setEditForm({...editForm, category: e.target.value})} 
-                          className={styles.tableSelect}
-                        >
-                          {PRODUCT_CATEGORIES.map(cat => (
-                            <option key={cat} value={cat}>{cat}</option>
-                          ))}
-                        </select>
-                      ) : (
-                        <span className={styles.categoryBadge}>{product.category}</span>
-                      )}
-                    </td>
-                    <td>
-                      <div className={styles.actionGroup}>
+                {filteredInventory.length > 0 ? (
+                  filteredInventory.map(product => (
+                    <tr key={product.id}>
+                      <td><img src={product.imageUrl || '/drone-product-image.png'} alt="thumb" className={styles.tableThumb} /></td>
+                      <td>
                         {editingId === product.id ? (
-                          <>
-                            <button onClick={() => handleUpdateProduct(product.id)} className={styles.saveBtn}>Save</button>
-                            <button onClick={() => setEditingId(null)} className={styles.cancelBtn}>Cancel</button>
-                          </>
+                          <input 
+                            value={editForm.name} 
+                            onChange={(e) => setEditForm({...editForm, name: e.target.value})} 
+                          />
+                        ) : product.name}
+                      </td>
+                      <td>
+                        {editingId === product.id ? (
+                          <input 
+                            type="number" 
+                            value={editForm.price} 
+                            onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
+                          />
+                        ) : `$${Number(product.price).toFixed(2)}`}
+                      </td>
+                      <td>
+                         {editingId === product.id ? (
+                          <select 
+                            value={editForm.category} 
+                            onChange={(e) => setEditForm({...editForm, category: e.target.value})} 
+                            className={styles.tableSelect}
+                          >
+                            {PRODUCT_CATEGORIES.map(cat => (
+                              <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                          </select>
                         ) : (
-                          <>
-                            <button onClick={() => {
-                              setEditingId(product.id);
-                              setEditForm({ 
-                                name: product.name, 
-                                price: product.price, 
-                                description: product.description, 
-                                category: product.category 
-                              });
-                            }} className={styles.editBtn}>Edit</button>
-                            <button onClick={() => handleDeleteProduct(product.id)} className={styles.deleteBtn}>Delete</button>
-                          </>
+                          <span className={styles.categoryBadge}>{product.category}</span>
                         )}
-                      </div>
+                      </td>
+                      <td>
+                        <div className={styles.actionGroup}>
+                          {editingId === product.id ? (
+                            <>
+                              <button onClick={() => handleUpdateProduct(product.id)} className={styles.saveBtn}>Save</button>
+                              <button onClick={() => setEditingId(null)} className={styles.cancelBtn}>Cancel</button>
+                            </>
+                          ) : (
+                            <>
+                              <button onClick={() => {
+                                setEditingId(product.id);
+                                setEditForm({ 
+                                  name: product.name, 
+                                  price: product.price, 
+                                  description: product.description, 
+                                  category: product.category,
+                                  features: product.features || []
+                                });
+                              }} className={styles.editBtn}>Edit</button>
+                              <button onClick={() => handleDeleteProduct(product.id)} className={styles.deleteBtn}>Delete</button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" style={{textAlign: 'center', padding: '2rem', color: '#666'}}>
+                      No products found matching your criteria.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </section>
@@ -288,6 +357,27 @@ const AdminDashboard = () => {
             <h1>Add New Product</h1>
             <form onSubmit={handleAddProduct} className={styles.productForm}>
               <input type="text" name="name" placeholder="Product Name" value={newProduct.name} onChange={handleChange} required />
+              <div className={styles.featureSection}>
+              <label className={styles.fieldLabel}>Product Features:</label>
+              <div className={styles.featureInputGroup}>
+                <input 
+                  type="text" 
+                  placeholder="e.g. 4K Camera" 
+                  value={featureInput} 
+                  onChange={(e) => setFeatureInput(e.target.value)} 
+                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature('new'))}
+                />
+                <button type="button" onClick={() => addFeature('new')} className={styles.addFeatureBtn}>Add</button>
+              </div>
+              <div className={styles.featureChips}>
+                {newProduct.features.map((feat, index) => (
+                  <span key={index} className={styles.chip}>
+                    {feat} 
+                    <button type="button" onClick={() => removeFeature(index, 'new')}>&times;</button>
+                  </span>
+                ))}
+              </div>
+            </div>
               <textarea name="description" placeholder="Description" value={newProduct.description} onChange={handleChange} required />
               <input type="number" name="price" placeholder="Price" value={newProduct.price} onChange={handleChange} required />
               
@@ -320,7 +410,6 @@ const AdminDashboard = () => {
           </section>
         )}
 
-        {/* ... Orders and Users Tabs remain as they were ... */}
         {activeTab === 'orders' && (
           <section className={styles.inventorySection}>
             <h1>Customer Orders</h1>

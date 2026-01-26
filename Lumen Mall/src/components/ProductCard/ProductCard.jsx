@@ -2,8 +2,7 @@ import styles from './ProductCard.module.css';
 import { useCart } from '../../context/CartContext';
 import { Link } from 'react-router-dom';
 
-// We use 'image' here because Home.jsx passes 'image={product.imageUrl}'
-const ProductCard = ({ id, name, price, image, description }) => {
+const ProductCard = ({ id, name, price, image, description, features }) => {
   const { addToCart } = useCart();
 
   // If 'image' (the prop) exists, use it; otherwise, show the drone placeholder
@@ -22,25 +21,19 @@ const ProductCard = ({ id, name, price, image, description }) => {
         />
       </Link>
 
-      {/* Original Class: details */}
       <div className={styles.details}>
-        {/* Original Class: title */}
         <h3 className={styles.title}>{name}</h3>
         
-        {/* Original Class: description */}
         <p className={styles.description}>{description}</p>
         
-        {/* Original Class: footer */}
         <div className={styles.footer}>
-          {/* Original Class: price */}
           <span className={styles.price}>
             ${typeof price === 'number' ? price.toFixed(2) : price}
           </span>
           
-          {/* Original Class: addBtn */}
           <button 
             className={styles.addBtn} 
-            onClick={() => addToCart({ id, name, price, image: displayImage, description })}
+            onClick={() => addToCart({ id, name, price, image: displayImage, description, features })}
           >
             Add to Cart
           </button>

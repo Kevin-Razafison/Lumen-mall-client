@@ -306,3 +306,48 @@
     font-size: 0.75rem;
     font-weight: bold;
 }
+
+.categorySelect {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f0f2f2;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+.categorySelect:focus {
+    border-color: #febd69;
+    outline: none;
+    box-shadow: 0 0 3px rgba(254, 189, 105, 0.5);
+}
+
+.tableSelect {
+    padding: 5px;
+    border: 1px solid #febd69;
+    border-radius: 4px;
+    background: white;
+    width: 100%;
+}
+
+.categoryBadge {
+    background-color: #f3f3f3;
+    padding: 4px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    color: #555;
+    border: 1px solid #ddd;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.fieldLabel {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #555;
+}

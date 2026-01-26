@@ -1,31 +1,40 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext } from 'react';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    // Standardize the key name to 'lumenUser'
     const savedUser = localStorage.getItem('lumenUser');
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
   const login = async (email, password) => {
-    const response = await fetch('http://localhost:8080/api/users/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
+    try {
+      const response = await fetch('http://localhost:8080/api/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });// This is our "Golden Ticket"
 
-    if (response.ok) {
-      const data = await response.json();
-      // Crucial: Store the password so Admin POST calls can use Basic Auth
-      const userWithCreds = { ...data, password: password }; 
-      
-      setUser(userWithCreds);
-      localStorage.setItem('lumenUser', JSON.stringify(userWithCreds));
-      return true; // Return success
+      if (response.ok) {
+        const data = await response.json();
+        
+        const userWithToken = {
+          id: data.id,
+          email: data.email,
+          fullName: data.fullName,
+          role: data.role,
+          token: data.token 
+        };
+        
+        setUser(userWithToken);
+        localStorage.setItem('lumenUser', JSON.stringify(userWithToken));
+        return true;
+      }
+    } catch (error) {
+      console.error("Login error:", error);
     }
-    return false; // Return failure
+    return false;
   };
 
   const logout = () => {
@@ -39,4 +48,5 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
 export const useAuth = () => useContext(AuthContext);

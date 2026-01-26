@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import styles from './AdminDashboard.module.css';
 import { useAuth } from '../../context/AuthContext';
-import LogoImg from '../../assets/Lumen-Mall-logo.png'
+import LogoImg from '../../assets/Lumen-Mall-logo.png';
+
+// Categories synced with your CategoryNav
+const PRODUCT_CATEGORIES = ['Electronics', 'Smart Home', 'Wearables', 'Audio', 'Drones'];
+
 const AdminDashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -15,8 +19,13 @@ const AdminDashboard = () => {
     description: '',
     price: '',
     imageUrl: '',
-    category: 'Drones'
+    category: 'Electronics' // Default starting category
   });
+
+  const secureHeaders = {
+    'Authorization': `Bearer ${user?.token}`,
+    'Content-Type': 'application/json'
+  };
 
   useEffect(() => {
     if (activeTab === 'inventory') fetchInventory();
@@ -27,20 +36,22 @@ const AdminDashboard = () => {
   const fetchInventory = async () => {
     try {
       const response = await fetch('http://localhost:8080/api/products');
+      if (response.status === 204 || response.headers.get("content-length") === "0") {
+        setInventory([]);
+        return;
+      }
       const data = await response.json();
-      setInventory(data);
+      setInventory(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch inventory:", err);
+      setInventory([]);
     }
   };
 
   const fetchOrders = async () => {
-    if (!user?.email || !user?.password) return; // Safety check for auth
-    const authHeader = btoa(`${user.email}:${user.password}`);
+    if (!user?.token) return; 
     try {
-      const response = await fetch('http://localhost:8080/api/orders/all', {
-        headers: { 'Authorization': `Basic ${authHeader}` }
-      });
+      const response = await fetch('http://localhost:8080/api/orders/all', { headers: secureHeaders });
       const data = await response.json();
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -50,30 +61,23 @@ const AdminDashboard = () => {
   };
 
   const fetchUsers = async () => {
-    if (!user?.email || !user?.password) return;
-    const authHeader = btoa(`${user.email}:${user.password}`);
+    if (!user?.token) return;
     try {
-      const response = await fetch('http://localhost:8080/api/users/all', {
-        headers: { 'Authorization': `Basic ${authHeader}` }
-      });
+      const response = await fetch('http://localhost:8080/api/users/all', { headers: secureHeaders });
       const data = await response.json();
       setUsers(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Failed to fetch users:", err);
     }
   };
+
   const handleStatusChange = async (orderId, newStatus) => {
-    const authHeader = btoa(`${user.email}:${user.password}`);
     try {
       const response = await fetch(`http://localhost:8080/api/orders/${orderId}/status`, {
         method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${authHeader}`
-        },
+        headers: secureHeaders,
         body: JSON.stringify(newStatus)
       });
-
       if (response.ok) {
         setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
       }
@@ -99,24 +103,23 @@ const AdminDashboard = () => {
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
-    if (!user || !user.password) {
+    if (!user?.token) {
       alert("Security Error: Please log back in.");
       return;
     }
-    const authHeader = btoa(`${user.email}:${user.password}`);
     try {
       const response = await fetch('http://localhost:8080/api/products', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${authHeader}`
-        },
-        body: JSON.stringify(newProduct),
+        headers: secureHeaders,
+        body: JSON.stringify({
+          ...newProduct,
+          price: parseFloat(newProduct.price)
+        }),
       });
 
       if (response.ok) {
         alert("Product added successfully!");
-        setNewProduct({ name: '', description: '', price: '', imageUrl: '', category: 'Drones' });
+        setNewProduct({ name: '', description: '', price: '', imageUrl: '', category: 'Electronics' });
         fetchInventory(); 
         setActiveTab('inventory'); 
       }
@@ -127,16 +130,13 @@ const AdminDashboard = () => {
 
   const handleDeleteProduct = async (productId) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
-    const authHeader = btoa(`${user.email}:${user.password}`);
     try {
       const response = await fetch(`http://localhost:8080/api/products/${productId}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Basic ${authHeader}` }
+        headers: secureHeaders
       });
       if (response.ok) {
         setInventory(inventory.filter(p => p.id !== productId));
-      } else {
-        alert("Failed to delete.");
       }
     } catch (err) {
       console.error("Delete error:", err);
@@ -144,14 +144,10 @@ const AdminDashboard = () => {
   };
 
   const handleUpdateProduct = async (productId) => {
-    const authHeader = btoa(`${user.email}:${user.password}`);
     try {
       const response = await fetch(`http://localhost:8080/api/products/${productId}`, {
         method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Basic ${authHeader}`
-        },
+        headers: secureHeaders,
         body: JSON.stringify(editForm),
       });
 
@@ -166,26 +162,26 @@ const AdminDashboard = () => {
 
   return (
     <div className={styles.adminContainer}>
-        <aside className={styles.sidebar}>
-              <div className={styles.logoSection}>
-                <img src={LogoImg} alt="Lumen Logo" className={styles.adminLogo} />
-                <h2>Lumen Admin</h2>
-              </div>
+      <aside className={styles.sidebar}>
+        <div className={styles.logoSection}>
+          <img src={LogoImg} alt="Lumen Logo" className={styles.adminLogo} />
+          <h2>Lumen Admin</h2>
+        </div>
 
-              <nav className={styles.navMenu}>
-                <ul>
-                  <li onClick={() => setActiveTab('dashboard')} className={activeTab === 'dashboard' ? styles.active : ''}>Dashboard</li>
-                  <li onClick={() => setActiveTab('inventory')} className={activeTab === 'inventory' ? styles.active : ''}>Inventory</li>
-                  <li onClick={() => setActiveTab('addProduct')} className={activeTab === 'addProduct' ? styles.active : ''}>Add Product</li>
-                  <li onClick={() => setActiveTab('orders')} className={activeTab === 'orders' ? styles.active : ''}>Orders</li>
-                  <li onClick={() => setActiveTab('users')} className={activeTab === 'users' ? styles.active : ''}>Users</li>
-                </ul>
-              </nav>
+        <nav className={styles.navMenu}>
+          <ul>
+            <li onClick={() => setActiveTab('dashboard')} className={activeTab === 'dashboard' ? styles.active : ''}>Dashboard</li>
+            <li onClick={() => setActiveTab('inventory')} className={activeTab === 'inventory' ? styles.active : ''}>Inventory</li>
+            <li onClick={() => setActiveTab('addProduct')} className={activeTab === 'addProduct' ? styles.active : ''}>Add Product</li>
+            <li onClick={() => setActiveTab('orders')} className={activeTab === 'orders' ? styles.active : ''}>Orders</li>
+            <li onClick={() => setActiveTab('users')} className={activeTab === 'users' ? styles.active : ''}>Users</li>
+          </ul>
+        </nav>
 
-              <div className={styles.sidebarFooter}>
-                <button className={styles.logoutBtn} onClick={() => window.location.href = '/'}>Exit Dashboard</button>
-              </div>
-            </aside>
+        <div className={styles.sidebarFooter}>
+          <button className={styles.logoutBtn} onClick={() => window.location.href = '/'}>Exit Dashboard</button>
+        </div>
+      </aside>
       
       <main className={styles.content}>
         {activeTab === 'dashboard' && (
@@ -202,7 +198,7 @@ const AdminDashboard = () => {
               </div>
               <div className={styles.statCard}>
                 <h3>Revenue</h3>
-                <p>${orders.reduce((sum, order) => sum + (order.totalPrice || 0), 0).toFixed(2)}</p>
+                <p>${orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0).toFixed(2)}</p>
               </div>
             </div>
           </>
@@ -242,17 +238,21 @@ const AdminDashboard = () => {
                         />
                       ) : `$${Number(product.price).toFixed(2)}`}
                     </td>
-                    
-                    {/* FIXED: Added missing Category column to align the row with the header */}
                     <td>
                        {editingId === product.id ? (
-                        <input 
+                        <select 
                           value={editForm.category} 
                           onChange={(e) => setEditForm({...editForm, category: e.target.value})} 
-                        />
-                      ) : product.category}
+                          className={styles.tableSelect}
+                        >
+                          {PRODUCT_CATEGORIES.map(cat => (
+                            <option key={cat} value={cat}>{cat}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className={styles.categoryBadge}>{product.category}</span>
+                      )}
                     </td>
-
                     <td>
                       <div className={styles.actionGroup}>
                         {editingId === product.id ? (
@@ -290,6 +290,22 @@ const AdminDashboard = () => {
               <input type="text" name="name" placeholder="Product Name" value={newProduct.name} onChange={handleChange} required />
               <textarea name="description" placeholder="Description" value={newProduct.description} onChange={handleChange} required />
               <input type="number" name="price" placeholder="Price" value={newProduct.price} onChange={handleChange} required />
+              
+              <div className={styles.inputGroup}>
+                <label className={styles.fieldLabel}>Category:</label>
+                <select 
+                  name="category" 
+                  value={newProduct.category} 
+                  onChange={handleChange} 
+                  className={styles.categorySelect}
+                  required
+                >
+                  {PRODUCT_CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+
               <div className={styles.fileUploadGroup}>
                 <label>Product Image:</label>
                 <input type="file" accept="image/*" onChange={handleFileChange} required />
@@ -304,6 +320,7 @@ const AdminDashboard = () => {
           </section>
         )}
 
+        {/* ... Orders and Users Tabs remain as they were ... */}
         {activeTab === 'orders' && (
           <section className={styles.inventorySection}>
             <h1>Customer Orders</h1>
@@ -314,8 +331,8 @@ const AdminDashboard = () => {
                   <th>Customer</th>
                   <th>Total</th>
                   <th>Status</th>
-                  <th>Date</th>
-                  <th>Payment</th>
+                  <th>Method</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -323,33 +340,31 @@ const AdminDashboard = () => {
                   orders.map(order => (
                     <tr key={order.id}>
                       <td>#{order.id}</td>
-                      <td>{order.userEmail}</td>
-                      <td>${Number(order.totalPrice || 0).toFixed(2)}</td>
+                      <td>{order.customerEmail}</td>
+                      <td>${Number(order.totalAmount || 0).toFixed(2)}</td>
                       <td>
-                        <span className={styles.statusBadge}>{order.status || 'PENDING'}</span>
+                        <span className={`${styles.statusBadge} ${styles[order.status?.toLowerCase()]}`}>
+                          {order.status || 'PENDING'}
+                        </span>
                       </td>
-                      <td>
-                        {order.orderDate 
-                          ? new Date(order.orderDate).toLocaleDateString() 
-                          : 'N/A'}
-                      </td>
+                      <td>{order.paymentMethod || 'Not Specified'}</td>
                       <td>
                         <select 
                           value={order.status} 
                           className={styles.statusSelect}
                           onChange={(e) => handleStatusChange(order.id, e.target.value)}
                         >
-                          <option value="PENDING">Pending</option>
+                          <option value="AWAITING_PAYMENT">Awaiting Payment</option>
+                          <option value="PAID">Paid</option>
                           <option value="SHIPPED">Shipped</option>
                           <option value="COMPLETED">Completed</option>
                           <option value="CANCELLED">Cancelled</option>
                         </select>
                       </td>
-                      <td>{order.paymentMethod || 'Not Specified'}</td>
                     </tr>
                   ))
                 ) : (
-                  <tr><td colSpan="5" style={{textAlign: 'center'}}>No orders found.</td></tr>
+                  <tr><td colSpan="6" style={{textAlign: 'center'}}>No orders found.</td></tr>
                 )}
               </tbody>
             </table>
@@ -375,7 +390,7 @@ const AdminDashboard = () => {
                       <td>{u.id}</td>
                       <td>{u.email}</td>
                       <td>
-                        <span className={u.role === 'ADMIN' ? styles.adminBadge : styles.userBadge}>
+                        <span className={u.role === 'ROLE_ADMIN' ? styles.adminBadge : styles.userBadge}>
                           {u.role}
                         </span>
                       </td>

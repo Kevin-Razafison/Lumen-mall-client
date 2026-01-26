@@ -3,8 +3,14 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import styles from './Checkout.module.css';
 import { useNavigate } from 'react-router-dom';
+import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 const Checkout = () => {
+  // --- HOOKS MOVED INSIDE HERE ---
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isProcessing, setIsProcessing] = useState(false);
+  
   const { user } = useAuth();
   const { cartItems, totalPrice, clearCart } = useCart();
   const navigate = useNavigate();
@@ -18,12 +24,8 @@ const Checkout = () => {
   });
 
   const [paymentMethod, setPaymentMethod] = useState('Credit Card');
-  const [paymentDetails, setPaymentDetails] = useState({
-    cardNumber: '',
-    expiry: '',
-    cvv: ''
-  });
 
+  // Auto-fill user data if logged in
   useEffect(() => {
     if (user) {
       setFormData(prev => ({
@@ -38,50 +40,81 @@ const Checkout = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handlePaymentChange = (e) => {
-    setPaymentDetails({ ...paymentDetails, [e.target.name]: e.target.value });
-  };
-
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const orderData = {
-      customerName: formData.fullName,
-      customerEmail: formData.email,
-      totalAmount: totalPrice,
-      paymentMethod: paymentMethod,
-      items: cartItems.map(item => ({
-        productId: item.id,
-        quantity: item.quantity,
-        price: item.price
-      }))
-    };
+    // Check if Stripe is ready
+    if (paymentMethod === 'Credit Card' && (!stripe || !elements)) {
+      return; 
+    }
+
+    setIsProcessing(true);
 
     try {
-      const response = await fetch('http://localhost:8080/api/orders', {
+      // 1. Create the PaymentIntent on your Java Backend
+      const intentRes = await fetch('http://localhost:8080/api/payments/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          amount: totalPrice, 
+          email: formData.email 
+        })
+      });
+
+      if (!intentRes.ok) throw new Error("Could not initialize payment with the server.");
+      const { clientSecret } = await intentRes.json();
+
+      // 2. Confirm the payment with Stripe
+      if (paymentMethod === 'Credit Card') {
+        const cardElement = elements.getElement(CardElement);
+        const result = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: {
+            card: cardElement,
+            billing_details: {
+              name: formData.fullName,
+              email: formData.email,
+            },
+          },
+        });
+
+        if (result.error) {
+          throw new Error(result.error.message);
+        }
+      }
+
+      // 3. Save the Order to your Database
+      const orderData = {
+        customerName: formData.fullName,
+        customerEmail: formData.email,
+        totalAmount: totalPrice,
+        paymentMethod: paymentMethod,
+        shippingAddress: `${formData.address}, ${formData.city}, ${formData.zipCode}`,
+        items: cartItems.map(item => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: item.price
+        }))
+      };
+
+      const orderResponse = await fetch('http://localhost:8080/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)
       });
 
-      if (response.ok) {
-        const savedOrder = await response.json(); 
-        
+      if (orderResponse.ok) {
+        const savedOrder = await orderResponse.json();
         clearCart();
-        
         navigate('/order-success', { 
-          state: { 
-            orderId: savedOrder.id, 
-            email: formData.email, 
-            total: totalPrice 
-          } 
+          state: { orderId: savedOrder.id, email: formData.email, total: totalPrice } 
         });
-      } else {
-        throw new Error('Failed to place order');
       }
+
     } catch (error) {
-      console.error("Order failed:", error);
-      alert("Error processing payment. Please try again.");
+      console.error("Checkout failed:", error);
+      alert(error.message || "An error occurred during checkout.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -137,26 +170,26 @@ const handleSubmit = async (e) => {
 
           {paymentMethod === 'Credit Card' && (
             <div className={styles.paymentDetailBox}>
-              <div className={styles.inputGroup}>
-                <label>Card Number</label>
-                <input type="text" name="cardNumber" placeholder="0000 0000 0000 0000" maxLength="16" onChange={handlePaymentChange} required />
+              <label className={styles.cardLabel}>Card Information</label>
+              <div className={styles.stripeElementWrapper}>
+                <CardElement options={{
+                  style: {
+                    base: {
+                      fontSize: '16px',
+                      color: '#32325d',
+                      '::placeholder': { color: '#aab7c4' },
+                    },
+                    invalid: { color: '#fa755a' },
+                  },
+                }} />
               </div>
-              <div className={styles.row}>
-                <div className={styles.inputGroup}>
-                  <label>Expiry</label>
-                  <input type="text" name="expiry" placeholder="MM/YY" maxLength="5" onChange={handlePaymentChange} required />
-                </div>
-                <div className={styles.inputGroup}>
-                  <label>CVV</label>
-                  <input type="password" name="cvv" placeholder="***" maxLength="3" onChange={handlePaymentChange} required />
-                </div>
-              </div>
+              <p className={styles.secureNote}>🔒 Secure payment via Stripe.</p>
             </div>
           )}
 
           {paymentMethod === 'PayPal' && (
             <div className={styles.paymentDetailBox}>
-              <p className={styles.infoText}>You will be redirected to PayPal to complete your purchase securely.</p>
+              <p className={styles.infoText}>PayPal integration ready.</p>
             </div>
           )}
 
@@ -164,13 +197,18 @@ const handleSubmit = async (e) => {
             <div className={styles.paymentDetailBox}>
               <p className={styles.infoText}>
                 <strong>IBAN:</strong> LU98 7654 3210 0123 4567<br/>
-                <strong>SWIFT:</strong> LUMENLUXX<br/>
-                Please use your Email as the transfer reference.
+                <strong>SWIFT:</strong> LUMENLUXX
               </p>
             </div>
           )}
 
-          <button type="submit" className={styles.placeOrderBtn}>Confirm & Pay</button>
+          <button 
+            type="submit" 
+            className={styles.placeOrderBtn} 
+            disabled={isProcessing || cartItems.length === 0}
+          >
+            {isProcessing ? "Processing..." : "Confirm & Pay"}
+          </button>
         </form>
 
         <div className={styles.orderSummary}>

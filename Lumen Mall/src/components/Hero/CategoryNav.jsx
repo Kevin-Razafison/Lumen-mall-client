@@ -4,7 +4,6 @@ import styles from './CategoryNav.module.css';
 const CategoryNav = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
-  // Get the current active category from the URL
   const activeCategory = searchParams.get('category') || 'All';
 
   const categories = ['All', 'Electronics', 'Smart Home', 'Wearables', 'Audio'];

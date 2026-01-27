@@ -54,7 +54,7 @@ const Home = () => {
                   name={product.name}
                   description={product.description}
                   price={product.price}
-                  // Logic: Use product.imageUrl if it exists, otherwise use public fallback
+                  stock={product.stock}
                   image={product.imageUrl || '/drone-product-image.png'}                      
                   category={product.category}
                 />

@@ -85,8 +85,12 @@ const handleSubmit = async (e) => {
       totalAmount: totalPrice,
       paymentMethod: paymentMethod,
       shippingAddress: `${formData.address}, ${formData.city}, ${formData.zipCode}`,
+      items: cartItems.map(item => ({
+        productId: item.id,
+        quantity: item.quantity,
+        price: item.price
+      }))
     };
-
     const orderResponse = await fetch('http://localhost:8080/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

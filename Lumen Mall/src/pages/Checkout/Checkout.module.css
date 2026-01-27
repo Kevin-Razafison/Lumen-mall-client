@@ -170,3 +170,32 @@
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* --- New Summary Styles --- */
+.calcRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  color: #aaa; /* Matches your label colors */
+  margin-bottom: 12px;
+}
+
+.free {
+  color: #2ecc71; /* Green for FREE shipping */
+  font-weight: bold;
+}
+
+/* Adjusting totalRow to be a bit more prominent */
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #333; /* Separate math from final total */
+}
+
+.totalAmount {
+  color: #f0c14b;
+}

@@ -2,16 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import styles from './Checkout.module.css';
+import { useLocation } from '../../context/LocationContext';
 import { useNavigate } from 'react-router-dom';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 const Checkout = () => {
-  // --- HOOKS MOVED INSIDE HERE ---
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
   
   const { user } = useAuth();
+  const { location } = useLocation();
   const { cartItems, totalPrice, clearCart } = useCart();
   const navigate = useNavigate();
 
@@ -25,13 +26,26 @@ const Checkout = () => {
 
   const [paymentMethod, setPaymentMethod] = useState('Credit Card');
 
-  // Auto-fill user data if logged in
+  const shipping = totalPrice > 100 ? 0 : 9.99; 
+  const taxRate = 0.08; // 8% tax
+  const taxTotal = totalPrice * taxRate;
+  const finalGrandTotal = totalPrice + shipping + taxTotal;
+
   useEffect(() => {
     if (user) {
       setFormData(prev => ({
         ...prev,
         fullName: user.fullName || '',
         email: user.email || ''
+      }));
+    }
+    if (location && location !== 'Select your address') {
+      const parts = location.split(',');
+      const detectedCity = parts[0].trim();
+      
+      setFormData(prev => ({
+        ...prev,
+        city: prev.city || detectedCity // Only fill if the user hasn't typed anything yet
       }));
     }
   }, [user]);
@@ -45,14 +59,13 @@ const handleSubmit = async (e) => {
   setIsProcessing(true);
 
   try {
-    // --- BRANCH 1: CREDIT CARD (STRIPE) ---
     if (paymentMethod === 'Credit Card') {
       if (!stripe || !elements) return;
 
       const intentRes = await fetch('http://localhost:8080/api/payments/create-payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: totalPrice, email: formData.email })
+        body: JSON.stringify({ amount: finalGrandTotal, email: formData.email })
       });
       
       const { clientSecret } = await intentRes.json();
@@ -64,18 +77,17 @@ const handleSubmit = async (e) => {
       if (result.error) throw new Error(result.error.message);
     }
 
-    // --- BRANCH 2: PAYPAL in Checkout.jsx ---
     if (paymentMethod === 'PayPal') {
       const paypalRes = await fetch('http://localhost:8080/api/payments/paypal/create', { // Updated URL
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: totalPrice }) // Your controller expects "amount", not "total"
+        body: JSON.stringify({ amount: finalGrandTotal }) 
       });
 
       if (!paypalRes.ok) throw new Error("PayPal initiation failed.");
       
       const data = await paypalRes.json(); 
-      window.location.href = data.approvalUrl; // Use approvalUrl from your ResponseEntity
+      window.location.href = data.approvalUrl; 
       return; 
     }
 
@@ -106,7 +118,7 @@ const handleSubmit = async (e) => {
               state: { 
                 orderId: savedOrder.id, 
                 email: formData.email, 
-                total: totalPrice 
+                total: finalGrandTotal 
               } 
       });
     }
@@ -222,10 +234,27 @@ const handleSubmit = async (e) => {
               </div>
             ))}
           </div>
+          
           <hr />
+          
+          <div className={styles.calcRow}>
+            <span>Items:</span>
+            <span>${totalPrice.toFixed(2)}</span>
+          </div>
+          <div className={styles.calcRow}>
+            <span>Shipping:</span>
+            <span>{shipping === 0 ? <span className={styles.free}>FREE</span> : `$${shipping.toFixed(2)}`}</span>
+          </div>
+          <div className={styles.calcRow}>
+            <span>Estimated Tax:</span>
+            <span>${taxTotal.toFixed(2)}</span>
+          </div>
+          
+          <hr />
+          
           <div className={styles.totalRow}>
-            <span>Total</span>
-            <span className={styles.totalAmount}>${totalPrice.toFixed(2)}</span>
+            <span>Order Total:</span>
+            <span className={styles.totalAmount}>${finalGrandTotal.toFixed(2)}</span>
           </div>
         </div>
       </div>

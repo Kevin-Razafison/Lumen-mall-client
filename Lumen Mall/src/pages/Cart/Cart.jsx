@@ -69,7 +69,7 @@ const Cart = () => {
                   
                   <div className={styles.itemActions}>
                     <div className={styles.qtyContainer}>
-                      <label htmlFor={`qty-${item.id}`}>Qty:</label>
+                      <label htmlFor={`qty-${item.id}`}>Qantity:</label>
                       <select 
                         id={`qty-${item.id}`}
                         className={styles.qtySelect}

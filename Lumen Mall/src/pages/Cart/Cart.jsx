@@ -29,6 +29,12 @@ const Cart = () => {
           
           {cartItems.map((item) => {
             const displayImage = item.image || item.imageUrl || '/drone-product-image.png';
+            
+            // DYNAMIC STOCK LOGIC
+            // Generate options based on stock, capping at 10 or the stock count
+            const maxOptions = item.stock ? Math.min(item.stock, 10) : 1;
+            const stockOptions = Array.from({ length: maxOptions }, (_, i) => i + 1);
+            const isLowStock = item.stock > 0 && item.stock <= 5;
 
             return (
               <div key={item.id} className={styles.cartItem}>
@@ -49,9 +55,10 @@ const Cart = () => {
                     
                     <p className={styles.itemDescription}>{item.description}</p>
                     
-                    {item.features && item.features.length > 0 && (
-                      <p className={styles.itemSubtitle}>
-                        {item.features.slice(0, 2).join(' • ')}
+                    {/* Stock Warning Badge */}
+                    {isLowStock && (
+                      <p className={styles.lowStockWarning}>
+                        Only {item.stock} left in stock - order soon.
                       </p>
                     )}
                     
@@ -62,14 +69,15 @@ const Cart = () => {
                   
                   <div className={styles.itemActions}>
                     <div className={styles.qtyContainer}>
-                      <label htmlFor={`qty-${item.id}`}>Quantity:</label>
+                      <label htmlFor={`qty-${item.id}`}>Qty:</label>
                       <select 
                         id={`qty-${item.id}`}
                         className={styles.qtySelect}
                         value={item.quantity}
-                        onChange={(e) => updateQuantity(item.id, parseInt(e.target.value))}
+                        // PASS item.stock HERE
+                        onChange={(e) => updateQuantity(item.id, parseInt(e.target.value), item.stock)}
                       >
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                        {stockOptions.map((num) => (
                           <option key={num} value={num}>{num}</option>
                         ))}
                       </select>

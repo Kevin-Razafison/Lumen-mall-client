@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route, useLocation as useRouteLocation
 import { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js'; 
-
 import Header from './components/header/Header';
 import Footer from './components/Footer/Footer';
 import Login from './pages/Login/Login';
@@ -16,6 +15,7 @@ import Register from './pages/Login/Register';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import OrderSuccess from './pages/Checkout/OrderSuccess';
+import Profile from './pages/Profile/Profile';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -39,6 +39,7 @@ const AppContent = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/cart" element={<Cart />} />
         <Route path='/product/:productId' element={<ProductDetail />} />
+        <Route path="/profile" element={<Profile />} />
         
         <Route 
           path="/orders" 

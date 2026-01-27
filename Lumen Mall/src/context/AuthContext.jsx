@@ -42,11 +42,17 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('lumenUser');
   };
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
-      {children}
-    </AuthContext.Provider>
-  );
+    return (
+        <AuthContext.Provider value={{ 
+          user, 
+          setUser, // <--- ADD THIS LINE
+          login, 
+          logout, 
+          isAuthenticated: !!user 
+        }}>
+          {children}
+        </AuthContext.Provider>
+      );
 };
 
 export const useAuth = () => useContext(AuthContext);

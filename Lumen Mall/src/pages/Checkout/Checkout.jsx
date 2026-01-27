@@ -40,83 +40,71 @@ const Checkout = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    // Check if Stripe is ready
-    if (paymentMethod === 'Credit Card' && (!stripe || !elements)) {
-      return; 
-    }
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsProcessing(true);
 
-    setIsProcessing(true);
+  try {
+    // --- BRANCH 1: CREDIT CARD (STRIPE) ---
+    if (paymentMethod === 'Credit Card') {
+      if (!stripe || !elements) return;
 
-    try {
-      // 1. Create the PaymentIntent on your Java Backend
       const intentRes = await fetch('http://localhost:8080/api/payments/create-payment-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          amount: totalPrice, 
-          email: formData.email 
-        })
+        body: JSON.stringify({ amount: totalPrice, email: formData.email })
+      });
+      
+      const { clientSecret } = await intentRes.json();
+      const cardElement = elements.getElement(CardElement);
+      const result = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: { card: cardElement, billing_details: { name: formData.fullName, email: formData.email } },
       });
 
-      if (!intentRes.ok) throw new Error("Could not initialize payment with the server.");
-      const { clientSecret } = await intentRes.json();
+      if (result.error) throw new Error(result.error.message);
+    }
 
-      // 2. Confirm the payment with Stripe
-      if (paymentMethod === 'Credit Card') {
-        const cardElement = elements.getElement(CardElement);
-        const result = await stripe.confirmCardPayment(clientSecret, {
-          payment_method: {
-            card: cardElement,
-            billing_details: {
-              name: formData.fullName,
-              email: formData.email,
-            },
-          },
-        });
-
-        if (result.error) {
-          throw new Error(result.error.message);
-        }
-      }
-
-      // 3. Save the Order to your Database
-      const orderData = {
-        customerName: formData.fullName,
-        customerEmail: formData.email,
-        totalAmount: totalPrice,
-        paymentMethod: paymentMethod,
-        shippingAddress: `${formData.address}, ${formData.city}, ${formData.zipCode}`,
-        items: cartItems.map(item => ({
-          productId: item.id,
-          quantity: item.quantity,
-          price: item.price
-        }))
-      };
-
-      const orderResponse = await fetch('http://localhost:8080/api/orders', {
+    // --- BRANCH 2: PAYPAL in Checkout.jsx ---
+    if (paymentMethod === 'PayPal') {
+      const paypalRes = await fetch('http://localhost:8080/api/payments/paypal/create', { // Updated URL
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
+        body: JSON.stringify({ amount: totalPrice }) // Your controller expects "amount", not "total"
       });
 
-      if (orderResponse.ok) {
-        const savedOrder = await orderResponse.json();
-        clearCart();
-        navigate('/order-success', { 
-          state: { orderId: savedOrder.id, email: formData.email, total: totalPrice } 
-        });
-      }
-
-    } catch (error) {
-      console.error("Checkout failed:", error);
-      alert(error.message || "An error occurred during checkout.");
-    } finally {
-      setIsProcessing(false);
+      if (!paypalRes.ok) throw new Error("PayPal initiation failed.");
+      
+      const data = await paypalRes.json(); 
+      window.location.href = data.approvalUrl; // Use approvalUrl from your ResponseEntity
+      return; 
     }
-  };
+
+    const orderData = {
+      customerName: formData.fullName,
+      customerEmail: formData.email,
+      totalAmount: totalPrice,
+      paymentMethod: paymentMethod,
+      shippingAddress: `${formData.address}, ${formData.city}, ${formData.zipCode}`,
+    };
+
+    const orderResponse = await fetch('http://localhost:8080/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    });
+
+    if (orderResponse.ok) {
+      clearCart();
+      navigate('/order-success');
+    }
+
+  } catch (error) {
+    console.error("Checkout failed:", error);
+    alert(error.message);
+  } finally {
+    setIsProcessing(false);
+  }
+};
 
   return (
     <div className={styles.checkoutContainer}>

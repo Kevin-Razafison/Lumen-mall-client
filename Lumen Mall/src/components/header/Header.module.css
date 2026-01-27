@@ -8,7 +8,7 @@
     background-color: #161822;
     color: #E0E0E0;
     position: fixed;
-    z-index: 1;
+    z-index: 3;
 } 
 .deliverTo {
   display: flex;

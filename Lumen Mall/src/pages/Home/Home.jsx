@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Hero from '../../components/Hero/Hero'; 
 import CategoryNav from '../../components/Hero/CategoryNav';
-import ProductCard from '../../components/ProductCard/ProductCard';
+import ProductCard, { ProductCardSkeleton } from '../../components/ProductCard/ProductCard';
 import styles from './Home.module.css';
 
 const Home = () => {
@@ -33,45 +33,43 @@ const Home = () => {
   });
 
   return (
-    <main>
-      <Hero />
-      <CategoryNav />
-      
-      <section className="product-section">
-        <h2 className="section-title">
-          {categoryTerm ? `${categoryTerm}` : searchTerm ? `Results for "${searchTerm}"` : "New Arrivals"}
-        </h2>
+      <main>
+        <Hero />
+        <CategoryNav />
         
-        {loading ? (
-          <div className={styles.loading}>Connecting to Lumen Servers...</div>
-        ) : (
+        <section className="product-section">
+          <h2 className="section-title">
+            {categoryTerm ? `${categoryTerm}` : searchTerm ? `Results for "${searchTerm}"` : "New Arrivals"}
+          </h2>
+          
           <div className="product-grid">
-            {filteredProducts.length > 0 ? (
-              filteredProducts.map(product => (
-                <ProductCard 
-                  key={product.id} 
-                  id={product.id}
-                  name={product.name}
-                  description={product.description}
-                  price={product.price}
-                  stock={product.stock}
-                  image={product.imageUrl || '/drone-product-image.png'}                      
-                  category={product.category}
-                />
-              ))
+            {loading ? (
+              // Render 8 skeletons while loading
+              Array(8).fill(0).map((_, i) => <ProductCardSkeleton key={i} />)
             ) : (
-              <div className={styles.noResults}>
-                {searchTerm ? (
-                  <p>No products found matching <span>"{searchTerm}"</span></p>
+              <>
+                {filteredProducts.length > 0 ? (
+                  filteredProducts.map(product => (
+                    <ProductCard 
+                      key={product.id} 
+                      {...product} // Cleaner way to pass all props
+                      image={product.imageUrl || '/drone-product-image.png'}                      
+                    />
+                  ))
                 ) : (
-                  <p>Coming Soon: More products in {categoryTerm}!</p>
+                  <div className={styles.noResults}>
+                    {searchTerm ? (
+                      <p>No products found matching <span>"{searchTerm}"</span></p>
+                    ) : (
+                      <p>Coming Soon: More products in {categoryTerm}!</p>
+                    )}
+                  </div>
                 )}
-              </div>
+              </>
             )}
           </div>
-        )}
-      </section>
-    </main>
+        </section>
+      </main>
   );
 };
 

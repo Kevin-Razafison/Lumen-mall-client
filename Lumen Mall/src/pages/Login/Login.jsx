@@ -10,7 +10,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useAuth();
-  const { setLocation } = useLocation(); 
+  const { setLocation,setIsDetecting  } = useLocation(); 
   const navigate = useNavigate();
   const routerLocation = useRouterLocation();
 
@@ -18,41 +18,25 @@ const Login = () => {
 
   const detectLocation = () => {
     if ("geolocation" in navigator) {
+      setIsDetecting(true); // Start Shimmer
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
           try {
-            const response = await fetch(
-
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-
-            );
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
             const data = await response.json();
-            const city = data.address.city || data.address.town || data.address.village || "Unknown City";
+            const city = data.address.city || data.address.town || "Unknown City";
             const state = data.address.state || data.address.country;
             setLocation(`${city}, ${state}`);
-
           } catch (err) {
-
-            console.error("Reverse geocoding failed, using coords instead");
-
             setLocation(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
-
+          } finally {
+            setIsDetecting(false); // Stop Shimmer
           }
-
         },
         (error) => {
-          // DEBUG: Log the specific error type
-          if (error.code === 1) console.error("User denied Geolocation");
-          else if (error.code === 2) console.error("Location unavailable");
-          else if (error.code === 3) console.error("Timeout reached");
-          
-          setLocation("Default Location"); 
-        },
-        {
-          enableHighAccuracy: false, // Much faster, uses IP/WiFi instead of GPS
-          timeout: 10000,            // Give it 10 seconds before giving up
-          maximumAge: 60000          // Accept a cached location from the last minute
+          setIsDetecting(false); // Stop Shimmer on error
+          console.error("Location denied");
         }
       );
     }

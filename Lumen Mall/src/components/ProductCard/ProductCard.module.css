@@ -109,3 +109,50 @@
   cursor: not-allowed;
   border-color: #555;
 }
+
+/* --- Skeleton Animations --- */
+.skeletonCard {
+  pointer-events: none;
+  border-color: #333 !important;
+}
+
+.skeletonImage, .skeletonTitle, .skeletonDescription, .skeletonPrice, .skeletonButton {
+  background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 4px;
+}
+
+.skeletonImage {
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 8px 8px 0 0;
+}
+
+.skeletonTitle {
+  height: 20px;
+  width: 70%;
+  margin-bottom: 12px;
+}
+
+.skeletonDescription {
+  height: 12px;
+  width: 90%;
+  margin-bottom: 8px;
+}
+
+.skeletonPrice {
+  height: 24px;
+  width: 50px;
+}
+
+.skeletonButton {
+  height: 35px;
+  width: 100px;
+  border-radius: 20px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

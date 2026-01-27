@@ -2,13 +2,11 @@ import styles from './ProductCard.module.css';
 import { useCart } from '../../context/CartContext';
 import { Link } from 'react-router-dom';
 
-// Added 'stock' to the destructured props [cite: 2026-01-25]
 const ProductCard = ({ id, name, price, image, description, features, stock }) => {
   const { addToCart } = useCart();
 
   const displayImage = image ? image : '/drone-product-image.png';
 
-  // Inventory Logic [cite: 2026-01-25]
   const isOutOfStock = stock !== undefined && stock <= 0;
   const isLowStock = stock > 0 && stock <= 5;
 
@@ -22,7 +20,6 @@ const ProductCard = ({ id, name, price, image, description, features, stock }) =
           onError={(e) => { e.target.src = '/drone-product-image.png'; }}
         />
         
-        {/* Status Badges based on backend stock [cite: 2026-01-25] */}
         {isOutOfStock && <div className={styles.soldOutBadge}>Sold Out</div>}
         {isLowStock && !isOutOfStock && (
           <div className={styles.lowStockBadge}>Only {stock} left!</div>
@@ -40,12 +37,28 @@ const ProductCard = ({ id, name, price, image, description, features, stock }) =
           
           <button 
             className={styles.addBtn} 
-            // Disable button if stock is 0 [cite: 2026-01-25]
             disabled={isOutOfStock}
             onClick={() => addToCart({ id, name, price, image: displayImage, description, features })}
           >
             {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
           </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const ProductCardSkeleton = () => {
+  return (
+    <div className={`${styles.card} ${styles.skeletonCard}`}>
+      <div className={`${styles.imageWrapper} ${styles.skeletonImage}`}></div>
+      <div className={styles.details}>
+        <div className={styles.skeletonTitle}></div>
+        <div className={styles.skeletonDescription}></div>
+        <div className={styles.skeletonDescription} style={{ width: '60%' }}></div>
+        <div className={styles.footer}>
+          <div className={styles.skeletonPrice}></div>
+          <div className={styles.skeletonButton}></div>
         </div>
       </div>
     </div>

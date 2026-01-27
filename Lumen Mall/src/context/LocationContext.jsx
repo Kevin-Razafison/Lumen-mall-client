@@ -6,7 +6,7 @@ export const LocationProvider = ({ children }) => {
   const [location, setLocation] = useState(() => {
     return localStorage.getItem('lumenLocation') || 'Select your address';
   });
-
+  const [isDetecting, setIsDetecting] = useState(false); 
   useEffect(() => {
     if (location !== 'Select your address') {
       localStorage.setItem('lumenLocation', location);
@@ -14,7 +14,7 @@ export const LocationProvider = ({ children }) => {
   }, [location]);
 
   return (
-    <LocationContext.Provider value={{ location, setLocation }}>
+    <LocationContext.Provider value={{ location, setLocation, isDetecting, setIsDetecting }}>
       {children}
     </LocationContext.Provider>
   );

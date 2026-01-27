@@ -1,19 +1,62 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useLocation, useNavigate } from 'react-router-dom';
-import styles from './Login.module.css';
+import { useLocation as useRouterLocation, useNavigate } from 'react-router-dom'; 
+import { useLocation } from '../../context/LocationContext'; 
+import styles from './Login.module.css'; // Don't forget to import your styles!
 import logo from '../../assets/Lumen-Mall-logo.png'; 
 import { Link } from 'react-router-dom';
-
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login } = useAuth(); // Get login function
+  const { login } = useAuth();
+  const { setLocation } = useLocation(); 
   const navigate = useNavigate();
-  const location = useLocation();
+  const routerLocation = useRouterLocation();
 
-  const from = location.state?.from?.pathname || "/";
+  const from = routerLocation.state?.from?.pathname || "/";
+
+  const detectLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          try {
+            const response = await fetch(
+
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+
+            );
+            const data = await response.json();
+            const city = data.address.city || data.address.town || data.address.village || "Unknown City";
+            const state = data.address.state || data.address.country;
+            setLocation(`${city}, ${state}`);
+
+          } catch (err) {
+
+            console.error("Reverse geocoding failed, using coords instead");
+
+            setLocation(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
+
+          }
+
+        },
+        (error) => {
+          // DEBUG: Log the specific error type
+          if (error.code === 1) console.error("User denied Geolocation");
+          else if (error.code === 2) console.error("Location unavailable");
+          else if (error.code === 3) console.error("Timeout reached");
+          
+          setLocation("Default Location"); 
+        },
+        {
+          enableHighAccuracy: false, // Much faster, uses IP/WiFi instead of GPS
+          timeout: 10000,            // Give it 10 seconds before giving up
+          maximumAge: 60000          // Accept a cached location from the last minute
+        }
+      );
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,6 +64,7 @@ const Login = () => {
       const success = await login(email, password);
       
       if (success) {
+        detectLocation(); // Automation fires here
         navigate(from, { replace: true });
       } else {
         alert("Invalid email or password");
@@ -29,9 +73,10 @@ const Login = () => {
       alert("Server error. Is the backend running?");
     }
   };
+
   return (
     <div className={styles.loginContainer}>
-        <img src={logo} alt="Lumen Mall" className={styles.logo} />
+      <img src={logo} alt="Lumen Mall" className={styles.logo} />
 
       <div className={styles.loginCard}>
         <h1 className={styles.title}>Sign-In</h1>
@@ -63,12 +108,10 @@ const Login = () => {
         </p>
       </div>
 
-
       <div className={styles.footer}>
         <div className={styles.divider}>
           <h5>New to Lumen Mall?</h5>
         </div>
-        {/* Wrap your button in a Link or change it to a Link styled as a button */}
         <Link to="/register" className={styles.createAccountBtn} style={{textAlign: 'center', display: 'block'}}>
           Create your Lumen account
         </Link>

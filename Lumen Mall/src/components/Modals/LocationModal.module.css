@@ -19,19 +19,23 @@
   max-width: 400px;
   color: white;
   border: 1px solid #333;
+  text-align: center;
 }
+
+.modal h3 { margin-bottom: 10px; }
+.modal p { font-size: 0.9rem; color: #aaa; margin-bottom: 20px; }
 
 .modal input {
   width: 100%;
   padding: 12px;
-  margin: 15px 0;
+  margin: 10px 0 15px 0;
   background: #2a2a2a;
   border: 1px solid #444;
   color: white;
   border-radius: 6px;
 }
 
-.modal button {
+.applyBtn {
   width: 100%;
   padding: 12px;
   background: #f0c14b;
@@ -39,4 +43,30 @@
   font-weight: bold;
   border-radius: 6px;
   cursor: pointer;
+  color: #111;
+}
+
+.detectBtn {
+  width: 100%;
+  padding: 12px;
+  background-color: #333; /* Darker to match theme */
+  border: 1px solid #444;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.detectBtn:hover {
+  background-color: #444;
+}
+
+.separator {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #777;
+  margin-bottom: 15px;
+  position: relative;
 }

@@ -94,8 +94,17 @@ const handleSubmit = async (e) => {
     });
 
     if (orderResponse.ok) {
-      clearCart();
-      navigate('/order-success');
+      const savedOrder = await orderResponse.json(); // Capture the actual order from DB
+            clearCart();
+            
+            // PASS THE DATA HERE
+            navigate('/order-success', { 
+              state: { 
+                orderId: savedOrder.id, 
+                email: formData.email, 
+                total: totalPrice 
+              } 
+      });
     }
 
   } catch (error) {

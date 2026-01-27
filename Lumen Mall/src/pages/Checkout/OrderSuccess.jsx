@@ -1,17 +1,65 @@
-import React from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import styles from './OrderSuccess.module.css';
 
 const OrderSuccess = () => {
+  const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { orderId, email, total } = location.state || {};
+  const [loading, setLoading] = useState(false);
+  
+  const [orderInfo, setOrderInfo] = useState(location.state || null);
+  const paypalToken = searchParams.get('token');
 
-  if (!orderId) {
+  useEffect(() => {
+    // PayPal specific: if token exists in URL, we must capture it
+    if (paypalToken && !orderInfo) {
+      capturePayPalPayment();
+    }
+  }, [paypalToken]);
+
+  const capturePayPalPayment = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`http://localhost:8080/api/payments/paypal/capture?token=${paypalToken}`, {
+        method: 'POST'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setOrderInfo({
+          orderId: data.id,
+          email: data.customerEmail,
+          total: data.totalAmount
+        });
+      }
+    } catch (error) {
+      console.error("PayPal capture failed", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // PayPal Specific Loading State: Keeps your design but adds a "Processing" feel
+  if (loading) {
     return (
       <div className={styles.container}>
-        <h2>No order found.</h2>
-        <Link to="/" className={styles.homeBtn}>Return to Shop</Link>
+        <div className={styles.successCard}>
+          <div className={styles.spinner}></div> {/* Add this to your CSS for a smooth look */}
+          <h1 className={styles.title}>Verifying Payment...</h1>
+          <p className={styles.subtitle}>Please do not refresh the page while we finalize your order.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!orderInfo) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.successCard}>
+          <h2 className={styles.title}>No order found.</h2>
+          <Link to="/" className={styles.homeBtn}>Return to Shop</Link>
+        </div>
       </div>
     );
   }
@@ -26,22 +74,17 @@ const OrderSuccess = () => {
         <div className={styles.details}>
           <div className={styles.detailRow}>
             <span>Order ID:</span>
-            <strong>#{orderId}</strong>
+            <strong>#{orderInfo.orderId}</strong>
           </div>
           <div className={styles.detailRow}>
             <span>Sent to:</span>
-            <strong>{email}</strong>
+            <strong>{orderInfo.email}</strong>
           </div>
           <div className={styles.detailRow}>
             <span>Total Amount:</span>
-            <strong>${total?.toFixed(2)}</strong>
+            <strong>${orderInfo.total?.toFixed(2)}</strong>
           </div>
         </div>
-
-        <p className={styles.instructions}>
-          A confirmation email has been sent. You can track your drone's 
-          delivery status in your profile.
-        </p>
 
         <button onClick={() => navigate('/')} className={styles.homeBtn}>
           Back to Home

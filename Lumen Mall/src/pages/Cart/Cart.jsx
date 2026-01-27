@@ -55,6 +55,17 @@ const Cart = () => {
                     
                     <p className={styles.itemDescription}>{item.description}</p>
                     
+                    {/* --- ADDED FEATURES LIST HERE --- */}
+                    {item.features && item.features.length > 0 && (
+                      <ul className={styles.cartFeatureList}>
+                        {item.features.map((feature, index) => (
+                          <li key={index} className={styles.cartFeatureItem}>
+                            • {feature}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    
                     {/* Stock Warning Badge */}
                     {isLowStock && (
                       <p className={styles.lowStockWarning}>

@@ -94,13 +94,14 @@ const handleSubmit = async (e) => {
     const orderData = {
       customerName: formData.fullName,
       customerEmail: formData.email,
-      totalAmount: totalPrice,
+      totalAmount: finalGrandTotal,
       paymentMethod: paymentMethod,
       shippingAddress: `${formData.address}, ${formData.city}, ${formData.zipCode}`,
       items: cartItems.map(item => ({
         productId: item.id,
         quantity: item.quantity,
-        price: item.price
+        price: item.price,
+        features: item.features
       }))
     };
     const orderResponse = await fetch('http://localhost:8080/api/orders', {
@@ -228,9 +229,18 @@ const handleSubmit = async (e) => {
           <h2 className={styles.sectionTitle}>Order Summary</h2>
           <div className={styles.itemList}>
             {cartItems.map(item => (
-              <div key={item.id} className={styles.summaryItem}>
-                <span>{item.name} (x{item.quantity})</span>
-                <span>${(item.price * item.quantity).toFixed(2)}</span>
+              <div key={item.id} className={styles.summaryItemContainer}>
+                <div className={styles.summaryItem}>
+                  <span>{item.name} (x{item.quantity})</span>
+                  <span>${(item.price * item.quantity).toFixed(2)}</span>
+                </div>
+                
+                {/* Render features as a small subtitle string */}
+                {item.features && item.features.length > 0 && (
+                  <p className={styles.itemFeaturesMini}>
+                    {item.features.slice(0, 3).join(' • ')}
+                  </p>
+                )}
               </div>
             ))}
           </div>

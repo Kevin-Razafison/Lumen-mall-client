@@ -60,3 +60,25 @@
   background-color: #f8f8f8;
   cursor: pointer;
 }
+.outOfStockText {
+    color: #b12704;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.inStockText {
+    color: #007600;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.disabledBtn {
+    background: #e7e9ec !important;
+    border-color: #adb1b8 !important;
+    color: #565959 !important;
+    cursor: not-allowed !important;
+}
+
+.stockStatus {
+    margin: 15px 0;
+}

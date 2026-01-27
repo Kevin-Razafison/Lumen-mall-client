@@ -16,6 +16,7 @@ const AdminDashboard = () => {
     price: '', 
     description: '', 
     category: '',
+    stock: 0,
     features: [] // <--- Add this
   });
   const [orders, setOrders] = useState([]);
@@ -29,6 +30,7 @@ const AdminDashboard = () => {
     name: '',
     description: '',
     price: '',
+    stock: 0,
     imageUrl: '',
     category: 'Electronics',
     features: [] 
@@ -144,7 +146,38 @@ const AdminDashboard = () => {
     }
     setFeatureInput('');
   };
+  const handleQuickRestock = async (product) => {
+    const amountToAdd = window.prompt(`Restock "${product.name}"\nHow many units are you adding?`, "10");
+    
+    if (amountToAdd === null) return; // User cancelled
+    
+    const parsedAmount = parseInt(amountToAdd);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      alert("Please enter a valid positive number.");
+      return;
+    }
 
+    const updatedStock = (product.stock || 0) + parsedAmount;
+
+    try {
+      const response = await fetch(`http://localhost:8080/api/products/${product.id}`, {
+        method: 'PUT',
+        headers: secureHeaders,
+        body: JSON.stringify({
+          ...product,
+          stock: updatedStock
+        }),
+      });
+
+      if (response.ok) {
+        setInventory(inventory.map(p => p.id === product.id ? { ...p, stock: updatedStock } : p));
+      } else {
+        alert("Restock failed. Please try again.");
+      }
+    } catch (err) {
+      console.error("Restock error:", err);
+    }
+  };
   const removeFeature = (index, type) => {
     if (type === 'new') {
       setNewProduct({ ...newProduct, features: newProduct.features.filter((_, i) => i !== index) });
@@ -159,27 +192,42 @@ const AdminDashboard = () => {
       alert("Security Error: Please log back in.");
       return;
     }
+    
     try {
       const response = await fetch('http://localhost:8080/api/products', {
         method: 'POST',
         headers: secureHeaders,
         body: JSON.stringify({
           ...newProduct,
-          price: parseFloat(newProduct.price)
+          price: parseFloat(newProduct.price),
+          stock: parseInt(newProduct.stock) || 0 // Ensure stock is a number
         }),
       });
 
       if (response.ok) {
         alert("Product added successfully!");
-        setNewProduct({ name: '', description: '', price: '', imageUrl: '', category: 'Electronics' });
+        setNewProduct({ 
+          name: '', 
+          description: '', 
+          price: '', 
+          stock: 0, 
+          imageUrl: '', 
+          category: 'Electronics', 
+          features: [] 
+        });
         fetchInventory(); 
         setActiveTab('inventory'); 
       }
+      else {
+        const errorText = await response.text(); // Get the raw error message
+        console.log("Backend Error:", errorText);
+        alert(`Server says: ${errorText}`); 
+      }
     } catch (err) {
       console.error("Connection error:", err);
+      alert("Could not connect to the server.");
     }
   };
-
   const handleDeleteProduct = async (productId) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
     try {
@@ -200,12 +248,18 @@ const AdminDashboard = () => {
       const response = await fetch(`http://localhost:8080/api/products/${productId}`, {
         method: 'PUT',
         headers: secureHeaders,
-        body: JSON.stringify(editForm),
+        body: JSON.stringify({
+          ...editForm,
+          price: parseFloat(editForm.price),
+          stock: parseInt(editForm.stock)
+        }),
       });
 
       if (response.ok) {
         setInventory(inventory.map(p => p.id === productId ? { ...p, ...editForm } : p));
         setEditingId(null); 
+      } else {
+        alert("Update failed. Check your data.");
       }
     } catch (err) {
       console.error("Update failed:", err);
@@ -288,82 +342,105 @@ const AdminDashboard = () => {
                 <tr>
                   <th>Image</th>
                   <th>Name</th>
+                  <th>Stock</th>
                   <th>Price</th>
                   <th>Category</th>
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody>
-                {filteredInventory.length > 0 ? (
-                  filteredInventory.map(product => (
-                    <tr key={product.id}>
-                      <td><img src={product.imageUrl || '/drone-product-image.png'} alt="thumb" className={styles.tableThumb} /></td>
-                      <td>
+            <tbody>
+              {filteredInventory.length > 0 ? (
+                filteredInventory.map(product => (
+                  // 1. ADDED: Highlight the whole row if stock is 0
+                  <tr key={product.id} className={product.stock === 0 ? styles.outOfStockRow : ''}> 
+                    <td><img src={product.imageUrl || '/drone-product-image.png'} alt="thumb" className={styles.tableThumb} /></td>
+                    <td>
+                      {editingId === product.id ? (
+                        <input 
+                          value={editForm.name} 
+                          onChange={(e) => setEditForm({...editForm, name: e.target.value})} 
+                        />
+                      ) : product.name}
+                    </td>
+                    <td>
                         {editingId === product.id ? (
                           <input 
-                            value={editForm.name} 
-                            onChange={(e) => setEditForm({...editForm, name: e.target.value})} 
+                            type="number"
+                            value={editForm.stock} 
+                            onChange={(e) => setEditForm({...editForm, stock: parseInt(e.target.value)})} 
                           />
-                        ) : product.name}
-                      </td>
-                      <td>
-                        {editingId === product.id ? (
-                          <input 
-                            type="number" 
-                            value={editForm.price} 
-                            onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
-                          />
-                        ) : `$${Number(product.price).toFixed(2)}`}
-                      </td>
-                      <td>
-                         {editingId === product.id ? (
-                          <select 
-                            value={editForm.category} 
-                            onChange={(e) => setEditForm({...editForm, category: e.target.value})} 
-                            className={styles.tableSelect}
-                          >
-                            {PRODUCT_CATEGORIES.map(cat => (
-                              <option key={cat} value={cat}>{cat}</option>
-                            ))}
-                          </select>
                         ) : (
-                          <span className={styles.categoryBadge}>{product.category}</span>
+                          <span className={product.stock <= 5 ? `${styles.lowStockText} ${product.stock === 0 ? styles.criticalStock : ''}` : ''}>
+                            {product.stock === 0 ? "OUT OF STOCK" : product.stock}
+                          </span>
                         )}
                       </td>
-                      <td>
-                        <div className={styles.actionGroup}>
-                          {editingId === product.id ? (
-                            <>
-                              <button onClick={() => handleUpdateProduct(product.id)} className={styles.saveBtn}>Save</button>
-                              <button onClick={() => setEditingId(null)} className={styles.cancelBtn}>Cancel</button>
-                            </>
-                          ) : (
-                            <>
-                              <button onClick={() => {
-                                setEditingId(product.id);
-                                setEditForm({ 
-                                  name: product.name, 
-                                  price: product.price, 
-                                  description: product.description, 
-                                  category: product.category,
-                                  features: product.features || []
-                                });
-                              }} className={styles.editBtn}>Edit</button>
-                              <button onClick={() => handleDeleteProduct(product.id)} className={styles.deleteBtn}>Delete</button>
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5" style={{textAlign: 'center', padding: '2rem', color: '#666'}}>
-                      No products found matching your criteria.
+                    <td>
+                      {editingId === product.id ? (
+                        <input 
+                          type="number" 
+                          value={editForm.price} 
+                          onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
+                        />
+                      ) : `$${Number(product.price).toFixed(2)}`}
+                    </td>
+                    <td>
+                      {editingId === product.id ? (
+                        <select 
+                          value={editForm.category} 
+                          onChange={(e) => setEditForm({...editForm, category: e.target.value})} 
+                          className={styles.tableSelect}
+                        >
+                          {PRODUCT_CATEGORIES.map(cat => (
+                            <option key={cat} value={cat}>{cat}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className={styles.categoryBadge}>{product.category}</span>
+                      )}
+                    </td>
+                    <td>
+                      <div className={styles.actionGroup}>
+                        {editingId === product.id ? (
+                          <>
+                            <button onClick={() => handleUpdateProduct(product.id)} className={styles.saveBtn}>Save</button>
+                            <button onClick={() => setEditingId(null)} className={styles.cancelBtn}>Cancel</button>
+                          </>
+                        ) : (
+                          <>
+                          <button 
+                            onClick={() => handleQuickRestock(product)} 
+                            className={styles.restockBtn}
+                            title="Quick Restock"
+                          >
+                            + Add Stock
+                          </button>
+                            <button onClick={() => {
+                              setEditingId(product.id);
+                              setEditForm({ 
+                                name: product.name, 
+                                price: product.price, 
+                                description: product.description, 
+                                category: product.category,
+                                stock: product.stock, // 2. ADDED: Keeps the current stock value when you click Edit
+                                features: product.features || []
+                              });
+                            }} className={styles.editBtn}>Edit</button>
+                            <button onClick={() => handleDeleteProduct(product.id)} className={styles.deleteBtn}>Delete</button>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
-                )}
-              </tbody>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" style={{textAlign: 'center', padding: '2rem', color: '#666'}}>
+                    No products found matching your criteria.
+                  </td>
+                </tr>
+              )}
+            </tbody>
             </table>
           </section>
         )}
@@ -394,6 +471,17 @@ const AdminDashboard = () => {
                 ))}
               </div>
             </div>
+            <div className={styles.inputGroup}>
+                <label className={styles.fieldLabel}>Initial Stock:</label>
+                <input 
+                  type="number" 
+                  name="stock" 
+                  placeholder="0" 
+                  value={newProduct.stock} 
+                  onChange={handleChange} 
+                  required 
+                />
+              </div>
               <textarea name="description" placeholder="Description" value={newProduct.description} onChange={handleChange} required />
               <input type="number" name="price" placeholder="Price" value={newProduct.price} onChange={handleChange} required />
               

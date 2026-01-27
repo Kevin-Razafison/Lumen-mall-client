@@ -469,3 +469,52 @@
 .chip button:hover {
     color: #ff0000;
 }
+/* Highlight for the stock number specifically */
+.lowStockText {
+  color: #d32f2f; /* Warning Red */
+  font-weight: bold;
+  background-color: #ffebee; /* Light red background */
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #ffcdd2;
+  display: inline-block;
+}
+
+/* Optional: Highlight the entire row if stock is 0 */
+.outOfStockRow {
+  background-color: #fff1f0 !important;
+}
+
+/* A small pulse animation to draw the eye to critically low items */
+.criticalStock {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.restockBtn {
+  background-color: #52c41a; /* Success Green */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.restockBtn:hover {
+  background-color: #389e0d;
+}
+
+/* Optional: Space out the action group buttons */
+.actionGroup {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}

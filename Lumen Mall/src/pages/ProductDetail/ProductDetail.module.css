@@ -335,3 +335,56 @@
     font-weight: bold;
     text-transform: uppercase;
 }
+
+.adminReplyContainer {
+  margin-top: 15px;
+  margin-left: 20px; /* Indent to show it's a reply */
+  padding: 15px;
+  background-color: #f8f9fa; /* Light gray background */
+  border-left: 4px solid #007bff; /* Blue "official" border */
+  border-radius: 4px;
+}
+
+.adminBadge {
+  font-weight: bold;
+  font-size: 0.85rem;
+  color: #007bff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.adminReplyText {
+  margin-top: 8px;
+  font-style: italic;
+  color: #444;
+  line-height: 1.4;
+}
+
+.replyIcon {
+  margin-left: 8px;
+  color: #007bff;
+}
+
+.reviewActions {
+  margin-top: 12px;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.helpfulBtn {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #555;
+}
+
+.helpfulBtn:hover {
+  border-color: #007bff;
+  color: #007bff;
+  background-color: #f0f7ff;
+}

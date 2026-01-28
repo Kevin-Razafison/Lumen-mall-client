@@ -27,6 +27,9 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('All');
 
+  const [replyToId, setReplyToId] = useState(null);
+  const [replyText, setReplyText] = useState('');
+
   const lowStockCount = inventory.filter(p => p.stock > 0 && p.stock <= 5).length;
   const outOfStockCount = inventory.filter(p => p.stock === 0).length;
 
@@ -45,6 +48,21 @@ const AdminDashboard = () => {
     'Content-Type': 'application/json'
   };
 
+  const handleReply = async (id, replyText) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/reviews/${id}/reply`, {
+        method: 'PUT',
+        headers: secureHeaders,
+        body: replyText // Sending as plain string or wrap in object if preferred
+      });
+      if (response.ok) {
+        fetchAllReviews(); // Refresh to show the new reply
+        setReplyToId(null); // Close the input
+      }
+    } catch (err) {
+      console.error("Reply failed:", err);
+    }
+  };
   useEffect(() => {
     if (activeTab === 'inventory') fetchInventory();
     else if (activeTab === 'orders') fetchOrders();
@@ -852,7 +870,7 @@ const AdminDashboard = () => {
                   <th>Product Name</th>
                   <th>Customer</th>
                   <th>Rating</th>
-                  <th>Comment</th>
+                  <th>Comment & Reply</th> {/* Updated Header */}
                   <th>Action</th>
                 </tr>
               </thead>
@@ -862,23 +880,65 @@ const AdminDashboard = () => {
                     <tr key={rev.id}>
                       <td>#{rev.id}</td>
                       <td style={{ fontWeight: 'bold', color: '#2c3e50' }}>
-                        {/* 1. Directly use the name sent by the backend */}
                         {rev.productName || `Product ID: ${rev.productId}`}
                       </td>
                       <td>{rev.userEmail}</td>
                       <td>
-                        {/* 2. Visual stars for rating */}
                         <span style={{ color: '#f0c14b' }}>
                           {"★".repeat(rev.rating)}
                           <span style={{ color: '#e0e0e0' }}>{"★".repeat(5 - rev.rating)}</span>
                         </span>
                       </td>
-                      <td 
-                        style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} 
-                        title={rev.comment}
-                      >
-                        {rev.comment}
+                      
+                      {/* --- ENHANCED COMMENT & REPLY SECTION --- */}
+                      <td style={{ maxWidth: '400px' }}>
+                        <div style={{ marginBottom: '8px' }}>{rev.comment}</div>
+                        
+                        {rev.adminReply ? (
+                          <div style={{ 
+                            fontSize: '0.85rem', 
+                            backgroundColor: '#f0f7ff', 
+                            padding: '8px', 
+                            borderRadius: '4px', 
+                            borderLeft: '3px solid #007bff' 
+                          }}>
+                            <strong style={{ color: '#007bff' }}>Lumen Mall:</strong> {rev.adminReply}
+                          </div>
+                        ) : (
+                          replyToId === rev.id ? (
+                            <div style={{ marginTop: '10px' }}>
+                              <textarea 
+                                style={{ width: '100%', padding: '5px', borderRadius: '4px', border: '1px solid #ddd' }}
+                                value={replyText} 
+                                onChange={(e) => setReplyText(e.target.value)}
+                                placeholder="Type your response..."
+                              />
+                              <div style={{ marginTop: '5px' }}>
+                                <button 
+                                  onClick={() => handleReply(rev.id, replyText)}
+                                  style={{ padding: '2px 8px', marginRight: '5px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
+                                >
+                                  Send
+                                </button>
+                                <button 
+                                  onClick={() => setReplyToId(null)}
+                                  style={{ padding: '2px 8px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <button 
+                              onClick={() => { setReplyToId(rev.id); setReplyText(''); }}
+                              style={{ background: 'none', border: 'none', color: '#007bff', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline', padding: 0 }}
+                            >
+                              Reply to Customer
+                            </button>
+                          )
+                        )}
                       </td>
+
                       <td>
                         <button 
                           onClick={() => handleDeleteReview(rev.id)} 

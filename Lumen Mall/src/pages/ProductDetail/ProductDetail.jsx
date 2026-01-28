@@ -134,6 +134,27 @@ const ProductDetail = () => {
     setTimeout(() => setAdded(false), 2000);
   };
 
+  const handleHelpful = (reviewId) => {
+    if (!user) return;
+
+    fetch(`http://localhost:8080/api/reviews/${reviewId}/helpful`, {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${user?.token}`,
+        'Content-Type': 'application/json' // MUST add this header
+      },
+      // Wrap the email in an object to match the Map<String, String> on the backend
+      body: JSON.stringify({ userEmail: user.email }) 
+    })
+    .then(res => {
+      if (res.ok) {
+        fetchReviews(); 
+      } else {
+        console.log("Already marked as helpful or error occurred");
+      }
+    })
+    .catch(err => console.error("Helpful error:", err));
+  };
   return (
     <div className={styles.pageWrapper}>
       {/* ... Product Image and Info Sections (Same as before) ... */}
@@ -245,6 +266,30 @@ const ProductDetail = () => {
                   <span className={styles.reviewDate}>{new Date(rev.createdAt).toLocaleDateString()}</span>
                 </div>
                 <p className={styles.commentText}>{rev.comment}</p>
+
+                  {/* NEW: Admin Reply Section */}
+                  {rev.adminReply && (
+                    <div className={styles.adminReplyContainer}>
+                      <div className={styles.adminReplyHeader}>
+                        <span className={styles.adminBadge}>Official Response from Lumen Mall</span>
+                        <span className={styles.replyIcon}>↩</span>
+                      </div>
+                      <p className={styles.adminReplyText}>{rev.adminReply}</p>
+                    </div>
+                  )}
+                  {/* HELPFUL INTERACTION SECTION */}
+                <div className={styles.reviewActions}>
+                    <button 
+                        className={styles.helpfulBtn} 
+                        onClick={() => handleHelpful(rev.id)}
+                        disabled={!user} // Only logged in users can vote
+                    >
+                        <span className={styles.thumbIcon}>👍</span> 
+                        Helpful ({rev.helpfulCount || 0})
+                    </button>
+                    
+                    {!user && <span className={styles.loginToVote}>Login to vote</span>}
+                </div>
               </div>
             ))}
           </div>

@@ -43,7 +43,7 @@
 
 .content {
     flex: 1;
-    margin-left: 240px; 
+    margin-left: 300px; 
     padding: 2rem;
 }
 
@@ -773,4 +773,38 @@
   padding: 12px 0;
   font-size: 0.9rem;
   border-bottom: 1px solid #f9f9f9;
+}
+
+.statNumber {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin: 5px 0;
+  color: #2c3e50;
+}
+
+.warningCard {
+  border-left: 4px solid #f0c14b !important;
+  background-color: #fffdf5;
+}
+
+.criticalCard {
+  border-left: 4px solid #e74c3c !important;
+  background-color: #fff5f5;
+}
+
+.actionPrompt {
+  font-size: 0.75rem;
+  color: #007bff;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.statCard {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }

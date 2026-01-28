@@ -382,25 +382,36 @@ const AdminDashboard = () => {
   };
 
   const getTopProducts = () => {
-    const productCounts = {};
+      const productCounts = {};
 
-    orders.forEach(order => {
-      if (['PAID', 'SHIPPED', 'COMPLETED'].includes(order.status)) {
-        order.items?.forEach(item => {
-          const name = item.name || "Unknown Product";
-          productCounts[name] = (productCounts[name] || 0) + (item.quantity || 1);
-        });
-      }
-    });
+      orders.forEach(order => {
+        if (['PAID', 'SHIPPED', 'COMPLETED'].includes(order.status)) {
+          order.items?.forEach(item => {
+            // 1. Look up the product in inventory using the ID from the order item
+            const product = inventory.find(p => p.id.toString() === item.productId?.toString());
+            
+            // 2. Use the name from inventory, or fallback if not found
+            const name = product ? product.name : `Product #${item.productId}`;
+            
+            productCounts[name] = (productCounts[name] || 0) + (item.quantity || 1);
+          });
+        }
+      });
 
-    return Object.entries(productCounts)
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-  };
+      return Object.entries(productCounts)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5); 
+    };
 
   const topProducts = getTopProducts();
   const recentOrders = [...orders].sort((a, b) => b.id - a.id).slice(0, 5);
+  
+  const totalProducts = inventory.length;
+  const totalReviews = reviews.length;
+  const totalHelpfulVotes = reviews.reduce((acc, rev) => acc + (rev.helpfulCount || 0), 0);
+  const pendingReplies = reviews.filter(rev => !rev.adminReply).length;
+
   return (
     <div className={styles.adminContainer}>
       <aside className={styles.sidebar}>
@@ -430,27 +441,46 @@ const AdminDashboard = () => {
           <>
             <h1>Dashboard Overview</h1>
               <div className={styles.statsGrid}>
+                {/* 1. Total Products */}
                 <div className={styles.statCard} onClick={() => {setActiveTab('inventory'); setFilterCategory('All');}}>
                   <h3>Total Products</h3>
-                  <p>{inventory.length}</p>
+                  <p className={styles.statNumber}>{inventory.length}</p>
                 </div>
-                
-                {/* NEW: Clickable Low Stock Card */}
+
+                {/* 2. Total Revenue */}
+                <div className={styles.statCard}>
+                  <h3>Total Revenue</h3>
+                  <p className={styles.statNumber}>
+                    ${orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0).toFixed(2)}
+                  </p>
+                </div>
+
+                {/* 3. Community Engagement (Helpful Votes) */}
+                <div className={styles.statCard} style={{ borderLeftColor: '#f0c14b' }}>
+                  <h3>Helpful Votes</h3>
+                  <p className={styles.statNumber}>
+                    {reviews.reduce((acc, rev) => acc + (rev.helpfulCount || 0), 0)} 👍
+                  </p>
+                </div>
+
+                {/* 4. Action Needed: Unanswered Reviews */}
+                <div 
+                  className={`${styles.statCard} ${reviews.filter(r => !r.adminReply).length > 0 ? styles.warningCard : ''}`}
+                  onClick={() => setActiveTab('reviews')}
+                >
+                  <h3>Pending Replies</h3>
+                  <p className={styles.statNumber}>{reviews.filter(rev => !rev.adminReply).length}</p>
+                  {reviews.filter(r => !r.adminReply).length > 0 && <span className={styles.actionPrompt}>Reply Now →</span>}
+                </div>
+
+                {/* 5. Inventory Alert: Low Stock */}
                 <div 
                   className={`${styles.statCard} ${lowStockCount > 0 ? styles.warningCard : ''}`}
                   onClick={() => {setActiveTab('inventory'); setFilterCategory('Low Stock');}}
                 >
-                  <h3>Low Stock Alerts</h3>
-                  <p>{lowStockCount}</p>
-                  {lowStockCount > 0 && <span className={styles.actionPrompt}>View & Restock →</span>}
-                </div>
-
-                <div 
-                  className={`${styles.statCard} ${outOfStockCount > 0 ? styles.criticalCard : ''}`}
-                  onClick={() => {setActiveTab('inventory'); setFilterCategory('Out of Stock');}}
-                >
-                  <h3>Out of Stock</h3>
-                  <p>{outOfStockCount}</p>
+                  <h3>Low Stock</h3>
+                  <p className={styles.statNumber}>{lowStockCount}</p>
+                  {lowStockCount > 0 && <span className={styles.actionPrompt}>Restock →</span>}
                 </div>
               </div>
               {/* The Report Section */}
@@ -534,14 +564,6 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
-                          <div className={styles.statCard}>
-                <h3>Total Products</h3>
-                <p>{inventory.length}</p>
-              </div>
-              <div className={styles.statCard}>
-                <h3>Revenue</h3>
-                <p>${orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0).toFixed(2)}</p>
-              </div>
           </>
         )}
 

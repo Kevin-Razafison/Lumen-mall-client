@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Profile.module.css';
+import { Link } from 'react-router-dom';
 
 const Profile = () => {
   const { user, setUser } = useAuth();
@@ -27,6 +28,15 @@ const Profile = () => {
         imageUrl: user?.imageUrl || ''
     });
     setIsEditing(false);
+    };
+    const handleLogout = () => {
+        localStorage.removeItem('lumenUser');
+        setUser(null);
+        window.location.href = '/login';
+    };
+
+    const navigateTo = (path) => {
+      window.location.href = path;
     };
 
     const handleSave = async (e) => {
@@ -64,49 +74,63 @@ const Profile = () => {
     };
 
   return (
-    <div className={styles.heroWrapper}>
-      <div className={styles.hero} style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${formData.imageUrl || 'https://via.placeholder.com/1200x450'})` }}>
-        <form className={styles.content} onSubmit={handleSave}>
-          <div className={styles.avatarUpload}>
-             <label htmlFor="fileInput">
-               <div className={styles.profileCircle} style={{backgroundImage: `url(${formData.imageUrl})`}}>
-                 {!formData.imageUrl && formData.fullName.charAt(0)}
-               </div>
-             </label>
-             {isEditing && <input id="fileInput" type="file" onChange={handleFileChange} hidden />}
-          </div>
-
-          {isEditing ? (
-            <div className={styles.editFields}>
-              <input 
-                className={styles.editInput}
-                value={formData.fullName} 
-                onChange={(e) => setFormData({...formData, fullName: e.target.value})} 
-              />
-              <input 
-                className={styles.editInput}
-                value={formData.email} 
-                onChange={(e) => setFormData({...formData, email: e.target.value})} 
-              />
-            </div>
-          ) : (
-            <>
-              <h1 className={styles.title}>{formData.fullName}</h1>
-              <p className={styles.subtitle}>{formData.email}</p>
-            </>
-          )}
-
-          <div className={styles.btnGroup}>
-            {isEditing ? (
-            <div className={styles.btnGroup}>
-                <button type="submit" className={styles.shopBtn}>SAVE PROFILE</button>
-                <button type="button" onClick={handleCancel} className={styles.shopBtn} style={{marginLeft: '10px', opacity: 0.7}}>CANCEL</button>
-            </div>
-            ) : (
-            <button type="button" onClick={() => setIsEditing(true)} className={styles.shopBtn}>EDIT SETTINGS</button>
+    <div className={styles.profilePageWrapper}>
+      <div className={styles.heroWrapper}>
+        <div className={styles.hero} style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${formData.imageUrl || 'https://via.placeholder.com/1200x450'})` }}>
+          <form className={styles.content} onSubmit={handleSave}>
+            
+            {/* TOP RIGHT LOGOUT - Useful since you have no NavBar */}
+            {!isEditing && (
+              <button type="button" onClick={handleLogout} className={styles.logoutCorner}>
+                LOGOUT
+              </button>
             )}
-          </div>
-        </form>
+
+            <div className={styles.avatarUpload}>
+              <label htmlFor="fileInput">
+                <div className={styles.profileCircle} style={{backgroundImage: `url(${formData.imageUrl})`}}>
+                  {!formData.imageUrl && formData.fullName.charAt(0)}
+                </div>
+              </label>
+              {isEditing && <input id="fileInput" type="file" onChange={handleFileChange} hidden />}
+            </div>
+
+            {isEditing ? (
+              <div className={styles.editFields}>
+                <input className={styles.editInput} value={formData.fullName} onChange={(e) => setFormData({...formData, fullName: e.target.value})} />
+                <input className={styles.editInput} value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
+              </div>
+            ) : (
+              <>
+                <h1 className={styles.title}>{formData.fullName}</h1>
+                <p className={styles.subtitle}>{formData.email}</p>
+                
+                <div className={styles.quickStats}>
+                  <div className={styles.statItem} onClick={() => navigateTo('/shop')}>
+                    <span className={styles.statLabel}>BACK TO</span>
+                    <span className={styles.statValue}>SHOP</span>
+                  </div>
+                  <div className={styles.statDivider}></div>
+                  <Link to="/orders" className={styles.statItem} onClick={() => document.getElementById('orders-section').scrollIntoView({behavior: 'smooth'})}>
+                    <span className={styles.statLabel}>VIEW MY</span>
+                    <span className={styles.statValue}>ORDERS</span>
+                  </Link>
+                </div>
+              </>
+            )}
+
+            <div className={styles.btnGroup}>
+              {isEditing ? (
+                <div className={styles.btnGroup}>
+                  <button type="submit" className={styles.shopBtn}>SAVE PROFILE</button>
+                  <button type="button" onClick={handleCancel} className={styles.shopBtn} style={{marginLeft: '10px', opacity: 0.7}}>CANCEL</button>
+                </div>
+              ) : (
+                <button type="button" onClick={() => setIsEditing(true)} className={styles.shopBtn}>EDIT SETTINGS</button>
+              )}
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

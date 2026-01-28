@@ -25,7 +25,9 @@ const AdminDashboard = () => {
   
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('All');
-  
+
+  const lowStockCount = inventory.filter(p => p.stock > 0 && p.stock <= 5).length;
+  const outOfStockCount = inventory.filter(p => p.stock === 0).length;
 
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -51,16 +53,26 @@ const AdminDashboard = () => {
   const filteredInventory = inventory.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Category Filter
-    const matchesCategory = filterCategory === 'All' || product.category === filterCategory;
-    
-    // Stock/Sale Filters (Add this logic)
-    let matchesStock = true;
-    if (filterCategory === 'Low Stock') matchesStock = product.stock > 0 && product.stock <= 5;
-    if (filterCategory === 'Out of Stock') matchesStock = product.stock === 0;
-    if (filterCategory === 'On Sale') matchesStock = product.salePrice && product.salePrice < product.price;
+    // Logic for Stock/Sale Filters
+    const isLowStock = product.stock > 0 && product.stock <= 5;
+    const isOutOfStock = product.stock === 0;
+    const isOnSale = product.salePrice && product.salePrice < product.price;
 
-    return matchesSearch && (matchesCategory || matchesStock);
+    // Logic for Category Selection
+    let matchesFilter = false;
+    if (filterCategory === 'All') {
+      matchesFilter = true;
+    } else if (filterCategory === 'Low Stock') {
+      matchesFilter = isLowStock;
+    } else if (filterCategory === 'Out of Stock') {
+      matchesFilter = isOutOfStock;
+    } else if (filterCategory === 'On Sale') {
+      matchesFilter = isOnSale;
+    } else {
+      matchesFilter = product.category === filterCategory;
+    }
+
+    return matchesSearch && matchesFilter;
   });
 
   const fetchInventory = async () => {
@@ -302,10 +314,29 @@ const AdminDashboard = () => {
         {activeTab === 'dashboard' && (
           <>
             <h1>Dashboard Overview</h1>
-            <div className={styles.statsGrid}>
-              <div className={styles.statCard}>
-                <h3>Total Orders</h3>
-                <p>{orders.length}</p>
+              <div className={styles.statsGrid}>
+                <div className={styles.statCard} onClick={() => {setActiveTab('inventory'); setFilterCategory('All');}}>
+                  <h3>Total Products</h3>
+                  <p>{inventory.length}</p>
+                </div>
+                
+                {/* NEW: Clickable Low Stock Card */}
+                <div 
+                  className={`${styles.statCard} ${lowStockCount > 0 ? styles.warningCard : ''}`}
+                  onClick={() => {setActiveTab('inventory'); setFilterCategory('Low Stock');}}
+                >
+                  <h3>Low Stock Alerts</h3>
+                  <p>{lowStockCount}</p>
+                  {lowStockCount > 0 && <span className={styles.actionPrompt}>View & Restock →</span>}
+                </div>
+
+                <div 
+                  className={`${styles.statCard} ${outOfStockCount > 0 ? styles.criticalCard : ''}`}
+                  onClick={() => {setActiveTab('inventory'); setFilterCategory('Out of Stock');}}
+                >
+                  <h3>Out of Stock</h3>
+                  <p>{outOfStockCount}</p>
+                </div>
               </div>
               <div className={styles.statCard}>
                 <h3>Total Products</h3>
@@ -315,7 +346,6 @@ const AdminDashboard = () => {
                 <h3>Revenue</h3>
                 <p>${orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0).toFixed(2)}</p>
               </div>
-            </div>
           </>
         )}
 

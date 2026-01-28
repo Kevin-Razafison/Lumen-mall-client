@@ -290,3 +290,21 @@
 .clearSearch:hover {
     color: white;
 }
+
+.invoiceBtn {
+    background: transparent;
+    border: 1px solid #febd69;
+    color: #febd69;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+}
+
+.invoiceBtn:hover {
+    background: rgba(254, 189, 105, 0.1);
+    transform: translateY(-1px);
+}

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext'; 
 import { useCart } from '../../context/CartContext'; 
 import { useNavigate } from 'react-router-dom';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable'; 
 import styles from './Orders.module.css';
 
 const Orders = () => {
@@ -10,8 +12,6 @@ const Orders = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  // State for search input
   const [searchQuery, setSearchQuery] = useState('');
 
   const getStatusStep = (status) => {
@@ -47,7 +47,55 @@ const Orders = () => {
     fetchOrders();
   }, [user]);
 
-  // Filtering Logic: Check ID or Product Name
+  // PDF Generation Logic (Fixed autoTable function call)
+  const downloadInvoice = (order) => {
+    const doc = new jsPDF();
+
+    // Branding
+    doc.setFontSize(22);
+    doc.setTextColor(254, 189, 105); // #febd69
+    doc.text("LUMEN MALL", 14, 20);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Invoice: LMN-${order.id}`, 14, 30);
+    doc.text(`Date: ${new Date(order.orderDate || order.createdAt).toLocaleDateString()}`, 14, 35);
+
+    // Shipping Info
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.text("Shipping Address:", 14, 50);
+    doc.setFontSize(10);
+    doc.text(`${order.customerName || 'Customer'}`, 14, 57);
+    doc.text(`${order.shippingAddress || 'No address provided'}`, 14, 62);
+
+    // Table
+    const tableColumn = ["Product", "Qty", "Price", "Total"];
+    const tableRows = order.items.map(item => [
+      item.productName || item.name || `ID: ${item.productId}`,
+      item.quantity,
+      `$${item.price.toFixed(2)}`,
+      `$${(item.quantity * item.price).toFixed(2)}`
+    ]);
+
+    // Use autoTable function directly
+    autoTable(doc, {
+      startY: 70,
+      head: [tableColumn],
+      body: tableRows,
+      headStyles: { fillColor: [43, 48, 58] },
+      theme: 'striped'
+    });
+
+    // Get position after table
+    const finalY = doc.lastAutoTable.finalY + 10;
+    doc.setFontSize(14);
+    doc.text(`Total Paid: $${order.totalAmount.toFixed(2)}`, 140, finalY);
+
+    doc.save(`Lumen_Invoice_${order.id}.pdf`);
+  };
+
+  // Filtering Logic
   const filteredOrders = orders.filter(order => {
     const matchesId = order.id.toString().includes(searchQuery);
     const matchesProduct = order.items?.some(item => 
@@ -93,19 +141,15 @@ const Orders = () => {
     <div className={styles.ordersContainer}>
       <div className={styles.headerSection}>
         <h1 className={styles.title}>Your Order History</h1>
-        
-        {/* Search Bar Implementation */}
         <div className={styles.searchWrapper}>
           <input 
             type="text" 
-            placeholder="Search by Order ID or Product..." 
+            placeholder="Search by ID or Product..." 
             className={styles.searchInput}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          {searchQuery && (
-            <button className={styles.clearSearch} onClick={() => setSearchQuery('')}>✕</button>
-          )}
+          {searchQuery && <button className={styles.clearSearch} onClick={() => setSearchQuery('')}>✕</button>}
         </div>
       </div>
 
@@ -131,7 +175,6 @@ const Orders = () => {
                   </span>
                 </div>
 
-                {/* Timeline UI */}
                 <div className={styles.trackingTimeline}>
                   {['Placed', 'Paid', 'Shipped', 'Delivered'].map((step, index) => {
                     const isActive = !isCancelled && index <= getStatusStep(order.status);
@@ -152,16 +195,12 @@ const Orders = () => {
                   {order.items?.map((item, index) => (
                     <div key={index} className={styles.itemRow}>
                       <div className={styles.itemMain}>
-                        {item.imageUrl && (
-                          <img src={item.imageUrl} className={styles.miniItemImg} alt="product" />
-                        )}
+                        {item.imageUrl && <img src={item.imageUrl} className={styles.miniItemImg} alt="product" />}
                         <div className={styles.itemDetails}>
-                          <span className={styles.productName}>
-                            {item.productName || item.name || `Item ID: ${item.productId}`}
-                          </span>
+                          <span className={styles.productName}>{item.productName || item.name || `Item ID: ${item.productId}`}</span>
                           <div className={styles.itemMeta}>
                             <span className={styles.productId}>Ref: {item.productId}</span>
-                            <span className={styles.qty}>Quantity: {item.quantity}</span>
+                            <span className={styles.qty}>Qty: {item.quantity}</span>
                           </div>
                         </div>
                       </div>
@@ -176,17 +215,12 @@ const Orders = () => {
                       {isCompleted ? 'Delivered' : (order.status || 'Paid')}
                     </span>
 
-                    {canCancel && (
-                      <button onClick={() => handleCancelOrder(order.id)} className={styles.cancelBtn}>
-                        Cancel
-                      </button>
-                    )}
-
-                    {isFinished && (
-                      <button onClick={() => handleReorder(order.items)} className={styles.reorderBtn}>
-                        Reorder
-                      </button>
-                    )}
+                    {canCancel && <button onClick={() => handleCancelOrder(order.id)} className={styles.cancelBtn}>Cancel</button>}
+                    {isFinished && <button onClick={() => handleReorder(order.items)} className={styles.reorderBtn}>Reorder</button>}
+                    
+                    <button onClick={() => downloadInvoice(order)} className={styles.invoiceBtn}>
+                      Invoice
+                    </button>
                   </div>
                   
                   <div className={styles.totalBox}>

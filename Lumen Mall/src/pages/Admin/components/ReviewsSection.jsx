@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import styles from './ReviewsSection.module.css'; // Kept exactly as requested
-import API_BASE_URL from '../../../config.js'
+import {API_BASE_URL} from '../../../config.js'
 
 const ReviewsSection = () => {
   // Logic must be inside the component function to access context and state

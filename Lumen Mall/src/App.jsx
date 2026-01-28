@@ -16,6 +16,12 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import OrderSuccess from './pages/Checkout/OrderSuccess';
 import Profile from './pages/Profile/Profile';
+import DashboardOverview from './pages/Admin/components/DashboardOverview';
+import InventorySection from './pages/Admin/components/inventory/InventorySection';
+import AddProductForm from './pages/Admin/components/AddProductForm';
+import OrdersSection from './pages/Admin/components/OrdersSection';
+import UsersSection from './pages/Admin/components/UsersSection';
+import ReviewsSection from './pages/Admin/components/ReviewsSection';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -63,10 +69,18 @@ const AppContent = () => {
           element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} 
         />
 
-        <Route 
-          path="/admin" 
-          element={<ProtectedRoute adminOnly={true}><AdminDashboard /></ProtectedRoute>} 
-        />
+      <Route 
+        path="/admin/*" 
+        element={<ProtectedRoute adminOnly={true}><AdminDashboard /></ProtectedRoute>} 
+      >
+        {/* These will render inside the AdminDashboard's Outlet */}
+        <Route index element={<DashboardOverview />} />
+        <Route path="inventory" element={<InventorySection />} />
+        <Route path="add-product" element={<AddProductForm />} />
+        <Route path="orders" element={<OrdersSection />} />
+        <Route path="users" element={<UsersSection />} />
+        <Route path="reviews" element={<ReviewsSection />} />
+      </Route>
 
         <Route path="*" element={<Home />} /> 
       </Routes>

@@ -1,0 +1,42 @@
+/* Reviews Section Styles */
+.inventorySection {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.inventoryTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.inventoryTable th,
+.inventoryTable td {
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.inventoryTable th {
+    background-color: #f8f9fa;
+    color: #666;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.deleteBtn {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+}
+
+.deleteBtn:hover {
+    background-color: #cc0000;
+}

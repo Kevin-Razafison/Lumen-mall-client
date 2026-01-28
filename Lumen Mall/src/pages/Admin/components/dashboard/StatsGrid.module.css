@@ -1,0 +1,69 @@
+/* Dashboard Statistics Grid */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.statCard {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border-left: 5px solid #febd69;
+    font-weight: bold;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.statCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.statNumber {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin: 5px 0;
+    color: #2c3e50;
+}
+
+/* Warning and Critical State Cards */
+.warningCard {
+    border-left: 5px solid #f0c14b !important;
+    background-color: #fffdf5;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.warningCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(240, 193, 75, 0.2);
+}
+
+.warningCard p {
+    color: #856404;
+}
+
+.criticalCard {
+    border-left: 5px solid #ff4d4d !important;
+    background-color: #fffafa;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.criticalCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(255, 77, 77, 0.2);
+}
+
+.criticalCard p {
+    color: #b12704;
+}
+
+.actionPrompt {
+    display: block;
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #007185; 
+    text-decoration: underline;
+}

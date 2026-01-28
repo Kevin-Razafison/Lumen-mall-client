@@ -1,0 +1,53 @@
+/* Top Selling Products Section */
+.topProductsSection {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.productList {
+    margin-top: 1rem;
+}
+
+.productRankItem {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f2f2;
+}
+
+.productRankItem:last-child {
+    border-bottom: none;
+}
+
+.rankNumber {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #febd69;
+    width: 30px;
+}
+
+.rankInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.rankName {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #232f3e;
+}
+
+.rankCount {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.emptyState {
+    text-align: center;
+    color: #999;
+    padding: 2rem;
+    font-style: italic;
+}

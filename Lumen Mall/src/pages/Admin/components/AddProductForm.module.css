@@ -1,0 +1,163 @@
+/* Add Product Form Styles */
+.formSection {
+    margin-left: 35px;
+}
+
+.productForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 500px;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.productForm input,
+.productForm textarea {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.productForm textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.fieldLabel {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #232f3e;
+    margin-bottom: 8px;
+}
+
+/* Category Select */
+.categorySelect {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f0f2f2;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+.categorySelect:focus {
+    border-color: #febd69;
+    outline: none;
+    box-shadow: 0 0 3px rgba(254, 189, 105, 0.5);
+}
+
+/* Features Section */
+.featureSection {
+    margin: 15px 0;
+    padding: 10px;
+    background-color: #f7f7f7;
+    border-radius: 6px;
+    border: 1px dashed #ccc;
+}
+
+.featureInputGroup {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.featureInputGroup input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.addFeatureBtn {
+    background-color: #232f3e;
+    color: white;
+    border: none;
+    padding: 0 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.addFeatureBtn:hover {
+    background-color: #37475a;
+}
+
+.featureChips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chip {
+    background-color: #febd69;
+    color: #232f3e;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.chip button {
+    background: none;
+    border: none;
+    color: #a30000;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chip button:hover {
+    color: #ff0000;
+}
+
+/* File Upload */
+.fileUploadGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.imagePreview {
+    border: 1px dashed #ddd;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    background: #fafafa;
+}
+
+/* Submit Button */
+.submitBtn {
+    background-color: #febd69;
+    border: none;
+    padding: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.submitBtn:hover {
+    background-color: #f3a847;
+}

@@ -1,0 +1,25 @@
+/* Inventory Search and Filter Controls */
+.filterControls {
+    display: flex;
+    gap: 15px;
+}
+
+.searchInput {
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 250px;
+    outline: none;
+}
+
+.searchInput:focus {
+    border-color: #febd69;
+}
+
+.categoryFilter {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background: white;
+    cursor: pointer;
+}

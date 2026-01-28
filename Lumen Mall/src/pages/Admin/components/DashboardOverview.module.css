@@ -1,0 +1,7 @@
+/* Dashboard Overview Layout */
+.dashboardGrid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin-top: 30px;
+}

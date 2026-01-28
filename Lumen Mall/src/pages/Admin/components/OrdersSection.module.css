@@ -1,0 +1,77 @@
+/* Orders Section Styles */
+.inventorySection {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.inventoryTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.inventoryTable th,
+.inventoryTable td {
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.inventoryTable th {
+    background-color: #f8f9fa;
+    color: #666;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.statusBadge {
+    background-color: #e1f5fe;
+    color: #039be5;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Status-specific badge colors */
+.paid {
+    background-color: #c8e6c9;
+    color: #2e7d32;
+}
+
+.shipped {
+    background-color: #fff9c4;
+    color: #f57f17;
+}
+
+.completed {
+    background-color: #b2dfdb;
+    color: #00695c;
+}
+
+.cancelled {
+    background-color: #ffcdd2;
+    color: #c62828;
+}
+
+.awaiting_payment {
+    background-color: #e1f5fe;
+    color: #0277bd;
+}
+
+.statusSelect {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background-color: #f0f2f2;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.statusSelect:focus {
+    border-color: #febd69;
+    outline: none;
+}

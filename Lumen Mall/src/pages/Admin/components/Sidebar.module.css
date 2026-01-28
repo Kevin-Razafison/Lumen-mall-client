@@ -1,0 +1,98 @@
+.sidebar {
+    width: 240px;
+    background-color: #232f3e;
+    color: white;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+}
+
+.logoSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #37475a;
+    margin-bottom: 1.5rem;
+}
+
+.adminLogo {
+    width: 80px; 
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.sidebar h2 {
+    font-size: 1.2rem;
+    margin: 0;
+    color: #febd69;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.navMenu {
+    flex: 1;
+    max-height: 500px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar li {
+    padding: 12px 15px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.sidebar li:hover {
+    background-color: #37475a;
+}
+
+.active {
+    background-color: #37475a;
+    color: #febd69 !important;
+    font-weight: bold;
+    border-left: 4px solid #febd69; 
+    padding-left: 11px; 
+}
+.sidebarFooter {
+    border-top: 1px solid #37475a;
+    padding-top: 1rem;
+}
+
+.logoutBtn {
+    width: 100%;
+    background: transparent;
+    color: #ff4d4d;
+    border: 1px solid #ff4d4d;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.logoutBtn:hover {
+    background: #ff4d4d;
+    color: white;
+}
+
+.navItem {
+    display: block;
+    padding: 12px 15px;
+    color: white;
+    text-decoration: none; /* Removes the ugly underline */
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+}
+
+.navItem:hover {
+    background-color: #37475a;
+    color: #febd69; /* Amazon-style orange hover */
+}

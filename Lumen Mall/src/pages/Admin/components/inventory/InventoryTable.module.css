@@ -1,0 +1,176 @@
+/* Inventory Table Styles */
+.inventoryTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.inventoryTable th,
+.inventoryTable td {
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.inventoryTable th {
+    background-color: #f8f9fa;
+    color: #666;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.inventoryTable input {
+    padding: 4px;
+    border: 1px solid #febd69;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.tableThumb {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+    background: #f0f0f0;
+}
+
+/* Stock Status Styles */
+.lowStockText {
+    color: #f0c14b;
+    font-weight: bold;
+    background-color: #ffebee;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #ffcdd2;
+    display: inline-block;
+}
+
+.criticalStock {
+    color: #ff4d4d;
+    font-weight: bold;
+    text-transform: uppercase;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.outOfStockRow {
+    background-color: rgba(255, 77, 77, 0.1);
+}
+
+/* Price Display */
+.priceDisplay {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.originalPriceMuted {
+    text-decoration: line-through;
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.salePriceActive {
+    color: #ff4d4d;
+    font-weight: bold;
+}
+
+.editPriceGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.editPriceGroup input {
+    width: 80px;
+    font-size: 0.8rem;
+}
+
+/* Category Badge */
+.categoryBadge {
+    background: #333;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: #00e5ff;
+}
+
+/* Action Buttons */
+.actionGroup {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.restockBtn {
+    background-color: #52c41a;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.restockBtn:hover {
+    background-color: #389e0d;
+}
+
+.editBtn {
+    background-color: #232f3e;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.saveBtn {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+.cancelBtn {
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.deleteBtn {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+}
+
+.deleteBtn:hover {
+    background-color: #cc0000;
+}
+
+/* Table Select */
+.tableSelect {
+    padding: 5px;
+    border: 1px solid #febd69;
+    border-radius: 4px;
+    background: white;
+    width: 100%;
+}

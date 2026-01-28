@@ -1,0 +1,73 @@
+/* Monthly Revenue Chart Styles */
+.reportSection {
+    margin-top: 40px;
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.reportHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.exportBtn {
+    background-color: #f0f2f2;
+    border: 1px solid #d5d9d9;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: background 0.2s;
+}
+
+.exportBtn:hover {
+    background-color: #e7e9ec;
+}
+
+.chartContainer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    height: 200px;
+    margin-top: 30px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+.chartBarWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.chartBar {
+    width: 40px;
+    background: linear-gradient(to top, #232f3e, #37475a);
+    border-radius: 4px 4px 0 0;
+    transition: height 0.5s ease-out, background 0.3s;
+    min-height: 2px;
+}
+
+.chartBar:hover {
+    background: #febd69;
+}
+
+.barLabel {
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #666;
+}
+
+.monthName {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #333;
+}

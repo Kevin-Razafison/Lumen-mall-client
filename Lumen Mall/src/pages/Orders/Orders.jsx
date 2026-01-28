@@ -16,6 +16,7 @@ const Orders = () => {
 
   // Review System State
   const [reviewingOrder, setReviewingOrder] = useState(null);
+  const [selectedProductId, setSelectedProductId] = useState("");
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
 
@@ -167,12 +168,40 @@ const Orders = () => {
     navigate('/cart');
   };
 
-  const handleSubmitReview = (orderId) => {
-    console.log("Submitting Review:", { orderId, rating, comment });
-    alert("Review submitted! Thank you for your feedback.");
-    setReviewingOrder(null);
-    setComment("");
-    setRating(5);
+  const handleSubmitReview = () => {
+    if (!selectedProductId) {
+      alert("Please select a product to review.");
+      return;
+    }
+
+    const reviewData = {
+      orderId: reviewingOrder.id,
+      productId: selectedProductId.toString(),
+      userEmail: user.email,
+      rating: rating,
+      comment: comment
+    };
+
+    fetch(`http://localhost:8080/api/reviews`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${user?.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(reviewData)
+    })
+    .then(res => {
+      if (res.ok) {
+        alert("Review submitted! Thank you for your feedback.");
+        setReviewingOrder(null);
+        setComment("");
+        setRating(5);
+        setSelectedProductId("");
+      } else {
+        alert("Failed to submit review.");
+      }
+    })
+    .catch(err => console.error("Review submit error:", err));
   };
 
   if (loading) return <div className={styles.loader}>Loading your orders...</div>;
@@ -258,7 +287,10 @@ const Orders = () => {
 
                     {canCancel && <button onClick={() => handleCancelOrder(order.id)} className={styles.cancelBtn}>Cancel</button>}
                     {isFinished && <button onClick={() => handleReorder(order.items)} className={styles.reorderBtn}>Reorder</button>}
-                    {isCompleted && <button onClick={() => setReviewingOrder(order)} className={styles.reviewBtn}>Review</button>}
+                    {isCompleted && <button onClick={() => {
+                        setReviewingOrder(order);
+                        if(order.items.length > 0) setSelectedProductId(order.items[0].productId);
+                    }} className={styles.reviewBtn}>Review</button>}
                     
                     <button onClick={() => downloadInvoice(order)} className={styles.invoiceBtn}>
                       Invoice
@@ -281,6 +313,24 @@ const Orders = () => {
         <div className={styles.modalOverlay}>
           <div className={styles.reviewModal}>
             <h2>Rate Your Order #{reviewingOrder.id}</h2>
+            
+            {/* Product Selection for Review */}
+            <div className={styles.productSelectGroup}>
+                <label>Select Item to Review:</label>
+                <select 
+                    value={selectedProductId} 
+                    onChange={(e) => setSelectedProductId(e.target.value)}
+                    className={styles.commentArea}
+                    style={{height: 'auto', marginBottom: '15px'}}
+                >
+                    {reviewingOrder.items.map(item => (
+                        <option key={item.productId} value={item.productId}>
+                            {item.productName || item.name}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
             <div className={styles.starRating}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <span key={star} className={star <= rating ? styles.starFilled : styles.starEmpty} onClick={() => setRating(star)}>★</span>
@@ -294,7 +344,7 @@ const Orders = () => {
             />
             <div className={styles.modalActions}>
               <button onClick={() => setReviewingOrder(null)} className={styles.modalCancel}>Close</button>
-              <button onClick={() => handleSubmitReview(reviewingOrder.id)} className={styles.submitBtn}>Submit Review</button>
+              <button onClick={handleSubmitReview} className={styles.submitBtn}>Submit Review</button>
             </div>
           </div>
         </div>

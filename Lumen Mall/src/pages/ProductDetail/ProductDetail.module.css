@@ -121,3 +121,83 @@
 .listPrice span {
   text-decoration: line-through;
 }
+
+.pageWrapper {
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.ratingSummary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.stars { color: #f0c14b; font-size: 1.2rem; }
+.ratingCount { color: #007185; font-size: 0.9rem; font-weight: bold; }
+
+/* Review Section Styles */
+.reviewsSection {
+    margin-top: 50px;
+    padding: 20px;
+}
+
+.reviewsSection h2 {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    font-weight: 800;
+}
+
+.reviewsList {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.reviewCard {
+    padding-bottom: 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.reviewHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.userAvatar {
+    width: 35px;
+    height: 35px;
+    background: #febd69;
+    color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+.userName { font-weight: 700; font-size: 0.95rem; }
+.verifiedPurchase { color: #c45500; font-size: 0.8rem; font-weight: bold; margin-left: 5px; }
+
+.ratingRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.reviewStars { color: #f0c14b; font-size: 0.9rem; }
+.reviewDate { color: rgba(255, 255, 255, 0.5); font-size: 0.8rem; }
+
+.commentText {
+    line-height: 1.6;
+    color: #e0e0e0;
+}
+
+.noReviews {
+    color: #888;
+    font-style: italic;
+}

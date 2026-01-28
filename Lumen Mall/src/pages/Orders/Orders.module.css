@@ -308,3 +308,27 @@
     background: rgba(254, 189, 105, 0.1);
     transform: translateY(-1px);
 }
+
+.titleGroup {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.summaryBtn {
+    background: #febd69;
+    color: #1a1a1a;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.summaryBtn:hover {
+    background: #f7a93e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(254, 189, 105, 0.2);
+}

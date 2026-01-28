@@ -95,6 +95,43 @@ const Orders = () => {
     doc.save(`Lumen_Invoice_${order.id}.pdf`);
   };
 
+  const downloadSummary = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(20);
+    doc.setTextColor(254, 189, 105);
+    doc.text("PURCHASE SUMMARY REPORT", 14, 20);
+
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 28);
+    doc.text(`User: ${user.email}`, 14, 33);
+
+    const tableColumn = ["Order ID", "Date", "Status", "Items", "Total"];
+    const tableRows = filteredOrders.map(order => [
+      `#${order.id}`,
+      new Date(order.orderDate || order.createdAt).toLocaleDateString(),
+      order.status,
+      order.items.length,
+      `$${order.totalAmount.toFixed(2)}`
+    ]);
+
+    autoTable(doc, {
+      startY: 40,
+      head: [tableColumn],
+      body: tableRows,
+      headStyles: { fillColor: [254, 189, 105], textColor: [0, 0, 0] },
+    });
+
+    const grandTotal = filteredOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+    const finalY = doc.lastAutoTable.finalY + 10;
+    
+    doc.setFontSize(14);
+    doc.setTextColor(0);
+    doc.text(`Grand Total: $${grandTotal.toFixed(2)}`, 140, finalY);
+
+    doc.save(`Order_Summary_${new Date().getTime()}.pdf`);
+  };
+
   // Filtering Logic
   const filteredOrders = orders.filter(order => {
     const matchesId = order.id.toString().includes(searchQuery);
@@ -141,6 +178,9 @@ const Orders = () => {
     <div className={styles.ordersContainer}>
       <div className={styles.headerSection}>
         <h1 className={styles.title}>Your Order History</h1>
+        <button onClick={downloadSummary} className={styles.summaryBtn}>
+          Download Report ({filteredOrders.length})
+        </button>
         <div className={styles.searchWrapper}>
           <input 
             type="text" 

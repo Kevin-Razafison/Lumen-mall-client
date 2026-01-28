@@ -1,13 +1,14 @@
 import React from 'react';
 import { useOutletContext } from 'react-router-dom';
 import styles from './UsersSection.module.css'; // Fixed import path
+import { API_BASE_URL } from '../../../config';
 
 const UsersSection = () => {
   const { users = [], setUsers, secureHeaders, currentUserId } = useOutletContext();
 
   const handleRoleChange = async (userId, newRole) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/users/${userId}/role`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/${userId}/role`, {
         method: 'PUT',
         headers: secureHeaders,
         body: JSON.stringify(newRole)

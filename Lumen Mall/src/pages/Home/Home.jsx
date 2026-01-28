@@ -4,6 +4,7 @@ import Hero from '../../components/Hero/Hero';
 import CategoryNav from '../../components/Hero/CategoryNav';
 import ProductCard, { ProductCardSkeleton } from '../../components/ProductCard/ProductCard';
 import styles from './Home.module.css';
+import { API_BASE_URL } from '../../config';
 
 const Home = () => {
   const [searchParams] = useSearchParams();
@@ -14,7 +15,7 @@ const Home = () => {
   const categoryTerm = searchParams.get('category') || '';
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/products")
+    fetch(`${API_BASE_URL}/api/products`)
       .then((res) => res.json())
       .then((data) => {
         setProducts(Array.isArray(data) ? data : []);

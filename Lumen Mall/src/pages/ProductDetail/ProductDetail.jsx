@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import styles from './ProductDetail.module.css';
+import { API_BASE_URL } from '../../config';
 
 const ProductDetail = () => {
   const { productId } = useParams();
@@ -25,7 +26,7 @@ const ProductDetail = () => {
   const [selectedRating, setSelectedRating] = useState(5);
 
   const fetchReviews = () => {
-    fetch(`http://localhost:8080/api/reviews/product/${productId}`)
+    fetch(`${API_BASE_URL}/api/reviews/product/${productId}`)
       .then(res => res.json())
       .then(data => setReviews(data))
       .catch(err => console.error("Reviews fetch error:", err));
@@ -33,7 +34,7 @@ const ProductDetail = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:8080/api/products/${productId}`)
+    fetch(`${API_BASE_URL}/api/products/${productId}`)
       .then((res) => {
         if (!res.ok) throw new Error("Product not found");
         return res.json();
@@ -51,7 +52,7 @@ const ProductDetail = () => {
 
     // Check if user is eligible for a verified review
     if (user) {
-      fetch(`http://localhost:8080/api/reviews/can-review/${productId}`, {
+      fetch(`${API_BASE_URL}/api/reviews/can-review/${productId}`, {
         headers: { 'Authorization': `Bearer ${user.token}` }
       })
       .then(res => res.json())
@@ -62,7 +63,7 @@ const ProductDetail = () => {
 
   const handleDeleteComment = (reviewId) => {
     if (!window.confirm("Are you sure you want to delete this comment?")) return;
-    fetch(`http://localhost:8080/api/reviews/${reviewId}`, {
+    fetch(`${API_BASE_URL}/api/reviews/${reviewId}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${user?.token}` }
     })
@@ -100,7 +101,7 @@ const ProductDetail = () => {
       orderId: eligibleOrderId 
     };
 
-    fetch(`http://localhost:8080/api/reviews`, {
+    fetch(`${API_BASE_URL}/api/reviews`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${user?.token}`,
@@ -137,7 +138,7 @@ const ProductDetail = () => {
   const handleHelpful = (reviewId) => {
     if (!user) return;
 
-    fetch(`http://localhost:8080/api/reviews/${reviewId}/helpful`, {
+    fetch(`${API_BASE_URL}/api/reviews/${reviewId}/helpful`, {
       method: 'POST',
       headers: { 
         'Authorization': `Bearer ${user?.token}`,

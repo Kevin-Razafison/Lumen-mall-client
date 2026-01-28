@@ -5,6 +5,7 @@ import styles from './Checkout.module.css';
 import { useLocation } from '../../context/LocationContext';
 import { useNavigate } from 'react-router-dom';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { API_BASE_URL } from '../../config';
 
 const Checkout = () => {
   const stripe = useStripe();
@@ -69,7 +70,7 @@ const Checkout = () => {
       if (paymentMethod === 'Credit Card') {
         if (!stripe || !elements) return;
 
-        const intentRes = await fetch('http://localhost:8080/api/payments/create-payment-intent', {
+        const intentRes = await fetch(`${API_BASE_URL}/api/payments/create-payment-intent`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ amount: finalGrandTotal, email: formData.email })
@@ -86,7 +87,7 @@ const Checkout = () => {
 
       // 2. Handle PayPal (Redirect logic)
       if (paymentMethod === 'PayPal') {
-        const paypalRes = await fetch('http://localhost:8080/api/payments/paypal/create', {
+        const paypalRes = await fetch(`${API_BASE_URL}/api/payments/paypal/create`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ amount: finalGrandTotal }) 
@@ -114,7 +115,7 @@ const Checkout = () => {
         }))
       };
 
-      const orderResponse = await fetch('http://localhost:8080/api/orders', {
+      const orderResponse = await fetch(`${API_BASE_URL}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)

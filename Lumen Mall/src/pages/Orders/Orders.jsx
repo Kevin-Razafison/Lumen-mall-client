@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable'; 
 import styles from './Orders.module.css';
+import { API_BASE_URL } from '../../config';
 
 const Orders = () => {
   const { user } = useAuth(); 
@@ -31,7 +32,7 @@ const Orders = () => {
   const fetchOrders = () => {
     const actualToken = user?.token;
     if (user?.email && actualToken) {
-      fetch(`http://localhost:8080/api/orders/user/${user.email}`, {
+      fetch(`${API_BASE_URL}/api/orders/user/${user.email}`, {
         headers: {
           'Authorization': `Bearer ${actualToken}`, 
           'Content-Type': 'application/json'
@@ -139,7 +140,7 @@ const Orders = () => {
 
   const handleCancelOrder = (orderId) => {
     if (window.confirm("Are you sure you want to cancel this order?")) {
-      fetch(`http://localhost:8080/api/orders/${orderId}/status?status=CANCELLED`, {
+      fetch(`${API_BASE_URL}/api/orders/${orderId}/status?status=CANCELLED`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${user?.token}`,
@@ -182,7 +183,7 @@ const Orders = () => {
       comment: comment
     };
 
-    fetch(`http://localhost:8080/api/reviews`, {
+    fetch(`${API_BASE_URL}/api/reviews`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${user?.token}`,

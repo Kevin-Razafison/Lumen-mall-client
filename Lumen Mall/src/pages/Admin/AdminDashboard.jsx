@@ -4,6 +4,7 @@ import styles from './AdminDashboard.module.css';
 import { useAuth } from '../../context/AuthContext';
 import Sidebar from './components/Sidebar';
 import { LuMenu, LuX } from 'react-icons/lu'; // Ensure these are installed
+import { API_BASE_URL } from '../../config';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -38,7 +39,7 @@ const AdminDashboard = () => {
 
   const fetchInventory = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/products');
+      const response = await fetch(`${API_BASE_URL}/api/products`);
       const data = await response.json();
       setInventory(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -50,7 +51,7 @@ const AdminDashboard = () => {
   const fetchAllReviews = async () => {
     if (!user?.token) return;
     try {
-      const response = await fetch('http://localhost:8080/api/reviews/all', { headers: secureHeaders });
+      const response = await fetch(`${API_BASE_URL}/api/reviews/all`, { headers: secureHeaders });
       const data = await response.json();
       setReviews(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -61,7 +62,7 @@ const AdminDashboard = () => {
   const fetchOrders = async () => {
     if (!user?.token) return;
     try {
-      const response = await fetch('http://localhost:8080/api/orders/all', { headers: secureHeaders });
+      const response = await fetch(`${API_BASE_URL}/api/orders/all`, { headers: secureHeaders });
       const data = await response.json();
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -72,7 +73,7 @@ const AdminDashboard = () => {
   const fetchUsers = async () => {
     if (!user?.token) return;
     try {
-      const response = await fetch('http://localhost:8080/api/users/all', { headers: secureHeaders });
+      const response = await fetch(`${API_BASE_URL}/api/users/all`, { headers: secureHeaders });
       const data = await response.json();
       setUsers(Array.isArray(data) ? data : []);
     } catch (err) {

@@ -3,6 +3,8 @@ import { useAuth } from '../../context/AuthContext';
 import styles from './Profile.module.css';
 import { Link } from 'react-router-dom';
 
+import { API_BASE_URL } from '../config';
+
 const Profile = () => {
   const { user, setUser } = useAuth();
   const [formData, setFormData] = useState({
@@ -42,7 +44,7 @@ const Profile = () => {
     const handleSave = async (e) => {
     e.preventDefault();
     try {
-        const response = await fetch('http://localhost:8080/api/users/profile/update', {
+        const response = await fetch(`${API_BASE_URL}/api/users/profile/update`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${user.token}`,

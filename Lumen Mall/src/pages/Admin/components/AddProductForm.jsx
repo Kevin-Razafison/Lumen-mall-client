@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import styles from './AddProductForm.module.css';
+import { API_BASE_URL } from '../../../config';
 
 const PRODUCT_CATEGORIES = ['Electronics', 'Smart Home', 'Wearables', 'Audio', 'Drones', 'New Arrival'];
 
@@ -49,7 +50,7 @@ const AddProductForm = () => {
   const handleAddProduct = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:8080/api/products', {
+      const response = await fetch(`${API_BASE_URL}/api/products`, {
         method: 'POST',
         headers: secureHeaders,
         body: JSON.stringify({

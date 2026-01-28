@@ -1,6 +1,7 @@
 import React from 'react';
 import { useOutletContext } from 'react-router-dom';
-import styles from './OrdersSection.module.css'; 
+import styles from './OrdersSection.module.css';
+import { API_BASE_URL } from '../../../config'; 
 
 const OrdersSection = () => {
   const { orders = [], setOrders, secureHeaders } = useOutletContext();

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'; // Added useState & useEffec
 import styles from './ProductCard.module.css';
 import { useCart } from '../../context/CartContext';
 import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '../../config';
 
 const ProductCard = ({ id, name, price, salePrice, image, description, features, stock, createdAt }) => {
   const { addToCart } = useCart();
@@ -12,7 +13,7 @@ const ProductCard = ({ id, name, price, salePrice, image, description, features,
 
   // NEW: Fetch ratings for this specific card
   useEffect(() => {
-    fetch(`http://localhost:8080/api/reviews/product/${id}`)
+    fetch(`${API_BASE_URL}/api/reviews/product/${id}`)
       .then(res => res.json())
       .then(data => {
         const verified = data.filter(r => r.rating > 0);

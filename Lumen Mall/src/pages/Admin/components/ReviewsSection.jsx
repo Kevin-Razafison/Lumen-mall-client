@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import styles from './ReviewsSection.module.css'; // Kept exactly as requested
+import API_BASE_URL from '../../../config.js'
 
 const ReviewsSection = () => {
   // Logic must be inside the component function to access context and state
@@ -10,7 +11,7 @@ const ReviewsSection = () => {
 
   const handleReply = async (id, replyText) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/reviews/${id}/reply`, {
+      const response = await fetch(`${API_BASE_URL}/api/reviews/${id}/reply`, {
         method: 'PUT',
         headers: secureHeaders,
         body: replyText
@@ -27,7 +28,7 @@ const ReviewsSection = () => {
   const handleDeleteReview = async (id) => {
     if (!window.confirm("Delete this review permanently?")) return;
     try {
-      const response = await fetch(`http://localhost:8080/api/reviews/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/reviews/${id}`, {
         method: 'DELETE',
         headers: secureHeaders
       });

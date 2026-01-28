@@ -9,17 +9,17 @@ export const AuthProvider = ({ children }) => {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  const login = async (email, password) => {
+const login = async (email, password) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
-      });// This is our "Golden Ticket"
+      });
+
+      const data = await response.json(); // Always parse the JSON to get messages
 
       if (response.ok) {
-        const data = await response.json();
-        
         const userWithToken = {
           id: data.id,
           email: data.email,
@@ -30,14 +30,16 @@ export const AuthProvider = ({ children }) => {
         
         setUser(userWithToken);
         localStorage.setItem('lumenUser', JSON.stringify(userWithToken));
-        return true;
+        return { success: true }; // Return object
+      } else {
+        // Return the specific message from the Backend (e.g., "Please verify your email first!")
+        return { success: false, message: data.message || "Login failed" };
       }
     } catch (error) {
       console.error("Login error:", error);
+      return { success: false, message: "Could not connect to server" };
     }
-    return false;
   };
-
   const logout = () => {
     setUser(null);
     localStorage.removeItem('lumenUser');

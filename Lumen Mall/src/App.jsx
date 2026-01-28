@@ -22,6 +22,7 @@ import AddProductForm from './pages/Admin/components/AddProductForm';
 import OrdersSection from './pages/Admin/components/OrdersSection';
 import UsersSection from './pages/Admin/components/UsersSection';
 import ReviewsSection from './pages/Admin/components/ReviewsSection';
+import VerifyEmail from './pages/Login/VerifyEmail';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -31,7 +32,8 @@ const AppContent = () => {
   
   const isAuthPage = [
     '/login', 
-    '/register', 
+    '/register',
+    '/verify',       
     '/order-success' 
   ].includes(routeLocation.pathname) || routeLocation.pathname.startsWith('/admin');
 
@@ -43,6 +45,7 @@ const AppContent = () => {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verify" element={<VerifyEmail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path='/product/:productId' element={<ProductDetail />} />
         <Route path="/profile" element={<Profile />} />

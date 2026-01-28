@@ -18,11 +18,12 @@ const AdminDashboard = () => {
     description: '', 
     category: '',
     stock: 0,
-    features: [] // <--- Add this
+    features: [] 
   });
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
   
+  const [reviews, setReviews] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('All');
 
@@ -48,6 +49,7 @@ const AdminDashboard = () => {
     if (activeTab === 'inventory') fetchInventory();
     else if (activeTab === 'orders') fetchOrders();
     else if (activeTab === 'users') fetchUsers();
+    else if (activeTab === 'reviews') fetchAllReviews(); 
   }, [activeTab]);
 
   const exportOrdersToCSV = () => {
@@ -137,7 +139,33 @@ const AdminDashboard = () => {
       setInventory([]);
     }
   };
+  const fetchAllReviews = async () => {
+    if (!user?.token) return;
+    try {
+      const response = await fetch('http://localhost:8080/api/reviews/all', { 
+        headers: secureHeaders 
+      });
+      const data = await response.json();
+      setReviews(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to fetch reviews:", err);
+    }
+  };
 
+  const handleDeleteReview = async (id) => {
+    if (!window.confirm("Delete this review permanently?")) return;
+    try {
+      const response = await fetch(`http://localhost:8080/api/reviews/${id}`, {
+        method: 'DELETE',
+        headers: secureHeaders
+      });
+      if (response.ok) {
+        setReviews(reviews.filter(r => r.id !== id));
+      }
+    } catch (err) {
+      console.error("Delete failed:", err);
+    }
+  };
   const fetchOrders = async () => {
     if (!user?.token) return; 
     try {
@@ -370,6 +398,7 @@ const AdminDashboard = () => {
             <li onClick={() => setActiveTab('addProduct')} className={activeTab === 'addProduct' ? styles.active : ''}>Add Product</li>
             <li onClick={() => setActiveTab('orders')} className={activeTab === 'orders' ? styles.active : ''}>Orders</li>
             <li onClick={() => setActiveTab('users')} className={activeTab === 'users' ? styles.active : ''}>Users</li>
+            <li onClick={() => setActiveTab('reviews')} className={activeTab === 'reviews' ? styles.active : ''}>Reviews</li>
           </ul>
         </nav>
 
@@ -808,6 +837,64 @@ const AdminDashboard = () => {
                   ))
                 ) : (
                   <tr><td colSpan="4">No users found.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </section>
+        )}
+        {activeTab === 'reviews' && (
+          <section className={styles.inventorySection}>
+            <h1>Review & Moderation</h1>
+            <table className={styles.inventoryTable}>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Product Name</th>
+                  <th>Customer</th>
+                  <th>Rating</th>
+                  <th>Comment</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reviews.length > 0 ? (
+                  reviews.map(rev => (
+                    <tr key={rev.id}>
+                      <td>#{rev.id}</td>
+                      <td style={{ fontWeight: 'bold', color: '#2c3e50' }}>
+                        {/* 1. Directly use the name sent by the backend */}
+                        {rev.productName || `Product ID: ${rev.productId}`}
+                      </td>
+                      <td>{rev.userEmail}</td>
+                      <td>
+                        {/* 2. Visual stars for rating */}
+                        <span style={{ color: '#f0c14b' }}>
+                          {"★".repeat(rev.rating)}
+                          <span style={{ color: '#e0e0e0' }}>{"★".repeat(5 - rev.rating)}</span>
+                        </span>
+                      </td>
+                      <td 
+                        style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} 
+                        title={rev.comment}
+                      >
+                        {rev.comment}
+                      </td>
+                      <td>
+                        <button 
+                          onClick={() => handleDeleteReview(rev.id)} 
+                          className={styles.deleteBtn}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>
+                      No reviews found.
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>

@@ -1,148 +1,190 @@
 .ordersContainer {
     max-width: 1000px;
-    margin: 120px auto 40px; /* Centered with top margin */
+    margin: 100px auto 40px;
     padding: 0 20px;
-    font-family: 'Inter', system-ui, sans-serif;
+    color: #ffffff;
 }
 
 .title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #1a1a1a;
+    font-size: 2.5rem;
+    font-weight: 800;
     margin-bottom: 40px;
-}
-
-.orderList {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    text-align: center;
 }
 
 .orderCard {
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    background: #fff;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
     overflow: hidden;
-}
-
-.orderCard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
 }
 
 .orderHeader {
-    background: #f8f9fa;
-    padding: 20px 25px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px 30px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .orderId {
-    font-weight: 700;
-    color: #333;
+    font-weight: 800;
+    color: #febd69;
 }
 
 .orderDate {
-    color: #666;
-    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
 }
 
+/* Timeline Logic */
+.trackingTimeline {
+    display: flex;
+    justify-content: space-between;
+    padding: 40px 60px;
+    position: relative;
+}
+
+.trackingTimeline::before {
+    content: '';
+    position: absolute;
+    top: 50px;
+    left: 80px;
+    right: 80px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    z-index: 1;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+    flex: 1;
+}
+
+.dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #0f1111;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    margin-bottom: 10px;
+    transition: 0.4s ease;
+}
+
+.stepLabel {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Active Gold State */
+.step.active .dot {
+    background: #febd69;
+    border-color: #febd69;
+    box-shadow: 0 0 15px rgba(254, 189, 105, 0.4);
+}
+
+.step.active .stepLabel {
+    color: #febd69;
+}
+
+/* Completed Green State */
+.step.completedStep .dot {
+    background: #2ecc71 !important;
+    border-color: #2ecc71 !important;
+    box-shadow: 0 0 15px rgba(46, 204, 113, 0.4) !important;
+}
+
+.step.completedStep .stepLabel {
+    color: #2ecc71 !important;
+}
+
+/* Item Detail Fixes */
 .orderBody {
-    padding: 25px;
+    padding: 0 30px 20px;
 }
 
 .itemRow {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.itemRow:last-child {
-    border-bottom: none;
-}
-
-.itemDetails strong {
-    color: #0071e3; /* Apple-style blue for Product IDs */
-}
-
-.orderFooter {
-    padding: 20px 25px;
-    background: #fafafa;
+.itemDetails {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid #eee;
-}
-
-/* Status Badges */
-.statusBadge {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    background: #e3f2fd;
-    color: #1976d2;
-}
-
-/* Logic for different statuses if you add them later */
-.statusPaid { background: #e8f5e9; color: #2e7d32; }
-
-.totalBox {
-    text-align: right;
-}
-
-.totalBox span {
-    font-size: 0.9rem;
-    color: #666;
-    margin-right: 10px;
-}
-
-.totalBox strong {
-    font-size: 1.4rem;
-    color: #1a1a1a;
-}
-
-.noOrders {
-    text-align: center;
-    padding: 100px 20px;
-    background: #f9f9f9;
-    border-radius: 12px;
-}
-
-.itemMain {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
-
-.miniItemImg {
-    width: 50px;
-    height: 50px;
-    object-fit: contain;
-    border: 1px solid #eee;
-    border-radius: 4px;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .productName {
-    display: block;
-    font-size: 1rem;
-    color: #1a1a1a;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #ffffff;
 }
 
-.itemFeatures {
-    font-size: 0.8rem;
-    color: #888;
-    margin: 2px 0;
-    font-style: italic;
-}
-
-.qty {
+.itemMeta {
+    display: flex;
+    gap: 15px;
     font-size: 0.85rem;
-    color: #666;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 2px;
+}
+
+.productId {
+    color: #febd69;
+    font-family: monospace;
+}
+
+.miniItemImg {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    background: white;
+    padding: 5px;
+    object-fit: contain;
+}
+
+/* Badges */
+.orderFooter {
+    padding: 20px 30px;
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.statusBadge {
+    padding: 6px 15px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.statusPaid { background: rgba(254, 189, 105, 0.1); color: #febd69; border: 1px solid rgba(254, 189, 105, 0.3); }
+.statusDelivered { background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3); }
+.statusCancelled { background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); }
+
+.totalBox strong {
+    font-size: 1.5rem;
+    color: #ffffff;
+    margin-left: 10px;
+}
+
+.loader {
+    text-align: center;
+    padding: 100px;
+    color: #febd69;
+    font-weight: 800;
 }

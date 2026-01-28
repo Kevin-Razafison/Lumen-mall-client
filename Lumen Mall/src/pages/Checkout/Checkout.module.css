@@ -225,3 +225,35 @@
   color: #ccc;
   font-weight: 500;
 }
+
+.locationAssurance {
+  background-color: #f0f7ff;
+  border: 1px solid #d0e3ff;
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #0056b3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pinIcon {
+  font-size: 1.1rem;
+}
+
+@media (max-width: 850px) {
+  .checkoutGrid {
+    grid-template-columns: 1fr; /* Stack into 1 column */
+  }
+
+  .orderSummary {
+    order: -1; /* Move summary to the TOP so users see what they are buying first */
+    margin-bottom: 2rem;
+  }
+  
+  .row {
+    flex-direction: column; /* City and Zip stack vertically */
+  }
+}

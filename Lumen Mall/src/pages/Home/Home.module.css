@@ -31,3 +31,19 @@
   color: #888;
 }
 
+@media (max-width: 768px) {
+  .productSection {
+    padding: 20px 15px; /* Less side padding on mobile */
+  }
+
+  .sectionTitle {
+    font-size: 1.4rem; /* Smaller text for small screens */
+    margin-bottom: 20px;
+  }
+
+  .productGrid {
+    /* On very small phones, we might want 1 column instead of 2 */
+    grid-template-columns: 1fr; 
+    gap: 15px;
+  }
+}

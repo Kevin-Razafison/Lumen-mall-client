@@ -1,28 +1,23 @@
-import React from 'react'
-import Logo from './Logo'
-import styles from './Header.module.css'
-import SearchBar from './SearchBar'
-import DeliveryStatus from './DeliveryStatus'
-import UserAccount from './UserAccount'
-import CartWidget from './CartWidget'
+import React, { useState, useEffect } from 'react';
+import DesktopHeader from './DesktopHeader'
+import MobileHeader from './mobile/MobileHeader';
 import { useLocation } from '../../context/LocationContext';
-import { LuMapPin } from 'react-icons/lu';
 
 const Header = ({ openLocationModal }) => {
   const { location } = useLocation();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  return (
-    <header className={styles.headerContainer}>
-      <Logo />
-      <SearchBar />
-      <DeliveryStatus 
-        location={location} 
-        onClick={openLocationModal} 
-      />
-      <UserAccount />
-      <CartWidget />
-    </header>   
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return isMobile ? (
+    <MobileHeader openLocationModal={openLocationModal} location={location} />
+  ) : (
+    <DesktopHeader openLocationModal={openLocationModal} />
   );
 };
 
-export default Header
+export default Header;

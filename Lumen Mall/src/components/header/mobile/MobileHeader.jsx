@@ -1,0 +1,141 @@
+// MobileHeader.jsx
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { LuMenu, LuX, LuMapPin, LuUser, LuShoppingCart } from 'react-icons/lu';
+import { useAuth } from '../../../context/AuthContext';
+import { useCart } from '../../../context/CartContext';
+import styles from './MobileHeader.module.css';
+import logo from '../../../assets/Lumen-Mall-logo.png';
+
+const MobileHeader = ({ openLocationModal, location }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const { user, logout, isAuthenticated } = useAuth();
+  const { cartCount } = useCart();
+
+  useEffect(() => {
+    document.body.style.overflow = isMenuOpen ? 'hidden' : 'unset';
+  }, [isMenuOpen]);
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // Add your search logic here
+  };
+
+  return (
+    <>
+      <header className={styles.mobileHeader}>
+        {/* Top Row: Menu, Logo, Cart */}
+        <div className={styles.topRow}>
+          <button 
+            className={styles.menuButton} 
+            onClick={toggleMenu}
+            aria-label="Menu"
+          >
+            {isMenuOpen ? <LuX size={24} /> : <LuMenu size={24} />}
+          </button>
+
+          <Link to="/" className={styles.logo}>
+            <img src={logo} alt="Lumen Mall" />
+          </Link>
+
+          <Link to="/cart" className={styles.cartButton}>
+            <LuShoppingCart size={24} />
+            {cartCount > 0 && (
+              <span className={styles.cartBadge}>{cartCount}</span>
+            )}
+          </Link>
+        </div>
+
+        {/* Search Row */}
+        <div className={styles.searchRow}>
+          <form className={styles.searchForm} onSubmit={handleSearch}>
+            <input
+              type="text"
+              placeholder="Search Lumen Mall..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                className={styles.clearButton}
+                onClick={() => setSearchQuery('')}
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+            <button type="submit" className={styles.searchButton} aria-label="Search">
+              <img src="/icons/icons-search.png" alt="" />
+            </button>
+          </form>
+        </div>
+      </header>
+
+      {/* Slide-out Menu Drawer */}
+      {isMenuOpen && (
+        <>
+          <div className={styles.backdrop} onClick={toggleMenu} />
+          <nav className={styles.drawer}>
+            <div className={styles.drawerHeader}>
+              <h2>Menu</h2>
+            </div>
+
+            <div className={styles.drawerContent}>
+              {/* User Account Section */}
+              <Link 
+                to={isAuthenticated ? "/profile" : "/login"} 
+                className={styles.menuItem}
+                onClick={toggleMenu}
+              >
+                <LuUser size={24} className={styles.menuIcon} />
+                <div className={styles.menuText}>
+                  <span className={styles.menuLabel}>
+                    {isAuthenticated ? `Hello, ${user.fullName.split(' ')[0]}` : "Welcome"}
+                  </span>
+                  <span className={styles.menuValue}>
+                    {isAuthenticated ? "Account & Lists" : "Login/Sign up"}
+                  </span>
+                </div>
+              </Link>
+
+              {/* Delivery Location Section */}
+              <button 
+                className={styles.menuItem}
+                onClick={() => {
+                  openLocationModal();
+                  toggleMenu();
+                }}
+              >
+                <LuMapPin size={24} className={styles.menuIcon} />
+                <div className={styles.menuText}>
+                  <span className={styles.menuLabel}>Deliver to</span>
+                  <span className={styles.menuValue}>{location}</span>
+                </div>
+              </button>
+
+              {/* Sign Out Button */}
+              {isAuthenticated && (
+                <button 
+                  onClick={() => {
+                    logout();
+                    toggleMenu();
+                  }} 
+                  className={styles.signOutButton}
+                >
+                  Sign Out
+                </button>
+              )}
+            </div>
+          </nav>
+        </>
+      )}
+    </>
+  );
+};
+
+export default MobileHeader;

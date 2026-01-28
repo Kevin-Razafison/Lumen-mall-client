@@ -31,28 +31,34 @@ const Checkout = () => {
   const taxTotal = totalPrice * taxRate;
   const finalGrandTotal = totalPrice + shipping + taxTotal;
 
+  // --- RESTORED LOGIC ---
+  
   useEffect(() => {
     if (user) {
       setFormData(prev => ({
         ...prev,
-        fullName: user.fullName || '',
-        email: user.email || ''
+        fullName: prev.fullName || user.fullName || '',
+        email: prev.email || user.email || ''
       }));
     }
+
     if (location && location !== 'Select your address') {
       const parts = location.split(',');
       const detectedCity = parts[0].trim();
       
       setFormData(prev => ({
         ...prev,
-        city: prev.city || detectedCity // Only fill if the user hasn't typed anything yet
+        city: prev.city === '' ? detectedCity : prev.city 
       }));
     }
-  }, [user]);
+  }, [user, location]); 
 
+  // THIS WAS MISSING:
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  // ----------------------
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -78,7 +84,7 @@ const Checkout = () => {
         if (result.error) throw new Error(result.error.message);
       }
 
-      // 2. Handle PayPal
+      // 2. Handle PayPal (Redirect logic)
       if (paymentMethod === 'PayPal') {
         const paypalRes = await fetch('http://localhost:8080/api/payments/paypal/create', {
           method: 'POST',
@@ -114,16 +120,13 @@ const Checkout = () => {
         body: JSON.stringify(orderData)
       });
 
-      // READ THE RESPONSE ONCE HERE
       const resultData = await orderResponse.json().catch(() => null);
 
-      // Check if the response was successful
       if (!orderResponse.ok) {
         const errorMessage = resultData?.message || "Something went wrong with the order.";
         throw new Error(errorMessage);
       }
 
-      // If successful, navigate using the resultData we already have
       if (resultData) {
         clearCart();
         navigate('/order-success', { 
@@ -151,6 +154,13 @@ const Checkout = () => {
         <form className={styles.shippingForm} onSubmit={handleSubmit}>
           <h2 className={styles.sectionTitle}>Shipping Address</h2>
           
+          {location && location !== 'Select your address' && (
+            <div className={styles.locationAssurance}>
+              <span className={styles.pinIcon}>📍</span> 
+              Shipping to: <strong>{location}</strong>
+            </div>
+          )}
+
           <div className={styles.inputGroup}>
             <label>Full Name</label>
             <input type="text" name="fullName" required value={formData.fullName} onChange={handleChange} />
@@ -245,8 +255,6 @@ const Checkout = () => {
                   <span>{item.name} (x{item.quantity})</span>
                   <span>${(item.price * item.quantity).toFixed(2)}</span>
                 </div>
-                
-                {/* Render features as a small subtitle string */}
                 {item.features && item.features.length > 0 && (
                   <p className={styles.itemFeaturesMini}>
                     {item.features.slice(0, 3).join(' • ')}

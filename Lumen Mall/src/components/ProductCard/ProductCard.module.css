@@ -8,6 +8,7 @@
   transition: transform 0.2s ease;
   display: flex;
   flex-direction: column;
+  height: 90%; 
 }
 
 .card:hover {
@@ -30,6 +31,9 @@
 
 .details {
   padding: 15px;
+  display: flex;
+  flex-direction: column;
+  flex: 1; 
 }
 
 .title {
@@ -42,13 +46,23 @@
   color: #a7acb2;
   font-size: 0.85rem;
   margin: 8px 0;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  min-height: 3.2rem; 
 }
 
 .footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 10px;
+  
+  margin-top: auto; 
+  padding-top: 10px;
 }
 
 .price {

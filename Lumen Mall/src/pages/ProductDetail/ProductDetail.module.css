@@ -298,3 +298,40 @@
     opacity: 1;
     transform: scale(1.1);
 }
+
+.ratingInputContainer {
+    margin-bottom: 10px;
+}
+
+.ratingInputContainer p {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    color: #111;
+}
+
+.starPicker {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.activeStar {
+    color: #f0c14b;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.inactiveStar {
+    color: #ccc;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.verifiedPurchaseBadge {
+    margin-left: 15px;
+    font-size: 0.75rem;
+    color: #c45500;
+    font-weight: bold;
+    text-transform: uppercase;
+}

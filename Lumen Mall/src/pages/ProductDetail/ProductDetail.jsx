@@ -19,6 +19,10 @@ const ProductDetail = () => {
   const [reviews, setReviews] = useState([]);
   const [publicComment, setPublicComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Verified Review State
+  const [eligibleOrderId, setEligibleOrderId] = useState(null);
+  const [selectedRating, setSelectedRating] = useState(5);
 
   const fetchReviews = () => {
     fetch(`http://localhost:8080/api/reviews/product/${productId}`)
@@ -44,24 +48,27 @@ const ProductDetail = () => {
       });
 
     fetchReviews();
-  }, [productId]);
 
-  // NEW: Delete Logic
+    // Check if user is eligible for a verified review
+    if (user) {
+      fetch(`http://localhost:8080/api/reviews/can-review/${productId}`, {
+        headers: { 'Authorization': `Bearer ${user.token}` }
+      })
+      .then(res => res.json())
+      .then(orderId => setEligibleOrderId(orderId))
+      .catch(err => console.error("Eligibility check error:", err));
+    }
+  }, [productId, user]);
+
   const handleDeleteComment = (reviewId) => {
     if (!window.confirm("Are you sure you want to delete this comment?")) return;
-
     fetch(`http://localhost:8080/api/reviews/${reviewId}`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${user?.token}`
-      }
+      headers: { 'Authorization': `Bearer ${user?.token}` }
     })
     .then(res => {
-      if (res.ok) {
-        fetchReviews(); // Refresh list
-      } else {
-        alert("Action failed. You may not have permission.");
-      }
+      if (res.ok) fetchReviews();
+      else alert("Action failed.");
     })
     .catch(err => console.error("Delete error:", err));
   };
@@ -82,12 +89,15 @@ const ProductDetail = () => {
     if (!publicComment.trim()) return;
 
     setIsSubmitting(true);
+    
+    // If eligible, send the selected rating and orderId. 
+    // Otherwise, send rating 0 and orderId null (Community Post).
     const commentData = {
       productId: productId,
       userEmail: user.email,
-      rating: 0,
+      rating: eligibleOrderId ? selectedRating : 0,
       comment: publicComment,
-      orderId: null 
+      orderId: eligibleOrderId 
     };
 
     fetch(`http://localhost:8080/api/reviews`, {
@@ -103,45 +113,35 @@ const ProductDetail = () => {
         setPublicComment("");
         fetchReviews();
       } else {
-        alert("Could not post comment.");
+        alert("Could not post review.");
       }
     })
     .finally(() => setIsSubmitting(false));
   };
 
+  // Logic for UI Helpers
   const isOutOfStock = product.stock !== undefined && product.stock <= 0;
   const isLowStock = product.stock > 0 && product.stock <= 5;
   const maxQty = product.stock > 0 ? Math.min(product.stock, 10) : 1;
   const qtyOptions = Array.from({ length: maxQty }, (_, i) => i + 1);
-
-  const displayImage = (product.imageUrl && product.imageUrl !== 'url') 
-    ? product.imageUrl 
-    : '/drone-product-image.png';
-    
+  const displayImage = (product.imageUrl && product.imageUrl !== 'url') ? product.imageUrl : '/drone-product-image.png';
   const isOnSale = product.salePrice && product.salePrice < product.price;
   const savingsPercent = isOnSale ? Math.round(((product.price - product.salePrice) / product.price) * 100) : 0;
 
   const handleAdd = () => {
-    const cartItem = {
-      ...product,
-      price: isOnSale ? product.salePrice : product.price,
-      image: displayImage
-    };
-    addToCart(cartItem, quantity);
+    addToCart({ ...product, price: isOnSale ? product.salePrice : product.price, image: displayImage }, quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
 
   return (
     <div className={styles.pageWrapper}>
+      {/* ... Product Image and Info Sections (Same as before) ... */}
       <div className={styles.container}>
         <div className={styles.imageSection}>
           <img src={displayImage} alt={product.name} />
-          <div className={styles.detailBadges}>
-            {isOnSale && <span className={styles.saleBadge}>Limited Time Deal</span>}
-          </div>
+          <div className={styles.detailBadges}>{isOnSale && <span className={styles.saleBadge}>Limited Time Deal</span>}</div>
         </div>
-
         <div className={styles.infoSection}>
           <h1 className={styles.title}>{product.name}</h1>
           <div className={styles.ratingSummary}>
@@ -155,43 +155,25 @@ const ProductDetail = () => {
           </div>
           <hr className={styles.divider} />
           <div className={styles.priceContainer}>
-            {isOnSale ? (
+             {/* Price display logic... */}
+             {isOnSale ? (
               <div className={styles.salePriceBox}>
                 <div className={styles.savingsRow}>
                   <span className={styles.savePercent}>-{savingsPercent}%</span>
-                  <span className={styles.priceTag}>
-                    <span className={styles.currency}>$</span>
-                    <span className={styles.amount}>{product.salePrice.toFixed(2)}</span>
-                  </span>
+                  <span className={styles.priceTag}>${product.salePrice.toFixed(2)}</span>
                 </div>
-                <p className={styles.listPrice}>List Price: <span>${product.price.toFixed(2)}</span></p>
               </div>
-            ) : (
-              <div className={styles.priceTag}>
-                <span className={styles.currency}>$</span>
-                <span className={styles.amount}>{product.price.toFixed(2)}</span>
-              </div>
-            )}
+            ) : <div className={styles.priceTag}>${product.price.toFixed(2)}</div>}
           </div>
-          <div className={styles.description}>
-            <h3>About this item</h3>
-            <p>{product.description}</p>
-          </div>
+          <div className={styles.description}><h3>About this item</h3><p>{product.description}</p></div>
           <div className={styles.purchaseActions}>
             {!isOutOfStock && (
-              <div className={styles.qtyBox}>
-                <label htmlFor="qtySelect">Quantity:</label>
-                <select id="qtySelect" value={quantity} onChange={(e) => setQuantity(parseInt(e.target.value))} className={styles.qtySelect}>
+                <select value={quantity} onChange={(e) => setQuantity(parseInt(e.target.value))} className={styles.qtySelect}>
                   {qtyOptions.map(n => <option key={n} value={n}>{n}</option>)}
                 </select>
-              </div>
             )}
-            <button 
-              className={`${styles.addBtn} ${added ? styles.added : ''} ${isOutOfStock ? styles.disabledBtn : ''}`}
-              onClick={handleAdd}
-              disabled={added || isOutOfStock}
-            >
-              {isOutOfStock ? "Out of Stock" : added ? "✓ Added to Cart" : "Add to Cart"}
+            <button className={`${styles.addBtn} ${isOutOfStock ? styles.disabledBtn : ''}`} onClick={handleAdd} disabled={added || isOutOfStock}>
+              {isOutOfStock ? "Out of Stock" : added ? "✓ Added" : "Add to Cart"}
             </button>
           </div>
         </div>
@@ -202,16 +184,35 @@ const ProductDetail = () => {
         <div className={styles.sectionHeader}>
             <h2>Community & Reviews</h2>
             <div className={styles.publicCommentInput}>
-                <h3>Ask a question or share a thought</h3>
+                <h3>{eligibleOrderId ? "Rate and Review this Product" : "Ask a question or share a thought"}</h3>
                 {user ? (
                     <div className={styles.inputWrapper}>
+                        {/* STAR SELECTOR FOR ELIGIBLE BUYERS */}
+                        {eligibleOrderId && (
+                          <div className={styles.ratingInputContainer}>
+                            <p>How would you rate it?</p>
+                            <div className={styles.starPicker}>
+                              {[1, 2, 3, 4, 5].map((num) => (
+                                <span 
+                                  key={num} 
+                                  className={num <= selectedRating ? styles.activeStar : styles.inactiveStar}
+                                  onClick={() => setSelectedRating(num)}
+                                >
+                                  ★
+                                </span>
+                              ))}
+                              <span className={styles.verifiedPurchaseBadge}>Verified Purchase</span>
+                            </div>
+                          </div>
+                        )}
+
                         <textarea 
-                            placeholder="What would you like to know about this product?"
+                            placeholder={eligibleOrderId ? "Write your honest review here..." : "What would you like to know about this product?"}
                             value={publicComment}
                             onChange={(e) => setPublicComment(e.target.value)}
                         />
                         <button onClick={handlePostPublicComment} className={styles.postBtn} disabled={isSubmitting}>
-                            {isSubmitting ? "Posting..." : "Post Comment"}
+                            {isSubmitting ? "Posting..." : eligibleOrderId ? "Post Review" : "Post Comment"}
                         </button>
                     </div>
                 ) : (
@@ -220,11 +221,12 @@ const ProductDetail = () => {
             </div>
         </div>
 
+        {/* REVIEWS LISTING */}
         {reviews.length === 0 ? (
           <p className={styles.noReviews}>No activity yet. Be the first to engage!</p>
         ) : (
           <div className={styles.reviewsList}>
-            {reviews.map((rev) => (
+            {[...reviews].reverse().map((rev) => (
               <div key={rev.id} className={`${styles.reviewCard} ${rev.rating === 0 ? styles.publicEntry : ''}`}>
                 <div className={styles.reviewHeader}>
                   <div className={styles.userAvatar}>{rev.userEmail[0].toUpperCase()}</div>
@@ -233,16 +235,8 @@ const ProductDetail = () => {
                     {rev.rating > 0 && <span className={styles.verifiedPurchase}>Verified Purchase</span>}
                     {rev.rating === 0 && <span className={styles.communityMember}>Community Post</span>}
                   </div>
-                  
-                  {/* NEW: Conditional Delete Button */}
                   {(user?.email === rev.userEmail || user?.role === 'ADMIN') && (
-                    <button 
-                        className={styles.deleteBtn} 
-                        onClick={() => handleDeleteComment(rev.id)}
-                        title="Delete this comment"
-                    >
-                        &times;
-                    </button>
+                    <button className={styles.deleteBtn} onClick={() => handleDeleteComment(rev.id)}>&times;</button>
                   )}
                 </div>
                 <div className={styles.ratingRow}>

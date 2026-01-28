@@ -1,13 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react'; // Added useState & useEffect
 import styles from './ProductCard.module.css';
 import { useCart } from '../../context/CartContext';
 import { Link } from 'react-router-dom';
 
 const ProductCard = ({ id, name, price, salePrice, image, description, features, stock, createdAt }) => {
   const { addToCart } = useCart();
+  
+  // NEW: State for ratings
+  const [avgRating, setAvgRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
+
+  // NEW: Fetch ratings for this specific card
+  useEffect(() => {
+    fetch(`http://localhost:8080/api/reviews/product/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        const verified = data.filter(r => r.rating > 0);
+        if (verified.length > 0) {
+          const avg = (verified.reduce((acc, r) => acc + r.rating, 0) / verified.length).toFixed(1);
+          setAvgRating(avg);
+          setReviewCount(verified.length);
+        }
+      })
+      .catch(err => console.error("Error fetching card ratings:", err));
+  }, [id]);
 
   const displayImage = image ? image : '/drone-product-image.png';
-
   const isOutOfStock = stock !== undefined && stock <= 0;
   const isLowStock = stock > 0 && stock <= 5;
   const isOnSale = salePrice && salePrice < price;
@@ -31,14 +49,11 @@ const ProductCard = ({ id, name, price, salePrice, image, description, features,
           onError={(e) => { e.target.src = '/drone-product-image.png'; }}
         />
         
-        {/* BADGE CONTAINER */}
         <div className={styles.badgeContainer}>
           {isOnSale && <div className={styles.saleBadge}>SALE</div>}
-          {/* Only show NEW if not on Sale, or stack them if you prefer */}
           {isNew && !isOnSale && <div className={styles.newBadge}>NEW</div>}
         </div>
 
-        {/* STOCK STATUS */}
         {isOutOfStock && <div className={styles.soldOutBadge}>Sold Out</div>}
         {isLowStock && !isOutOfStock && (
           <div className={styles.lowStockBadge}>Only {stock} left!</div>
@@ -47,6 +62,15 @@ const ProductCard = ({ id, name, price, salePrice, image, description, features,
 
       <div className={styles.details}>
         <h3 className={styles.title}>{name}</h3>
+        
+        {/* NEW: Star Rating Display */}
+        <div className={styles.ratingRow}>
+          <span className={styles.stars}>
+            {"★".repeat(Math.round(avgRating)) + "☆".repeat(5 - Math.round(avgRating))}
+          </span>
+          <span className={styles.ratingCount}>({reviewCount})</span>
+        </div>
+
         <p className={styles.description}>{description}</p>
         
         <div className={styles.footer}>

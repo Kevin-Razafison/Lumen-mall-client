@@ -241,3 +241,31 @@
   font-size: 1.2rem;
   color: white;
 }
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.stars {
+  color: #f0c14b; /* That same golden yellow */
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.ratingCount {
+  color: #007185; /* Amazon-style link blue */
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* Ensure title doesn't crowd the stars */
+.title {
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

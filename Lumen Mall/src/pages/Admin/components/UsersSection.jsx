@@ -24,6 +24,7 @@ const UsersSection = () => {
   return (
     <section className={styles.inventorySection}>
       <h1>User Management</h1>
+      <div className={styles.tableWrapper}>
       <table className={styles.inventoryTable}>
         <thead>
           <tr>
@@ -64,6 +65,7 @@ const UsersSection = () => {
           )}
         </tbody>
       </table>
+      </div>
     </section>
   );
 };

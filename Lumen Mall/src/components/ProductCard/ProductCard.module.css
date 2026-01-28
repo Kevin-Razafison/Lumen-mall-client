@@ -168,7 +168,7 @@
   font-size: 0.75rem;
   font-weight: 800;
   text-transform: uppercase;
-  z-index: 10;
+  z-index: 1;
   box-shadow: 0 2px 8px rgba(0, 229, 255, 0.3);
 }
 
@@ -181,7 +181,7 @@
   display: flex;
   flex-direction: column; /* Badges stack vertically on the left */
   gap: 5px;
-  z-index: 10;
+  z-index: 2;
 }
 
 .saleBadge {

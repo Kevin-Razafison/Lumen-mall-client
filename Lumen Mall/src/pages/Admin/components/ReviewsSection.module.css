@@ -40,3 +40,54 @@
 .deleteBtn:hover {
     background-color: #cc0000;
 }
+
+/* Container Fix */
+.reviewsSection {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* THE SCROLL FIX: Essential for the long "Comment" column */
+.tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 1rem;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+
+.reviewsTable {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 850px; /* High min-width to keep the reply area spacious */
+}
+
+.reviewsTable th,
+.reviewsTable td {
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .reviewsSection {
+        padding: 1rem;
+    }
+    
+    .reviewsSection h1 {
+        font-size: 1.4rem;
+        text-align: center;
+    }
+
+    /* Make textareas easier to tap and type in on mobile */
+    textarea {
+        font-size: 1rem !important; 
+        min-height: 80px;
+    }
+}

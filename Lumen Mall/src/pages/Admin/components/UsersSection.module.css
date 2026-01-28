@@ -1,4 +1,25 @@
 /* Users Section Styles */
+.usersSection {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    width: 100%;
+    box-sizing: border-box;
+}
+.tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 1rem;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+.usersTable {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px; /* Minimum width to prevent column squishing */
+}
 .inventorySection {
     background: white;
     padding: 2rem;
@@ -43,7 +64,38 @@
     font-size: 0.75rem;
     font-weight: bold;
 }
+.usersTable th,
+.usersTable td {
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    white-space: nowrap; /* Keeps emails on one line */
+}
 
+.usersTable th {
+    background-color: #f8f9fa;
+    color: #666;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+/* MOBILE ADJUSTMENTS */
+@media (max-width: 768px) {
+    .usersSection {
+        padding: 1rem;
+    }
+    
+    .usersSection h1 {
+        font-size: 1.4rem;
+        text-align: center;
+    }
+
+    /* Larger touch targets for dropdowns on mobile */
+    .statusSelect {
+        padding: 8px;
+        font-size: 1rem;
+    }
+}
 .statusSelect {
     padding: 4px 8px;
     border-radius: 4px;

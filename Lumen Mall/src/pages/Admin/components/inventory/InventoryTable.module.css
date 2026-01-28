@@ -2,7 +2,7 @@
 .inventoryTable {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 1rem;
+    min-width: 900px; 
 }
 
 .inventoryTable th,
@@ -51,7 +51,12 @@
     text-transform: uppercase;
     animation: pulse 2s infinite;
 }
-
+@media (max-width: 768px) {
+    .criticalStock {
+        animation: none; /* Pulse can be distracting on mobile */
+        color: #ff4d4d;
+    }
+}
 @keyframes pulse {
     0% { transform: scale(1); }
     50% { transform: scale(1.05); }
@@ -104,7 +109,7 @@
 .actionGroup {
     display: flex;
     gap: 8px;
-    align-items: center;
+    flex-wrap: nowrap; /* Keep buttons in a line for easy swiping */
 }
 
 .restockBtn {
@@ -174,3 +179,13 @@
     background: white;
     width: 100%;
 }
+
+.tableResponsive {
+    width: 100%;
+    overflow-x: auto; /* Enable horizontal scrolling */
+    -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+    margin-top: 1rem;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+

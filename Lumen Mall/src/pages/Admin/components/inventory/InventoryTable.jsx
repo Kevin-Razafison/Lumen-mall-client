@@ -13,6 +13,7 @@ const InventoryTable = ({
   categories
 }) => {
   return (
+    <div className={styles.tableResponsive}>
     <table className={styles.inventoryTable}>
       <thead>
         <tr>
@@ -185,6 +186,7 @@ const InventoryTable = ({
         )}
       </tbody>
     </table>
+  </div>
   );
 };
 

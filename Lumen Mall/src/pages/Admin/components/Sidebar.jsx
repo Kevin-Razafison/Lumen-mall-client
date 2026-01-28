@@ -3,9 +3,10 @@ import { NavLink } from 'react-router-dom';
 import styles from './Sidebar.module.css';
 import LogoImg from '../../../assets/Lumen-Mall-logo.png';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen }) => {
+
   return (
-    <aside className={styles.sidebar}>
+    <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}>
       <div className={styles.logoSection}>
         <img src={LogoImg} alt="Lumen Logo" className={styles.adminLogo} />
         <h2>Lumen Admin</h2>

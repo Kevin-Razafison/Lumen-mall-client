@@ -1,18 +1,50 @@
-/* Main Admin Dashboard Layout */
 .adminContainer {
     display: flex;
-    min-height: 100vh;
-    background-color: #f4f7f6;
-    color: #333;
+    height: 100vh; 
+    overflow: hidden; 
 }
 
 .content {
     flex: 1;
-    margin-left: 300px; 
+    margin-left: 240px; 
     padding: 2rem;
+    overflow-y: auto; /* Internal vertical scroll only */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-.content h1 {
-    margin-bottom: 2rem;
-    font-weight: 600;
+.mobileToggle {
+    display: none; /* Hidden on desktop */
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 2001;
+    background: #232f3e;
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 992px) {
+    .mobileToggle {
+        display: block;
+    }
+
+    .content {
+        margin-left: 0;
+        padding-top: 60px; /* Space for mobile toggle */
+    }
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1999;
+    }
 }

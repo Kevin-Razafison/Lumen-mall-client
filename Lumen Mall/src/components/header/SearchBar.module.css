@@ -5,6 +5,7 @@
     margin-left: 35px;
     flex: 1;
     max-width: 500px;
+    z-index: 5;
 }
 
 .searchInput{

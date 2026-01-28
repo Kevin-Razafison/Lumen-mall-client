@@ -11,4 +11,5 @@
     width: 100px;
     padding-left: 25px;
     cursor: pointer;
+    z-index: 10;
 }

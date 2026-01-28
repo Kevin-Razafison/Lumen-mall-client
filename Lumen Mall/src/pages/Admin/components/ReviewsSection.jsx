@@ -42,6 +42,7 @@ const ReviewsSection = () => {
   return (
     <section className={styles.inventorySection}>
       <h1>Review & Moderation</h1>
+      <div className={styles.tableWrapper}>
       <table className={styles.inventoryTable}>
         <thead>
           <tr>
@@ -164,6 +165,7 @@ const ReviewsSection = () => {
           )}
         </tbody>
       </table>
+    </div>
     </section>
   );
 };

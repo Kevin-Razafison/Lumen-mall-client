@@ -1,4 +1,55 @@
 /* Orders Section Styles */
+
+.ordersSection {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    width: 100%;
+    box-sizing: border-box; /* Prevents padding from adding to width */
+}
+
+.tableWrapper {
+    width: 100%;
+    overflow-x: auto; /* Allows side-swiping on phones */
+    -webkit-overflow-scrolling: touch;
+    margin-top: 1rem;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+
+.ordersTable {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px; /* Forces enough width for columns to stay readable */
+}
+
+.ordersTable th,
+.ordersTable td {
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    white-space: nowrap; /* Prevents text from wrapping awkwardly */
+}
+
+.ordersTable th {
+    background-color: #f8f9fa;
+    color: #666;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+    .ordersSection {
+        padding: 1rem;
+        margin-bottom: 20px;
+    }
+    
+    .ordersSection h1 {
+        font-size: 1.4rem;
+        text-align: center;
+    }
+}
 .inventorySection {
     background: white;
     padding: 2rem;
@@ -19,7 +70,13 @@
     border-bottom: 1px solid #eee;
 }
 
-.inventoryTable th {
+.inventoryTable th {.ordersTable th,
+.ordersTable td {
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    white-space: nowrap; /* Prevents text from wrapping awkwardly */
+}
     background-color: #f8f9fa;
     color: #666;
     font-size: 0.9rem;

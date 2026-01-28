@@ -3,11 +3,15 @@ import { Outlet, useLocation } from 'react-router-dom';
 import styles from './AdminDashboard.module.css';
 import { useAuth } from '../../context/AuthContext';
 import Sidebar from './components/Sidebar';
+import { LuMenu, LuX } from 'react-icons/lu'; // Ensure these are installed
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-  const location = useLocation(); // To detect URL changes for fetching data
+  const loc = useLocation(); // Use 'loc' to avoid collision with global 'location'
   
+  // 1. ADDED THIS STATE (Fixes the ReferenceError)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const [inventory, setInventory] = useState([]);
   const [orders, setOrders] = useState([]);
   const [users, setUsers] = useState([]);
@@ -18,15 +22,19 @@ const AdminDashboard = () => {
     'Content-Type': 'application/json'
   };
 
-  // Logic to fetch data based on the current URL path
+  // Close sidebar on mobile when navigating
   useEffect(() => {
-    const path = location.pathname;
+    setIsSidebarOpen(false);
+  }, [loc.pathname]);
+
+  useEffect(() => {
+    const path = loc.pathname;
     if (path.includes('inventory')) fetchInventory();
     else if (path.includes('orders')) fetchOrders();
     else if (path.includes('users')) fetchUsers();
     else if (path.includes('reviews')) fetchAllReviews();
-    else fetchInventory(); // Fetch default data for dashboard
-  }, [location.pathname]);
+    else fetchInventory(); 
+  }, [loc.pathname]);
 
   const fetchInventory = async () => {
     try {
@@ -74,10 +82,18 @@ const AdminDashboard = () => {
 
   return (
     <div className={styles.adminContainer}>
-      <Sidebar /> 
+      {/* 2. Mobile Toggle Button */}
+      <button 
+        className={styles.mobileToggle} 
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      >
+        {isSidebarOpen ? <LuX /> : <LuMenu />}
+      </button>
+
+      {/* 3. Pass the state to Sidebar */}
+      <Sidebar isOpen={isSidebarOpen} /> 
 
       <main className={styles.content}>
-        {/* Everything inside the context object is passed to children */}
         <Outlet context={{ 
           inventory, setInventory, 
           orders, setOrders, 
@@ -89,6 +105,9 @@ const AdminDashboard = () => {
           currentUserId: user?.id
         }} />
       </main>
+
+      {/* 4. Overlay for mobile */}
+      {isSidebarOpen && <div className={styles.overlay} onClick={() => setIsSidebarOpen(false)}></div>}
     </div>
   );
 };

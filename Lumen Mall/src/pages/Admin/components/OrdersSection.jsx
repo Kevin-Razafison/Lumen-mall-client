@@ -23,7 +23,8 @@ const OrdersSection = () => {
   return (
     <section className={styles.inventorySection}>
       <h1>Customer Orders</h1>
-      <table className={styles.inventoryTable}>
+<div className={styles.tableWrapper}>    
+    <table className={styles.inventoryTable}>
         <thead>
           <tr>
             <th>Order ID</th>
@@ -69,6 +70,7 @@ const OrdersSection = () => {
           )}
         </tbody>
       </table>
+</div>
     </section>
   );
 };

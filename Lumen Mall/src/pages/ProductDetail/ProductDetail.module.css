@@ -201,3 +201,100 @@
     color: #888;
     font-style: italic;
 }
+
+/* --- Final Fix for White Theme Comment Section --- */
+.publicCommentInput {
+    margin: 30px 0 50px;
+    background: #ffffff; 
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    color: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    /* This prevents the "out" overflow issue */
+    box-sizing: border-box; 
+    width: 100%;
+}
+
+.inputWrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    box-sizing: border-box;
+}
+
+.inputWrapper textarea {
+    width: 100%; 
+    box-sizing: border-box; /* Includes padding in the 100% width */
+    min-height: 110px;
+    background: #f0f2f2; 
+    border: 1px solid #d5d9d9;
+    border-radius: 8px;
+    color: #111;
+    padding: 15px;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.inputWrapper textarea:focus {
+    outline: none;
+    border-color: #f0c14b;
+    background: #ffffff;
+    box-shadow: 0 0 5px rgba(240, 193, 75, 0.5);
+}
+
+/* Updated Button Style to match your Add to Cart theme */
+.postBtn {
+    background-color: #f0c14b; /* Your signature yellow */
+    color: #111;
+    border: 1px solid #a88734;
+    border-radius: 20px; /* Rounded pill shape */
+    padding: 10px 25px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    align-self: flex-start; /* Keeps it on the left */
+    transition: background 0.2s, transform 0.1s;
+}
+
+.postBtn:hover {
+    background-color: #f4d078;
+    border-color: #846a29;
+}
+
+.postBtn:active {
+    transform: scale(0.98);
+}
+
+.postBtn:disabled {
+    background-color: #f7dfa1;
+    border-color: #dadbdc;
+    color: #565959;
+    cursor: not-allowed;
+}
+
+.deleteBtn {
+    margin-left: auto;
+    background: transparent;
+    border: none;
+    color: #ff4d4d;
+    font-size: 1.6rem;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    opacity: 0.6;
+}
+
+.deleteBtn:hover {
+    color: #ff0000;
+    background: rgba(255, 0, 0, 0.1);
+    opacity: 1;
+    transform: scale(1.1);
+}

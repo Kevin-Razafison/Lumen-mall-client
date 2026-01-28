@@ -14,6 +14,11 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Review System State
+  const [reviewingOrder, setReviewingOrder] = useState(null);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+
   const getStatusStep = (status) => {
     const backendStatus = status?.toUpperCase().trim();
     if (backendStatus === 'CANCELLED') return -1;
@@ -47,13 +52,11 @@ const Orders = () => {
     fetchOrders();
   }, [user]);
 
-  // PDF Generation Logic (Fixed autoTable function call)
+  // PDF Generation Logic
   const downloadInvoice = (order) => {
     const doc = new jsPDF();
-
-    // Branding
     doc.setFontSize(22);
-    doc.setTextColor(254, 189, 105); // #febd69
+    doc.setTextColor(254, 189, 105); 
     doc.text("LUMEN MALL", 14, 20);
     
     doc.setFontSize(10);
@@ -61,7 +64,6 @@ const Orders = () => {
     doc.text(`Invoice: LMN-${order.id}`, 14, 30);
     doc.text(`Date: ${new Date(order.orderDate || order.createdAt).toLocaleDateString()}`, 14, 35);
 
-    // Shipping Info
     doc.setFontSize(12);
     doc.setTextColor(0);
     doc.text("Shipping Address:", 14, 50);
@@ -69,7 +71,6 @@ const Orders = () => {
     doc.text(`${order.customerName || 'Customer'}`, 14, 57);
     doc.text(`${order.shippingAddress || 'No address provided'}`, 14, 62);
 
-    // Table
     const tableColumn = ["Product", "Qty", "Price", "Total"];
     const tableRows = order.items.map(item => [
       item.productName || item.name || `ID: ${item.productId}`,
@@ -78,7 +79,6 @@ const Orders = () => {
       `$${(item.quantity * item.price).toFixed(2)}`
     ]);
 
-    // Use autoTable function directly
     autoTable(doc, {
       startY: 70,
       head: [tableColumn],
@@ -87,11 +87,9 @@ const Orders = () => {
       theme: 'striped'
     });
 
-    // Get position after table
     const finalY = doc.lastAutoTable.finalY + 10;
     doc.setFontSize(14);
     doc.text(`Total Paid: $${order.totalAmount.toFixed(2)}`, 140, finalY);
-
     doc.save(`Lumen_Invoice_${order.id}.pdf`);
   };
 
@@ -124,11 +122,8 @@ const Orders = () => {
 
     const grandTotal = filteredOrders.reduce((sum, order) => sum + order.totalAmount, 0);
     const finalY = doc.lastAutoTable.finalY + 10;
-    
     doc.setFontSize(14);
-    doc.setTextColor(0);
     doc.text(`Grand Total: $${grandTotal.toFixed(2)}`, 140, finalY);
-
     doc.save(`Order_Summary_${new Date().getTime()}.pdf`);
   };
 
@@ -172,15 +167,25 @@ const Orders = () => {
     navigate('/cart');
   };
 
+  const handleSubmitReview = (orderId) => {
+    console.log("Submitting Review:", { orderId, rating, comment });
+    alert("Review submitted! Thank you for your feedback.");
+    setReviewingOrder(null);
+    setComment("");
+    setRating(5);
+  };
+
   if (loading) return <div className={styles.loader}>Loading your orders...</div>;
 
   return (
     <div className={styles.ordersContainer}>
       <div className={styles.headerSection}>
-        <h1 className={styles.title}>Your Order History</h1>
-        <button onClick={downloadSummary} className={styles.summaryBtn}>
-          Download Report ({filteredOrders.length})
-        </button>
+        <div className={styles.titleGroup}>
+            <h1 className={styles.title}>Your Order History</h1>
+            <button onClick={downloadSummary} className={styles.summaryBtn}>
+                Download Report ({filteredOrders.length})
+            </button>
+        </div>
         <div className={styles.searchWrapper}>
           <input 
             type="text" 
@@ -204,7 +209,7 @@ const Orders = () => {
             const isCompleted = status === 'COMPLETED';
             const isCancelled = status === 'CANCELLED';
             const isFinished = isCompleted || isCancelled;
-            const canCancel = ['PENDING', 'AWAITING_PAYMENT', 'PENDING_PAYMENT'].includes(status);
+            const canCancel = ['PENDING', 'AWAITING_PAYMENT'].includes(status);
             
             return (
               <div key={order.id} className={styles.orderCard}>
@@ -218,12 +223,8 @@ const Orders = () => {
                 <div className={styles.trackingTimeline}>
                   {['Placed', 'Paid', 'Shipped', 'Delivered'].map((step, index) => {
                     const isActive = !isCancelled && index <= getStatusStep(order.status);
-                    const isStepGreen = isActive && isCompleted;
                     return (
-                      <div 
-                        key={step} 
-                        className={`${styles.step} ${isActive ? styles.active : ''} ${isStepGreen ? styles.completedStep : ''} ${isCancelled ? styles.cancelledStep : ''}`}
-                      >
+                      <div key={step} className={`${styles.step} ${isActive ? styles.active : ''} ${isCompleted && isActive ? styles.completedStep : ''} ${isCancelled ? styles.cancelledStep : ''}`}>
                         <div className={styles.dot}></div>
                         <span className={styles.stepLabel}>{step}</span>
                       </div>
@@ -257,6 +258,7 @@ const Orders = () => {
 
                     {canCancel && <button onClick={() => handleCancelOrder(order.id)} className={styles.cancelBtn}>Cancel</button>}
                     {isFinished && <button onClick={() => handleReorder(order.items)} className={styles.reorderBtn}>Reorder</button>}
+                    {isCompleted && <button onClick={() => setReviewingOrder(order)} className={styles.reviewBtn}>Review</button>}
                     
                     <button onClick={() => downloadInvoice(order)} className={styles.invoiceBtn}>
                       Invoice
@@ -271,6 +273,30 @@ const Orders = () => {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Review Modal */}
+      {reviewingOrder && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.reviewModal}>
+            <h2>Rate Your Order #{reviewingOrder.id}</h2>
+            <div className={styles.starRating}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span key={star} className={star <= rating ? styles.starFilled : styles.starEmpty} onClick={() => setRating(star)}>★</span>
+              ))}
+            </div>
+            <textarea 
+              placeholder="Leave a comment about your products..." 
+              value={comment} 
+              onChange={(e) => setComment(e.target.value)} 
+              className={styles.commentArea} 
+            />
+            <div className={styles.modalActions}>
+              <button onClick={() => setReviewingOrder(null)} className={styles.modalCancel}>Close</button>
+              <button onClick={() => handleSubmitReview(reviewingOrder.id)} className={styles.submitBtn}>Submit Review</button>
+            </div>
+          </div>
         </div>
       )}
     </div>

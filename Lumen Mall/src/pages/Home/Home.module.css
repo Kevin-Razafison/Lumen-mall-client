@@ -14,3 +14,20 @@
   color: #f0c14b; 
   font-weight: bold;
 }
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem; 
+  padding: 20px;
+  width: 100%;
+  max-width: 1200px; 
+  margin: 0 auto;  
+}
+
+.noResults {
+  grid-column: 1 / -1; 
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+}
+

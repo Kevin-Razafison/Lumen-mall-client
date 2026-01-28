@@ -60,7 +60,7 @@ const Home = () => {
         <Hero />
         <CategoryNav />
         
-        <section className="product-section">
+        <section className={styles.productSection}>
           <h2 className="section-title">
             {categoryTerm.toLowerCase() === 'all' 
               ? "All Articles" 
@@ -71,7 +71,7 @@ const Home = () => {
               : "New Arrivals"}
           </h2>
                     
-          <div className="product-grid">
+          <div className={styles.productGrid}>
             {loading ? (
               Array(8).fill(0).map((_, i) => <ProductCardSkeleton key={i} />)
             ) : (

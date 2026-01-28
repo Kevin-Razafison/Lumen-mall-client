@@ -335,6 +335,26 @@ const AdminDashboard = () => {
     }
   };
 
+  const getTopProducts = () => {
+    const productCounts = {};
+
+    orders.forEach(order => {
+      if (['PAID', 'SHIPPED', 'COMPLETED'].includes(order.status)) {
+        order.items?.forEach(item => {
+          const name = item.name || "Unknown Product";
+          productCounts[name] = (productCounts[name] || 0) + (item.quantity || 1);
+        });
+      }
+    });
+
+    return Object.entries(productCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+  };
+
+  const topProducts = getTopProducts();
+  const recentOrders = [...orders].sort((a, b) => b.id - a.id).slice(0, 5);
   return (
     <div className={styles.adminContainer}>
       <aside className={styles.sidebar}>
@@ -386,6 +406,7 @@ const AdminDashboard = () => {
                   <p>{outOfStockCount}</p>
                 </div>
               </div>
+              {/* The Report Section */}
               <div className={styles.reportSection}>
                   <div className={styles.reportHeader}>
                     <h2>Monthly Revenue (Last 6 Months)</h2>
@@ -406,7 +427,67 @@ const AdminDashboard = () => {
                   ))}
                 </div>
               </div>
-              <div className={styles.statCard}>
+              <div className={styles.dashboardGrid}>
+              {/* The recent Order Section */}
+              <div className={styles.recentOrdersSection}>
+                <div className={styles.sectionHeader}>
+                  <h2>Recent Activity</h2>
+                  <button onClick={() => setActiveTab('orders')} className={styles.viewAllBtn}>View All Orders</button>
+                </div>
+                <table className={styles.miniTable}>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Customer</th>
+                      <th>Status</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentOrders.map(order => (
+                      <tr key={order.id}>
+                        <td>#{order.id}</td>
+                        <td>{order.customerEmail}</td>
+                        <td>
+                          <span className={`${styles.statusBadge} ${styles[order.status?.toLowerCase()]}`}>
+                            {order.status}
+                          </span>
+                        </td>
+                        <td>${order.totalAmount?.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {/* The Sales Chart Section */}
+              <div className={styles.reportSection}>
+                <div className={styles.reportHeader}>
+                  <h2>Monthly Revenue</h2>
+                  <button onClick={exportOrdersToCSV} className={styles.exportBtn}>📥 Export</button>
+                </div>
+                {/* ... your existing chartContainer code ... */}
+              </div>
+              {/* NEW: Top Selling Products Section */}
+              <div className={styles.topProductsSection}>
+                <h2>Top Selling Products</h2>
+                <div className={styles.productList}>
+                  {topProducts.length > 0 ? (
+                    topProducts.map((item, index) => (
+                      <div key={index} className={styles.productRankItem}>
+                        <span className={styles.rankNumber}>#{index + 1}</span>
+                        <div className={styles.rankInfo}>
+                          <span className={styles.rankName}>{item.name}</span>
+                          <span className={styles.rankCount}>{item.count} units sold</span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className={styles.emptyState}>No sales recorded yet.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+                          <div className={styles.statCard}>
                 <h3>Total Products</h3>
                 <p>{inventory.length}</p>
               </div>

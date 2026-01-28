@@ -1,14 +1,14 @@
 import React from 'react';
 import { useOutletContext } from 'react-router-dom';
 import styles from './OrdersSection.module.css';
-import { API_BASE_URL } from '../../../config'; 
+import { API_BASE_URL } from '../../../config';
 
 const OrdersSection = () => {
   const { orders = [], setOrders, secureHeaders } = useOutletContext();
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/orders/${orderId}/status`, {
+      const response = await fetch(`${API_BASE_URL}/api/orders/${orderId}/status`, {
         method: 'PUT',
         headers: secureHeaders,
         body: JSON.stringify(newStatus)

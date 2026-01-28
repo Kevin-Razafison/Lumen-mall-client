@@ -1,28 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext'; 
+import { useCart } from '../../context/CartContext'; 
+import { useNavigate } from 'react-router-dom';
 import styles from './Orders.module.css';
 
 const Orders = () => {
   const { user } = useAuth(); 
+  const { addToCart } = useCart(); 
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // State for search input
+  const [searchQuery, setSearchQuery] = useState('');
 
   const getStatusStep = (status) => {
-    // Trim and UpperCase to prevent string mismatch
     const backendStatus = status?.toUpperCase().trim();
-    
     if (backendStatus === 'CANCELLED') return -1;
-
-    // We use 'COMPLETED' here to match your Admin Dashboard screenshot
     const steps = ['PENDING', 'PAID', 'SHIPPED', 'COMPLETED']; 
     const index = steps.indexOf(backendStatus);
-    
     return index !== -1 ? index : 1; 
   };
 
-  useEffect(() => {
+  const fetchOrders = () => {
     const actualToken = user?.token;
-
     if (user?.email && actualToken) {
       fetch(`http://localhost:8080/api/orders/user/${user.email}`, {
         headers: {
@@ -30,10 +31,7 @@ const Orders = () => {
           'Content-Type': 'application/json'
         }
       })
-      .then(res => {
-        if (!res.ok) throw new Error("Server responded with error");
-        return res.json();
-      })
+      .then(res => res.json())
       .then(data => {
         setOrders(data.sort((a, b) => b.id - a.id));
         setLoading(false);
@@ -42,25 +40,87 @@ const Orders = () => {
         console.error("Fetch error:", err);
         setLoading(false);
       });
-    } 
-    else if (user === null || (user && !user.email)) {
-      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    fetchOrders();
   }, [user]);
+
+  // Filtering Logic: Check ID or Product Name
+  const filteredOrders = orders.filter(order => {
+    const matchesId = order.id.toString().includes(searchQuery);
+    const matchesProduct = order.items?.some(item => 
+      (item.productName || item.name || "").toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    return matchesId || matchesProduct;
+  });
+
+  const handleCancelOrder = (orderId) => {
+    if (window.confirm("Are you sure you want to cancel this order?")) {
+      fetch(`http://localhost:8080/api/orders/${orderId}/status?status=CANCELLED`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${user?.token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(res => {
+        if (res.ok) fetchOrders(); 
+        else alert("Could not cancel order.");
+      })
+      .catch(err => console.error("Cancel error:", err));
+    }
+  };
+
+  const handleReorder = (orderItems) => {
+    orderItems.forEach(item => {
+      addToCart({
+        id: item.productId,
+        name: item.productName || item.name,
+        price: item.price,
+        image: item.imageUrl,
+        quantity: item.quantity
+      });
+    });
+    alert("Items added back to cart!");
+    navigate('/cart');
+  };
 
   if (loading) return <div className={styles.loader}>Loading your orders...</div>;
 
   return (
     <div className={styles.ordersContainer}>
-      <h1 className={styles.title}>Your Order History</h1>
-      {orders.length === 0 ? (
+      <div className={styles.headerSection}>
+        <h1 className={styles.title}>Your Order History</h1>
+        
+        {/* Search Bar Implementation */}
+        <div className={styles.searchWrapper}>
+          <input 
+            type="text" 
+            placeholder="Search by Order ID or Product..." 
+            className={styles.searchInput}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button className={styles.clearSearch} onClick={() => setSearchQuery('')}>✕</button>
+          )}
+        </div>
+      </div>
+
+      {filteredOrders.length === 0 ? (
         <div className={styles.noOrders}>
-          <p>You haven't placed any orders yet.</p>
+          <p>{searchQuery ? "No orders match your search." : "You haven't placed any orders yet."}</p>
         </div>
       ) : (
         <div className={styles.orderList}>
-          {orders.map(order => {
-            const isOrderCompleted = order.status?.toUpperCase().trim() === 'COMPLETED';
+          {filteredOrders.map(order => {
+            const status = order.status?.toUpperCase().trim();
+            const isCompleted = status === 'COMPLETED';
+            const isCancelled = status === 'CANCELLED';
+            const isFinished = isCompleted || isCancelled;
+            const canCancel = ['PENDING', 'AWAITING_PAYMENT', 'PENDING_PAYMENT'].includes(status);
             
             return (
               <div key={order.id} className={styles.orderCard}>
@@ -71,17 +131,15 @@ const Orders = () => {
                   </span>
                 </div>
 
+                {/* Timeline UI */}
                 <div className={styles.trackingTimeline}>
                   {['Placed', 'Paid', 'Shipped', 'Delivered'].map((step, index) => {
-                    const isActive = index <= getStatusStep(order.status);
+                    const isActive = !isCancelled && index <= getStatusStep(order.status);
+                    const isStepGreen = isActive && isCompleted;
                     return (
                       <div 
                         key={step} 
-                        className={`
-                          ${styles.step} 
-                          ${isActive ? styles.active : ''} 
-                          ${isActive && isOrderCompleted ? styles.completedStep : ''}
-                        `}
+                        className={`${styles.step} ${isActive ? styles.active : ''} ${isStepGreen ? styles.completedStep : ''} ${isCancelled ? styles.cancelledStep : ''}`}
                       >
                         <div className={styles.dot}></div>
                         <span className={styles.stepLabel}>{step}</span>
@@ -91,26 +149,20 @@ const Orders = () => {
                 </div>
 
                 <div className={styles.orderBody}>
-                  {order.items && order.items.map((item, index) => (
+                  {order.items?.map((item, index) => (
                     <div key={index} className={styles.itemRow}>
                       <div className={styles.itemMain}>
                         {item.imageUrl && (
-                          <img src={item.imageUrl} className={styles.miniItemImg} alt={item.productName} />
+                          <img src={item.imageUrl} className={styles.miniItemImg} alt="product" />
                         )}
                         <div className={styles.itemDetails}>
                           <span className={styles.productName}>
-                            {/* Priority: Check productName, then name, then fallback */}
-                            {item.productName || item.name || "Product Name Not Found"}
+                            {item.productName || item.name || `Item ID: ${item.productId}`}
                           </span>
-                          
                           <div className={styles.itemMeta}>
-                            <span className={styles.productId}>ID: {item.productId}</span>
-                            <span className={styles.qty}>Qty: {item.quantity}</span>
+                            <span className={styles.productId}>Ref: {item.productId}</span>
+                            <span className={styles.qty}>Quantity: {item.quantity}</span>
                           </div>
-
-                          {item.features && (
-                            <p className={styles.itemFeatures}>{item.features.slice(0, 2).join(' • ')}</p>
-                          )}
                         </div>
                       </div>
                       <span className={styles.itemPrice}>${item.price.toFixed(2)}</span>
@@ -119,13 +171,23 @@ const Orders = () => {
                 </div>
 
                 <div className={styles.orderFooter}>
-                  <span className={`${styles.statusBadge} ${
-                      isOrderCompleted ? styles.statusDelivered : 
-                      order.status?.toUpperCase() === 'CANCELLED' ? styles.statusCancelled : 
-                      styles.statusPaid
-                  }`}>
-                    {isOrderCompleted ? 'Delivered' : (order.status || 'Paid')}
-                  </span>
+                  <div className={styles.footerLeft}>
+                    <span className={`${styles.statusBadge} ${isCompleted ? styles.statusDelivered : isCancelled ? styles.statusCancelled : styles.statusPaid}`}>
+                      {isCompleted ? 'Delivered' : (order.status || 'Paid')}
+                    </span>
+
+                    {canCancel && (
+                      <button onClick={() => handleCancelOrder(order.id)} className={styles.cancelBtn}>
+                        Cancel
+                      </button>
+                    )}
+
+                    {isFinished && (
+                      <button onClick={() => handleReorder(order.items)} className={styles.reorderBtn}>
+                        Reorder
+                      </button>
+                    )}
+                  </div>
                   
                   <div className={styles.totalBox}>
                     <span>Total Paid:</span>

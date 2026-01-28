@@ -188,3 +188,105 @@
     color: #febd69;
     font-weight: 800;
 }
+
+.footerLeft {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.cancelBtn {
+    background: transparent;
+    border: 1px solid rgba(231, 76, 60, 0.5);
+    color: #e74c3c;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cancelBtn:hover {
+    background: #e74c3c;
+    color: white;
+    box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+}
+
+/* Grey out the timeline if cancelled */
+.step.cancelledStep .dot {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.step.cancelledStep .stepLabel {
+    color: rgba(255, 255, 255, 0.1);
+}
+
+.reorderBtn {
+    background: transparent;
+    border: 1px solid rgba(254, 189, 105, 0.5);
+    color: #febd69;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.reorderBtn:hover {
+    background: #febd69;
+    color: #0f1111;
+    box-shadow: 0 0 10px rgba(254, 189, 105, 0.3);
+}
+
+.headerSection {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.searchWrapper {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    font-size: 0.9rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+    border-color: #febd69;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.clearSearch {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    font-size: 1.1rem;
+}
+
+.clearSearch:hover {
+    color: white;
+}

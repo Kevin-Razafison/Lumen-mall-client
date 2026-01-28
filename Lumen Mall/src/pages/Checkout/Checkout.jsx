@@ -54,106 +54,94 @@ const Checkout = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsProcessing(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsProcessing(true);
 
-  try {
-    if (paymentMethod === 'Credit Card') {
-      if (!stripe || !elements) return;
+    try {
+      // 1. Handle Stripe
+      if (paymentMethod === 'Credit Card') {
+        if (!stripe || !elements) return;
 
-      const intentRes = await fetch('http://localhost:8080/api/payments/create-payment-intent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: finalGrandTotal, email: formData.email })
-      });
-      
-      const { clientSecret } = await intentRes.json();
-      const cardElement = elements.getElement(CardElement);
-      const result = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: { card: cardElement, billing_details: { name: formData.fullName, email: formData.email } },
-      });
+        const intentRes = await fetch('http://localhost:8080/api/payments/create-payment-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: finalGrandTotal, email: formData.email })
+        });
+        
+        const { clientSecret } = await intentRes.json();
+        const cardElement = elements.getElement(CardElement);
+        const result = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: { card: cardElement, billing_details: { name: formData.fullName, email: formData.email } },
+        });
 
-      if (result.error) throw new Error(result.error.message);
-    }
-
-    if (paymentMethod === 'PayPal') {
-      const paypalRes = await fetch('http://localhost:8080/api/payments/paypal/create', { // Updated URL
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: finalGrandTotal }) 
-      });
-
-      if (!paypalRes.ok) throw new Error("PayPal initiation failed.");
-      
-      const data = await paypalRes.json(); 
-      window.location.href = data.approvalUrl; 
-      return; 
-    }
-
-    const orderData = {
-      customerName: formData.fullName,
-      customerEmail: formData.email,
-      totalAmount: finalGrandTotal,
-      paymentMethod: paymentMethod,
-      shippingAddress: `${formData.address}, ${formData.city}, ${formData.zipCode}`,
-      items: cartItems.map(item => ({
-        productId: item.id,
-        quantity: item.quantity,
-        price: item.price,
-        features: item.features
-      }))
-    };
-  const orderResponse = await fetch('http://localhost:8080/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(orderData)
-    });
-
-    const resultData = await orderResponse.json().catch(() => null);
-
-    if (!orderResponse.ok) {
-      const errorMessage = resultData?.message || "Something went wrong with the order.";
-      throw new Error(errorMessage);
-    }
-
-    if (orderResponse.ok && resultData) {
-      clearCart();
-      
-      navigate('/order-success', { 
-        state: { 
-          orderId: resultData.id, 
-          email: formData.email, 
-          total: finalGrandTotal 
-        } 
-      });
-    }
-
-      if (!orderResponse.ok) {
-        const errorData = await orderResponse.json().catch(() => ({ message: "Server error" }));
-        throw new Error(errorData.message || "Something went wrong with the order.");
+        if (result.error) throw new Error(result.error.message);
       }
-    if (orderResponse.ok) {
-      const savedOrder = await orderResponse.json(); // Capture the actual order from DB
-            clearCart();
-            
-            // PASS THE DATA HERE
-            navigate('/order-success', { 
-              state: { 
-                orderId: savedOrder.id, 
-                email: formData.email, 
-                total: finalGrandTotal 
-              } 
-      });
-    }
 
-  } catch (error) {
-    console.error("Checkout failed:", error);
-    alert(error.message);
-  } finally {
-    setIsProcessing(false);
-  }
-};
+      // 2. Handle PayPal
+      if (paymentMethod === 'PayPal') {
+        const paypalRes = await fetch('http://localhost:8080/api/payments/paypal/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: finalGrandTotal }) 
+        });
+
+        if (!paypalRes.ok) throw new Error("PayPal initiation failed.");
+        
+        const data = await paypalRes.json(); 
+        window.location.href = data.approvalUrl; 
+        return; 
+      }
+
+      // 3. Prepare and Send Order
+      const orderData = {
+        customerName: formData.fullName,
+        customerEmail: formData.email,
+        totalAmount: finalGrandTotal,
+        paymentMethod: paymentMethod,
+        shippingAddress: `${formData.address}, ${formData.city}, ${formData.zipCode}`,
+        items: cartItems.map(item => ({
+          productId: item.id,
+          quantity: item.quantity,
+          price: item.price,
+          features: item.features
+        }))
+      };
+
+      const orderResponse = await fetch('http://localhost:8080/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
+
+      // READ THE RESPONSE ONCE HERE
+      const resultData = await orderResponse.json().catch(() => null);
+
+      // Check if the response was successful
+      if (!orderResponse.ok) {
+        const errorMessage = resultData?.message || "Something went wrong with the order.";
+        throw new Error(errorMessage);
+      }
+
+      // If successful, navigate using the resultData we already have
+      if (resultData) {
+        clearCart();
+        navigate('/order-success', { 
+          state: { 
+            orderId: resultData.id, 
+            email: formData.email, 
+            total: finalGrandTotal 
+          } 
+        });
+      }
+
+    } catch (error) {
+      console.error("Checkout failed:", error);
+      alert(error.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   return (
     <div className={styles.checkoutContainer}>

@@ -82,3 +82,42 @@
 .stockStatus {
     margin: 15px 0;
 }
+.detailBadges {
+  display: flex;
+  margin-top: 10px;
+}
+
+.saleBadge {
+  background: #cc0c39;
+  color: white;
+  padding: 4px 8px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  border-radius: 2px;
+}
+
+.priceContainer {
+  margin: 15px 0;
+}
+
+.savingsRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.savePercent {
+  color: #cc0c39;
+  font-size: 1.8rem;
+  font-weight: 300;
+}
+
+.listPrice {
+  color: #a7acb2;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.listPrice span {
+  text-decoration: line-through;
+}

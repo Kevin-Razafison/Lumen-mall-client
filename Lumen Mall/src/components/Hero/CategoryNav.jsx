@@ -4,13 +4,13 @@ import styles from './CategoryNav.module.css';
 const CategoryNav = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   
-  const activeCategory = searchParams.get('category') || 'All';
+  const activeCategory = searchParams.get('category') || 'New';
 
-  const categories = ['All', 'Electronics', 'Smart Home', 'Wearables', 'Audio'];
+  const categories = ['New', 'All', 'Electronics', 'Smart Home', 'Wearables', 'Audio'];
   
   const handleCategoryClick = (category) => {
-    if (category === 'All') {
-      searchParams.delete('category'); // Clear the category filter
+    if (category === 'New') {
+      searchParams.delete('category'); // Landing on Home/New Arrivals
     } else {
       searchParams.set('category', category);
     }
@@ -26,11 +26,12 @@ const CategoryNav = () => {
             className={`${styles.item} ${activeCategory === cat ? styles.active : ''}`}
             onClick={() => handleCategoryClick(cat)}
           >
-            {cat}
+            {cat === 'New' ? 'New Arrivals' : cat === 'All' ? 'All Articles' : cat}
           </li>
         ))}
       </ul>
     </nav>
   );
 };
-export default CategoryNav
+
+export default CategoryNav;

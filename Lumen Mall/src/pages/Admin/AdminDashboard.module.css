@@ -518,3 +518,54 @@
   gap: 8px;
   align-items: center;
 }
+
+.outOfStockRow {
+  background-color: rgba(255, 77, 77, 0.1); /* Soft red background */
+}
+
+.criticalStock {
+  color: #ff4d4d;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.lowStockText {
+  color: #f0c14b;
+  font-weight: bold;
+}
+
+.categoryBadge {
+  background: #333;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  color: #00e5ff; /* Matches your New Badge cyan */
+}
+
+.originalPriceMuted {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 0.8rem;
+  margin-right: 5px;
+}
+
+.salePriceActive {
+  color: #ff4d4d; /* Red for sale */
+  font-weight: bold;
+}
+
+.editPriceGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.editPriceGroup input {
+  width: 80px;
+  font-size: 0.8rem;
+}
+
+.filterControls {
+  display: flex;
+  gap: 15px;
+}

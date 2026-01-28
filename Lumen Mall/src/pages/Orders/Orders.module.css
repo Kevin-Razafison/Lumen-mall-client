@@ -114,3 +114,35 @@
     background: #f9f9f9;
     border-radius: 12px;
 }
+
+.itemMain {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.miniItemImg {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+.productName {
+    display: block;
+    font-size: 1rem;
+    color: #1a1a1a;
+}
+
+.itemFeatures {
+    font-size: 0.8rem;
+    color: #888;
+    margin: 2px 0;
+    font-style: italic;
+}
+
+.qty {
+    font-size: 0.85rem;
+    color: #666;
+}

@@ -40,7 +40,6 @@ const ProductDetail = () => {
     return <div className={styles.notFound}>Product not found!</div>;
   }
 
-  // 4. Safe Logic (Only runs once product data exists)
   const isOutOfStock = product.stock !== undefined && product.stock <= 0;
   const isLowStock = product.stock > 0 && product.stock <= 5;
 
@@ -51,10 +50,26 @@ const ProductDetail = () => {
   const displayImage = (product.imageUrl && product.imageUrl !== 'url') 
     ? product.imageUrl 
     : '/drone-product-image.png';
+  const isOnSale = product.salePrice && product.salePrice < product.price;
+
+  const savingsPercent = isOnSale 
+    ? Math.round(((product.price - product.salePrice) / product.price) * 100) 
+    : 0;
+
+  const isNewArrival = () => {
+    if (!product.createdAt) return false;
+    const fourteenDaysAgo = new Date();
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    return new Date(product.createdAt) >= fourteenDaysAgo;
+  };
+
+  const isNew = isNewArrival();
 
   const handleAdd = () => {
     const cartItem = {
       ...product,
+      // CRITICAL: Ensure the cart gets the sale price if it exists
+      price: isOnSale ? product.salePrice : product.price,
       image: displayImage
     };
     addToCart(cartItem, quantity);
@@ -63,78 +78,93 @@ const ProductDetail = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.imageSection}>
-        <img src={displayImage} alt={product.name} />
-      </div>
-
-      <div className={styles.infoSection}>
-        <h1 className={styles.title}>{product.name}</h1>
-        <p className={styles.category}>{product.category}</p>
-        
-        {/* Visual Stock Status */}
-        <div className={styles.stockStatus}>
-          {isOutOfStock ? (
-            <span className={styles.outOfStockText}>Currently Unavailable</span>
-          ) : (
-            <span className={styles.inStockText}>
-              In Stock {isLowStock && `- Only ${product.stock} left!`}
-            </span>
-          )}
+      <div className={styles.container}>
+        <div className={styles.imageSection}>
+          <img src={displayImage} alt={product.name} />
+          {/* NEW: Detail Badges */}
+          <div className={styles.detailBadges}>
+            {isOnSale && <span className={styles.saleBadge}>Limited Time Deal</span>}
+          </div>
         </div>
 
-        <hr className={styles.divider} />
-        
-        <div className={styles.priceTag}>
-          <span className={styles.currency}>$</span>
-          <span className={styles.amount}>
-            {typeof product.price === 'number' ? product.price.toFixed(2) : product.price}
-          </span>
-        </div>
-
-        <div className={styles.description}>
-          <h3>About this item</h3>
-          <p>{product.description}</p>
+        <div className={styles.infoSection}>
+          <h1 className={styles.title}>{product.name}</h1>
+          <p className={styles.category}>{product.category}</p>
           
-          <ul className={styles.featureList}>
-            {product.features && product.features.length > 0 ? (
-              product.features.map((feature, index) => (
-                <li key={index}>{feature}</li>
-              ))
+          <div className={styles.stockStatus}>
+            {isOutOfStock ? (
+              <span className={styles.outOfStockText}>Currently Unavailable</span>
             ) : (
-              <li>Lumen Certified Quality</li>
+              <span className={styles.inStockText}>
+                In Stock {isLowStock && `- Only ${product.stock} left!`}
+              </span>
             )}
-          </ul>
-        </div>
+          </div>
 
-        <div className={styles.purchaseActions}>
-          {/* Hide quantity selector if out of stock */}
-          {!isOutOfStock && (
-            <div className={styles.qtyBox}>
-              <label htmlFor="qtySelect">Quantity:</label>
-              <select 
-                id="qtySelect"
-                value={quantity} 
-                onChange={(e) => setQuantity(parseInt(e.target.value))}
-                className={styles.qtySelect}
-              >
-                {qtyOptions.map(n => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
-            </div>
-          )}
+          <hr className={styles.divider} />
+          
+          {/* UPDATED: Price Logic */}
+          <div className={styles.priceContainer}>
+            {isOnSale ? (
+              <div className={styles.salePriceBox}>
+                <div className={styles.savingsRow}>
+                  <span className={styles.savePercent}>-{savingsPercent}%</span>
+                  <span className={styles.priceTag}>
+                    <span className={styles.currency}>$</span>
+                    <span className={styles.amount}>{product.salePrice.toFixed(2)}</span>
+                  </span>
+                </div>
+                <p className={styles.listPrice}>
+                  List Price: <span>${product.price.toFixed(2)}</span>
+                </p>
+              </div>
+            ) : (
+              <div className={styles.priceTag}>
+                <span className={styles.currency}>$</span>
+                <span className={styles.amount}>
+                  {typeof product.price === 'number' ? product.price.toFixed(2) : product.price}
+                </span>
+              </div>
+            )}
+          </div>
 
-          <button 
-            className={`${styles.addBtn} ${added ? styles.added : ''} ${isOutOfStock ? styles.disabledBtn : ''}`}
-            onClick={handleAdd}
-            disabled={added || isOutOfStock}
-          >
-            {isOutOfStock ? "Out of Stock" : added ? "✓ Added to Cart" : "Add to Cart"}
-          </button>
+          <div className={styles.description}>
+            <h3>About this item</h3>
+            <p>{product.description}</p>
+            <ul className={styles.featureList}>
+              {product.features?.length > 0 ? (
+                product.features.map((f, i) => <li key={i}>{f}</li>)
+              ) : (
+                <li>Lumen Certified Quality</li>
+              )}
+            </ul>
+          </div>
+
+          <div className={styles.purchaseActions}>
+            {!isOutOfStock && (
+              <div className={styles.qtyBox}>
+                <label htmlFor="qtySelect">Quantity:</label>
+                <select 
+                  id="qtySelect"
+                  value={quantity} 
+                  onChange={(e) => setQuantity(parseInt(e.target.value))}
+                  className={styles.qtySelect}
+                >
+                  {qtyOptions.map(n => <option key={n} value={n}>{n}</option>)}
+                </select>
+              </div>
+            )}
+
+            <button 
+              className={`${styles.addBtn} ${added ? styles.added : ''} ${isOutOfStock ? styles.disabledBtn : ''}`}
+              onClick={handleAdd}
+              disabled={added || isOutOfStock}
+            >
+              {isOutOfStock ? "Out of Stock" : added ? "✓ Added to Cart" : "Add to Cart"}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
   );
 };
 

@@ -104,12 +104,35 @@ const handleSubmit = async (e) => {
         features: item.features
       }))
     };
-    const orderResponse = await fetch('http://localhost:8080/api/orders', {
+  const orderResponse = await fetch('http://localhost:8080/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(orderData)
     });
 
+    const resultData = await orderResponse.json().catch(() => null);
+
+    if (!orderResponse.ok) {
+      const errorMessage = resultData?.message || "Something went wrong with the order.";
+      throw new Error(errorMessage);
+    }
+
+    if (orderResponse.ok && resultData) {
+      clearCart();
+      
+      navigate('/order-success', { 
+        state: { 
+          orderId: resultData.id, 
+          email: formData.email, 
+          total: finalGrandTotal 
+        } 
+      });
+    }
+
+      if (!orderResponse.ok) {
+        const errorData = await orderResponse.json().catch(() => ({ message: "Server error" }));
+        throw new Error(errorData.message || "Something went wrong with the order.");
+      }
     if (orderResponse.ok) {
       const savedOrder = await orderResponse.json(); // Capture the actual order from DB
             clearCart();

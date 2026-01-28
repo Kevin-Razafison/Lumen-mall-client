@@ -1,14 +1,25 @@
+import React from 'react';
 import styles from './ProductCard.module.css';
 import { useCart } from '../../context/CartContext';
 import { Link } from 'react-router-dom';
 
-const ProductCard = ({ id, name, price, image, description, features, stock }) => {
+const ProductCard = ({ id, name, price, salePrice, image, description, features, stock, createdAt }) => {
   const { addToCart } = useCart();
 
   const displayImage = image ? image : '/drone-product-image.png';
 
   const isOutOfStock = stock !== undefined && stock <= 0;
   const isLowStock = stock > 0 && stock <= 5;
+  const isOnSale = salePrice && salePrice < price;
+
+  const isNewArrival = () => {
+    if (!createdAt) return false;
+    const fourteenDaysAgo = new Date();
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    return new Date(createdAt) >= fourteenDaysAgo;
+  };
+
+  const isNew = isNewArrival();
 
   return (
     <div className={styles.card}>
@@ -20,6 +31,14 @@ const ProductCard = ({ id, name, price, image, description, features, stock }) =
           onError={(e) => { e.target.src = '/drone-product-image.png'; }}
         />
         
+        {/* BADGE CONTAINER */}
+        <div className={styles.badgeContainer}>
+          {isOnSale && <div className={styles.saleBadge}>SALE</div>}
+          {/* Only show NEW if not on Sale, or stack them if you prefer */}
+          {isNew && !isOnSale && <div className={styles.newBadge}>NEW</div>}
+        </div>
+
+        {/* STOCK STATUS */}
         {isOutOfStock && <div className={styles.soldOutBadge}>Sold Out</div>}
         {isLowStock && !isOutOfStock && (
           <div className={styles.lowStockBadge}>Only {stock} left!</div>
@@ -31,14 +50,27 @@ const ProductCard = ({ id, name, price, image, description, features, stock }) =
         <p className={styles.description}>{description}</p>
         
         <div className={styles.footer}>
-          <span className={styles.price}>
-            ${typeof price === 'number' ? price.toFixed(2) : price}
-          </span>
+          <div className={styles.priceContainer}>
+            {isOnSale ? (
+              <>
+                <span className={styles.originalPrice}>${Number(price).toFixed(2)}</span>
+                <span className={styles.salePrice}>${Number(salePrice).toFixed(2)}</span>
+              </>
+            ) : (
+              <span className={styles.price}>
+                ${typeof price === 'number' ? price.toFixed(2) : price}
+              </span>
+            )}
+          </div>
           
           <button 
             className={styles.addBtn} 
             disabled={isOutOfStock}
-            onClick={() => addToCart({ id, name, price, image: displayImage, description, features })}
+            onClick={() => addToCart({ 
+              id, name, 
+              price: isOnSale ? salePrice : price, 
+              image: displayImage, description, features 
+            })}
           >
             {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
           </button>

@@ -61,9 +61,20 @@ useEffect(() => {
               <div className={styles.orderBody}>
                 {order.items && order.items.map((item, index) => (
                   <div key={index} className={styles.itemRow}>
-                    <div className={styles.itemDetails}>
-                      <span>Product ID: <strong>{item.productId}</strong></span>
-                      <span> Quantity: {item.quantity}</span>
+                    <div className={styles.itemMain}>
+                      {/* Optional: Add image if your backend provides it */}
+                      {item.imageUrl && <img src={item.imageUrl} className={styles.miniItemImg} alt={item.productName} />}
+                      
+                      <div className={styles.itemDetails}>
+                        <span className={styles.productName}><strong>{item.productName || `Product ID: ${item.productId}`}</strong></span>
+                        
+                        {/* ADD FEATURES HERE TOO! */}
+                        {item.features && (
+                          <p className={styles.itemFeatures}>{item.features.slice(0, 2).join(' • ')}</p>
+                        )}
+                        
+                        <span className={styles.qty}>Quantity: {item.quantity}</span>
+                      </div>
                     </div>
                     <span className={styles.itemPrice}>${item.price.toFixed(2)}</span>
                   </div>

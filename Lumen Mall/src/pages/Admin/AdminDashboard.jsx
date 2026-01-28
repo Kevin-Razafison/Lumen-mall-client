@@ -3,7 +3,8 @@ import styles from './AdminDashboard.module.css';
 import { useAuth } from '../../context/AuthContext';
 import LogoImg from '../../assets/Lumen-Mall-logo.png';
 
-const PRODUCT_CATEGORIES = ['Electronics', 'Smart Home', 'Wearables', 'Audio', 'Drones'];
+const PRODUCT_CATEGORIES = ['Electronics', 'Smart Home', 'Wearables', 'Audio', 'Drones','New Arrival'];
+const STOCK_FILTERS = ['All Items', 'Low Stock', 'Out of Stock', 'On Sale'];
 
 const AdminDashboard = () => {
   const [featureInput, setFeatureInput] = useState('');
@@ -47,12 +48,19 @@ const AdminDashboard = () => {
     else if (activeTab === 'users') fetchUsers();
   }, [activeTab]);
 
-  // Derived State: Filters the inventory in real-time
   const filteredInventory = inventory.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          product.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Category Filter
     const matchesCategory = filterCategory === 'All' || product.category === filterCategory;
-    return matchesSearch && matchesCategory;
+    
+    // Stock/Sale Filters (Add this logic)
+    let matchesStock = true;
+    if (filterCategory === 'Low Stock') matchesStock = product.stock > 0 && product.stock <= 5;
+    if (filterCategory === 'Out of Stock') matchesStock = product.stock === 0;
+    if (filterCategory === 'On Sale') matchesStock = product.salePrice && product.salePrice < product.price;
+
+    return matchesSearch && (matchesCategory || matchesStock);
   });
 
   const fetchInventory = async () => {
@@ -251,6 +259,7 @@ const AdminDashboard = () => {
         body: JSON.stringify({
           ...editForm,
           price: parseFloat(editForm.price),
+          salePrice: editForm.salePrice ? parseFloat(editForm.salePrice) : null, // Handle null correctly
           stock: parseInt(editForm.stock)
         }),
       });
@@ -330,10 +339,17 @@ const AdminDashboard = () => {
                   onChange={(e) => setFilterCategory(e.target.value)}
                 >
                   <option value="All">All Categories</option>
-                  {PRODUCT_CATEGORIES.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
+                  <optgroup label="Product Categories">
+                    {PRODUCT_CATEGORIES.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Inventory Status">
+                    <option value="Low Stock">Low Stock (≤ 5)</option>
+                    <option value="Out of Stock">Out of Stock</option>
+                    <option value="On Sale">Items on Sale</option>
+                  </optgroup>
+</select>
               </div>
             </div>
 
@@ -345,6 +361,7 @@ const AdminDashboard = () => {
                   <th>Stock</th>
                   <th>Price</th>
                   <th>Category</th>
+                  <th>Date Added</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -352,86 +369,96 @@ const AdminDashboard = () => {
               {filteredInventory.length > 0 ? (
                 filteredInventory.map(product => (
                   // 1. ADDED: Highlight the whole row if stock is 0
-                  <tr key={product.id} className={product.stock === 0 ? styles.outOfStockRow : ''}> 
-                    <td><img src={product.imageUrl || '/drone-product-image.png'} alt="thumb" className={styles.tableThumb} /></td>
-                    <td>
-                      {editingId === product.id ? (
-                        <input 
-                          value={editForm.name} 
-                          onChange={(e) => setEditForm({...editForm, name: e.target.value})} 
-                        />
-                      ) : product.name}
-                    </td>
-                    <td>
-                        {editingId === product.id ? (
-                          <input 
-                            type="number"
-                            value={editForm.stock} 
-                            onChange={(e) => setEditForm({...editForm, stock: parseInt(e.target.value)})} 
-                          />
-                        ) : (
-                          <span className={product.stock <= 5 ? `${styles.lowStockText} ${product.stock === 0 ? styles.criticalStock : ''}` : ''}>
-                            {product.stock === 0 ? "OUT OF STOCK" : product.stock}
-                          </span>
-                        )}
-                      </td>
-                    <td>
-                      {editingId === product.id ? (
+                <tr key={product.id} className={product.stock === 0 ? styles.outOfStockRow : ''}> 
+                  <td><img src={product.imageUrl || '/drone-product-image.png'} alt="thumb" className={styles.tableThumb} /></td>
+                  
+                  {/* Name Column */}
+                  <td>
+                    {editingId === product.id ? (
+                      <input value={editForm.name} onChange={(e) => setEditForm({...editForm, name: e.target.value})} />
+                    ) : product.name}
+                  </td>
+
+                  {/* Stock Column */}
+                  <td>
+                    {editingId === product.id ? (
+                      <input type="number" value={editForm.stock} onChange={(e) => setEditForm({...editForm, stock: parseInt(e.target.value)})} />
+                    ) : (
+                      <span className={product.stock <= 5 ? `${styles.lowStockText} ${product.stock === 0 ? styles.criticalStock : ''}` : ''}>
+                        {product.stock === 0 ? "OUT OF STOCK" : product.stock}
+                      </span>
+                    )}
+                  </td>
+
+                  {/* Price Column - Handling Regular and Sale Price */}
+                  <td>
+                    {editingId === product.id ? (
+                      <div className={styles.editPriceGroup}>
                         <input 
                           type="number" 
+                          placeholder="Regular"
                           value={editForm.price} 
                           onChange={(e) => setEditForm({...editForm, price: e.target.value})} 
                         />
-                      ) : `$${Number(product.price).toFixed(2)}`}
-                    </td>
-                    <td>
-                      {editingId === product.id ? (
-                        <select 
-                          value={editForm.category} 
-                          onChange={(e) => setEditForm({...editForm, category: e.target.value})} 
-                          className={styles.tableSelect}
-                        >
-                          {PRODUCT_CATEGORIES.map(cat => (
-                            <option key={cat} value={cat}>{cat}</option>
-                          ))}
-                        </select>
-                      ) : (
-                        <span className={styles.categoryBadge}>{product.category}</span>
-                      )}
-                    </td>
-                    <td>
-                      <div className={styles.actionGroup}>
-                        {editingId === product.id ? (
+                        <input 
+                          type="number" 
+                          placeholder="Sale (Optional)"
+                          value={editForm.salePrice || ''} 
+                          onChange={(e) => setEditForm({...editForm, salePrice: e.target.value})} 
+                        />
+                      </div>
+                    ) : (
+                      <div className={styles.priceDisplay}>
+                        {product.salePrice ? (
                           <>
-                            <button onClick={() => handleUpdateProduct(product.id)} className={styles.saveBtn}>Save</button>
-                            <button onClick={() => setEditingId(null)} className={styles.cancelBtn}>Cancel</button>
+                            <span className={styles.originalPriceMuted}>${Number(product.price).toFixed(2)}</span>
+                            <span className={styles.salePriceActive}>${Number(product.salePrice).toFixed(2)}</span>
                           </>
                         ) : (
-                          <>
-                          <button 
-                            onClick={() => handleQuickRestock(product)} 
-                            className={styles.restockBtn}
-                            title="Quick Restock"
-                          >
-                            + Add Stock
-                          </button>
-                            <button onClick={() => {
-                              setEditingId(product.id);
-                              setEditForm({ 
-                                name: product.name, 
-                                price: product.price, 
-                                description: product.description, 
-                                category: product.category,
-                                stock: product.stock, // 2. ADDED: Keeps the current stock value when you click Edit
-                                features: product.features || []
-                              });
-                            }} className={styles.editBtn}>Edit</button>
-                            <button onClick={() => handleDeleteProduct(product.id)} className={styles.deleteBtn}>Delete</button>
-                          </>
+                          `$${Number(product.price).toFixed(2)}`
                         )}
                       </div>
-                    </td>
-                  </tr>
+                    )}
+                  </td>
+
+                  {/* Category Column */}
+                  <td>
+                    {editingId === product.id ? (
+                      <select value={editForm.category} onChange={(e) => setEditForm({...editForm, category: e.target.value})}>
+                        {PRODUCT_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                      </select>
+                    ) : (
+                      <span className={styles.categoryBadge}>{product.category}</span>
+                    )}
+                  </td>
+
+                  {/* Date Column */}
+                  <td>{product.createdAt ? new Date(product.createdAt).toLocaleDateString() : 'N/A'}</td>
+
+                  {/* Actions Column */}
+                  <td>
+                    <div className={styles.actionGroup}>
+                      {editingId === product.id ? (
+                        <>
+                          <button onClick={() => handleUpdateProduct(product.id)} className={styles.saveBtn}>Save</button>
+                          <button onClick={() => setEditingId(null)} className={styles.cancelBtn}>Cancel</button>
+                        </>
+                      ) : (
+                        <>
+                          <button onClick={() => handleQuickRestock(product)} className={styles.restockBtn}>+ Stock</button>
+                          <button onClick={() => {
+                            setEditingId(product.id);
+                            setEditForm({ 
+                              ...product,
+                              salePrice: product.salePrice || '' // Ensure salePrice is in the edit form
+                            });
+                          }} className={styles.editBtn}>Edit</button>
+                          <button onClick={() => handleDeleteProduct(product.id)} className={styles.deleteBtn}>Delete</button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
                 ))
               ) : (
                 <tr>

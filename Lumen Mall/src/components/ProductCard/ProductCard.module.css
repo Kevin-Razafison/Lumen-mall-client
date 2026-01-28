@@ -156,3 +156,88 @@
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+.newBadge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #00e5ff; /* Cyan accent */
+  color: #111;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 229, 255, 0.3);
+}
+
+/* ... keep your existing .card, .imageWrapper, .productImage styles ... */
+
+.badgeContainer {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-direction: column; /* Badges stack vertically on the left */
+  gap: 5px;
+  z-index: 10;
+}
+
+.saleBadge {
+  background-color: #ff4d4d; /* Urgent Red */
+  color: white;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(255, 77, 77, 0.4);
+}
+
+.newBadge {
+  background-color: #00e5ff; /* Cyan accent */
+  color: #111;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(0, 229, 255, 0.3);
+}
+
+/* --- Price Styling --- */
+
+.priceContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.originalPrice {
+  text-decoration: line-through;
+  color: #a7acb2;
+  font-size: 0.8rem;
+  margin-bottom: -2px;
+}
+
+.salePrice {
+  color: #ff4d4d;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* --- Keep the rest of your styles below (Footer, AddBtn, Skeleton, etc.) --- */
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.price {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: white;
+}

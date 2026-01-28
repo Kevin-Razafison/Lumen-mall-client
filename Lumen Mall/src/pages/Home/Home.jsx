@@ -27,10 +27,23 @@ const Home = () => {
   }, []);
 
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm);
-    const matchesCategory = categoryTerm ? product.category.toLowerCase() === categoryTerm.toLowerCase() : true;
-    return matchesSearch && matchesCategory;
+      const matchesSearch = product.name.toLowerCase().includes(searchTerm);
+      const matchesCategory = categoryTerm ? product.category?.toLowerCase() === categoryTerm.toLowerCase() : true;
+      
+      
+      if (!searchTerm && !categoryTerm) {
+        const fourteenDaysAgo = new Date();
+        fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+        const productDate = new Date(product.createdAt);
+        return productDate >= fourteenDaysAgo;
+      }
+
+      return matchesSearch && matchesCategory;
   });
+
+  const isViewingAll = categoryTerm === 'all';
+  
+  const displayProducts = isViewingAll ? products : filteredProducts;
 
   return (
       <main>
@@ -39,9 +52,15 @@ const Home = () => {
         
         <section className="product-section">
           <h2 className="section-title">
-            {categoryTerm ? `${categoryTerm}` : searchTerm ? `Results for "${searchTerm}"` : "New Arrivals"}
+            {categoryTerm === 'all' 
+              ? "All Articles" 
+              : categoryTerm 
+              ? categoryTerm 
+              : searchTerm 
+              ? `Results for "${searchTerm}"` 
+              : "New Arrivals "}
           </h2>
-          
+                    
           <div className="product-grid">
             {loading ? (
               // Render 8 skeletons while loading

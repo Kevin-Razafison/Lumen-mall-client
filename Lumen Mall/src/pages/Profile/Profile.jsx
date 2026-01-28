@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import styles from './Profile.module.css';
 import { Link } from 'react-router-dom';
 
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL } from '../../config';
 
 const Profile = () => {
   const { user, setUser } = useAuth();

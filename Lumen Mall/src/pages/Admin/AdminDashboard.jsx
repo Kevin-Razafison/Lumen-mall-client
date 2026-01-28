@@ -74,6 +74,31 @@ const AdminDashboard = () => {
 
     return matchesSearch && matchesFilter;
   });
+  const getMonthlySalesData = () => {
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const salesMap = {};
+
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date();
+          d.setMonth(d.getMonth() - i);
+          salesMap[months[d.getMonth()]] = 0;
+        }
+
+        orders.forEach(order => {
+          if (order.status === 'PAID' || order.status === 'COMPLETED' || order.status === 'SHIPPED') {
+            const date = new Date(order.createdAt || Date.now());
+            const monthName = months[date.getMonth()];
+            if (salesMap.hasOwnProperty(monthName)) {
+              salesMap[monthName] += (order.totalAmount || 0);
+            }
+          }
+        });
+
+      return Object.entries(salesMap).map(([name, total]) => ({ name, total }));
+    };
+
+    const monthlySales = getMonthlySalesData();
+    const maxSales = Math.max(...monthlySales.map(s => s.total), 100); // For scaling bars
 
   const fetchInventory = async () => {
     try {
@@ -338,6 +363,21 @@ const AdminDashboard = () => {
                   <p>{outOfStockCount}</p>
                 </div>
               </div>
+              <div className={styles.reportSection}>
+              <h2>Monthly Revenue (Last 6 Months)</h2>
+              <div className={styles.chartContainer}>
+                {monthlySales.map(data => (
+                  <div key={data.name} className={styles.chartBarWrapper}>
+                    <div className={styles.barLabel}>${data.total.toFixed(0)}</div>
+                    <div 
+                      className={styles.chartBar} 
+                      style={{ height: `${(data.total / maxSales) * 150}px` }}
+                    ></div>
+                    <div className={styles.monthName}>{data.name}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
               <div className={styles.statCard}>
                 <h3>Total Products</h3>
                 <p>{inventory.length}</p>

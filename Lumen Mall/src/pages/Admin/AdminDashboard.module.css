@@ -569,3 +569,94 @@
   display: flex;
   gap: 15px;
 }
+
+/* Stats Grid Alert Variations */
+.warningCard {
+  border-left: 5px solid #f0c14b !important; /* Gold warning */
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.warningCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(240, 193, 75, 0.2);
+}
+
+.criticalCard {
+  border-left: 5px solid #ff4d4d !important; /* Red critical */
+  background-color: #fffafa; /* Very slight red tint */
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.criticalCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(255, 77, 77, 0.2);
+}
+
+.actionPrompt {
+  display: block;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: #007185; 
+  text-decoration: underline;
+}
+
+.warningCard p {
+  color: #856404;
+}
+
+.criticalCard p {
+  color: #b12704;
+}
+
+.reportSection {
+  margin-top: 40px;
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.chartContainer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 200px;
+  margin-top: 30px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.chartBarWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.chartBar {
+  width: 40px;
+  background: linear-gradient(to top, #232f3e, #37475a);
+  border-radius: 4px 4px 0 0;
+  transition: height 0.5s ease-out, background 0.3s;
+  min-height: 2px; /* Ensure 0 sales shows a sliver */
+}
+
+.chartBar:hover {
+  background: #febd69;
+}
+
+.barLabel {
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #666;
+}
+
+.monthName {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+}

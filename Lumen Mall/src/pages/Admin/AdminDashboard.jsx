@@ -50,6 +50,29 @@ const AdminDashboard = () => {
     else if (activeTab === 'users') fetchUsers();
   }, [activeTab]);
 
+  const exportOrdersToCSV = () => {
+    const headers = ["Order ID,Customer Email,Total Amount,Status,Payment Method,Date"];
+    
+    const rows = orders.map(order => [
+      order.id,
+      order.customerEmail,
+      order.totalAmount,
+      order.status,
+      order.paymentMethod,
+      new Date(order.createdAt).toLocaleDateString()
+    ].join(","));
+
+    const csvContent = "data:text/csv;charset=utf-8," + headers.concat(rows).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `LumenMall_Sales_Report_${new Date().toLocaleDateString()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const filteredInventory = inventory.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     
@@ -364,20 +387,25 @@ const AdminDashboard = () => {
                 </div>
               </div>
               <div className={styles.reportSection}>
-              <h2>Monthly Revenue (Last 6 Months)</h2>
-              <div className={styles.chartContainer}>
-                {monthlySales.map(data => (
-                  <div key={data.name} className={styles.chartBarWrapper}>
-                    <div className={styles.barLabel}>${data.total.toFixed(0)}</div>
-                    <div 
-                      className={styles.chartBar} 
-                      style={{ height: `${(data.total / maxSales) * 150}px` }}
-                    ></div>
-                    <div className={styles.monthName}>{data.name}</div>
+                  <div className={styles.reportHeader}>
+                    <h2>Monthly Revenue (Last 6 Months)</h2>
+                    <button onClick={exportOrdersToCSV} className={styles.exportBtn}>
+                      📥 Export CSV
+                    </button>
                   </div>
-                ))}
+                <div className={styles.chartContainer}>
+                  {monthlySales.map(data => (
+                    <div key={data.name} className={styles.chartBarWrapper}>
+                      <div className={styles.barLabel}>${data.total.toFixed(0)}</div>
+                      <div 
+                        className={styles.chartBar} 
+                        style={{ height: `${(data.total / maxSales) * 150}px` }}
+                      ></div>
+                      <div className={styles.monthName}>{data.name}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
               <div className={styles.statCard}>
                 <h3>Total Products</h3>
                 <p>{inventory.length}</p>

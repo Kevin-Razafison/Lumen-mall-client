@@ -10,25 +10,28 @@ const VerifyEmail = () => {
   const token = searchParams.get('token');
 
   useEffect(() => {
+    let isMounted = true; // 1. Create a flag
+
     const verify = async () => {
-      if (!token) {
-        setStatus('error');
-        return;
-      }
+      if (!token || status !== 'verifying') return;
 
       try {
         const response = await fetch(`${API_BASE_URL}/api/users/verify?token=${token}`);
+        if (!isMounted) return; // 2. Don't update state if component unmounted
+
         if (response.ok) {
           setStatus('success');
         } else {
           setStatus('error');
         }
       } catch (err) {
-        setStatus('error');
+        if (isMounted) setStatus('error');
       }
     };
 
     verify();
+    
+    return () => { isMounted = false; }; // 3. Cleanup function
   }, [token]);
 
   return (

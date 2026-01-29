@@ -5,40 +5,49 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('lumenUser');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+      const savedUser = localStorage.getItem('lumenUser');
+      // Safety check: only parse if it exists and isn't "undefined"
+      return (savedUser && savedUser !== "undefined") ? JSON.parse(savedUser) : null;
+    });
 
-  const login = async (email, password) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/users/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+    const login = async (email, password) => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/users/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
 
-      const data = await response.json();
+        // If the server sends back an error (401, 403, 500), handle it here
+        if (!response.ok) {
+          const errorData = await response.json();
+          return { success: false, message: errorData.message || "Invalid credentials" };
+        }
 
-      if (response.ok) {
-        // Make sure the names here (data.token, data.user) match your Backend response!
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setUser(data.user);
-        return { success: true };
-      } else {
-        // This catches 401 Unauthorized or 403 Forbidden
-        return { success: false, message: data.message || "Invalid credentials" };
+        const data = await response.json();
+
+        // CONSISTENT NAMING: use 'lumenToken' and 'lumenUser'
+        if (data.token && data.user) {
+          localStorage.setItem('lumenToken', data.token);
+          localStorage.setItem('lumenUser', JSON.stringify(data.user));
+          setUser(data.user);
+          return { success: true };
+        }
+        
+        return { success: false, message: "Server response missing user data" };
+
+      } catch (error) {
+        console.error("Login Context Error:", error);
+        // This throw is what triggers the "Check Connection" error in Login.js
+        throw error; 
       }
-    } catch (error) {
-      console.error("Login Context Error:", error);
-      // This is what triggers your "Check Connection" message
-      throw error; 
-    }
-  };
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('lumenUser');
-  };
+    };
+
+    const logout = () => {
+      setUser(null);
+      localStorage.removeItem('lumenToken');
+      localStorage.removeItem('lumenUser');
+    };
 
     return (
         <AuthContext.Provider value={{ 

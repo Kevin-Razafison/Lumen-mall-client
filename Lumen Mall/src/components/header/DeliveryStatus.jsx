@@ -1,12 +1,11 @@
 import React from "react";
 import styles from "./DeliveryStatus.module.css";
-import { useLocation } from "react-router-dom";
+import { useUserLocation } from "../../context/LocationContext";
 
 const DeliveryStatus = ({ location, onClick }) => {
-    const { isDetecting } = useLocation(); // Get loading state from context
-
+    const { location, isDetecting, detectLocation } = useUserLocation();
     return (
-        <div className={styles.container} onClick={onClick}>
+        <div className={styles.container} onClick={detectLocation}>
             <div className={styles.iconSection}>
                 <img src="/icons/icons-position.png" alt="location" />
             </div>

@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
       const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s for cold start
       
       try {
-        const response = await fetch(`${API_BASE_URL}/api/users/login`, {
+        const response = await fetch(`${API_BASE_URL}/api/users/login/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),

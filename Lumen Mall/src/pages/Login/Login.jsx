@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useLocation as useRouterLocation, useNavigate, Link } from 'react-router-dom'; 
-import { useLocation } from '../../context/LocationContext'; 
+import { useUserLocation } from '../../context/LocationContext'; 
 import styles from './Login.module.css'; 
 import logo from '../../assets/Lumen-Mall-logo.png'; 
 import { API_BASE_URL } from '../../config'; // <-- Don't forget this import!
@@ -14,7 +14,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false); 
 
   const { login } = useAuth();
-  const { setLocation, setIsDetecting } = useLocation(); 
+  const { setLocation, setIsDetecting } = useUserLocation(); 
   const navigate = useNavigate();
   const routerLocation = useRouterLocation();
 

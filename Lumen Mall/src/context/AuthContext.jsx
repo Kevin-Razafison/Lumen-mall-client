@@ -29,15 +29,15 @@ export const AuthProvider = ({ children }) => {
         const data = await response.json();
 
         // CONSISTENT NAMING: use 'lumenToken' and 'lumenUser'
-        if (data.token && data.user) {
-          localStorage.setItem('lumenToken', data.token);
-          localStorage.setItem('lumenUser', JSON.stringify(data.user));
-          setUser(data.user);
+        if (data.token && data.fullName) { 
+          const userData = { id: data.id, email: data.email, fullName: data.fullName, role: data.role };
+          localStorage.setItem('lumenUser', JSON.stringify(userData));
+          setUser(userData);
+
           return { success: true };
         }
         
         return { success: false, message: "Server response missing user data" };
-
       } catch (error) {
         console.error("Login Context Error:", error);
         // This throw is what triggers the "Check Connection" error in Login.js

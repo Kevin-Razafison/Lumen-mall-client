@@ -10,54 +10,58 @@ export const AuthProvider = ({ children }) => {
       return (savedUser && savedUser !== "undefined") ? JSON.parse(savedUser) : null;
     });
 
-    const login = async (email, password) => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s for cold start
+  const login = async (email, password) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 90000); 
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/users/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+        signal: controller.signal 
+      });
       
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/users/login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-          signal: controller.signal // Connect the timeout signal
-        });
-        
-        clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          return { success: false, message: errorData.message || "Invalid credentials" };
-        }
-
-        const data = await response.json();
-
-
-        if (data.token && data.fullName) { 
-          const userData = { 
-            id: data.id, 
-            email: data.email, 
-            fullName: data.fullName, 
-            role: data.role 
-          };
-          
-          // CRITICAL: You need BOTH of these
-          localStorage.setItem('lumenToken', data.token); 
-          localStorage.setItem('lumenUser', JSON.stringify(userData));
-          
-          setUser(userData);
-          return { success: true };
-        }
-        
-        return { success: false, message: "Server response missing user data" };
-      } catch (error) {
-        if (error.name === 'AbortError') {
-          return { success: false, message: "Server took too long to respond. Please try again." };
-        }
-        console.error("Login Context Error:", error);
-        throw error; 
+      // 1. Handle non-200 errors (401, 404, etc.)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({})); 
+        return { success: false, message: errorData.message || "Invalid credentials" };
       }
-    }; 
 
+      // 2. Parse the JSON safely
+      const data = await response.json();
+
+      // 3. MATCH BACKEND FIELDS EXACTLY
+      // Your UserController.java sends "fullName" and "token" directly
+      if (data && data.token && data.fullName) { 
+        const userData = { 
+          id: data.id, 
+          email: data.email, 
+          fullName: data.fullName, 
+          role: data.role 
+        };
+        
+        localStorage.setItem('lumenToken', data.token);
+        localStorage.setItem('lumenUser', JSON.stringify(userData));
+        setUser(userData);
+
+        return { success: true };
+      }
+      
+      // If we get here, the server sent a 200 but the body was unexpected
+      console.error("Unexpected Backend Response Structure:", data);
+      return { success: false, message: "Server response was successful but data is missing." };
+
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        return { success: false, message: "Server took too long to respond." };
+      }
+      console.error("AUTH_CONTEXT_CRASH:", error);
+      throw error; // This triggers the 'catch' in Login.js
+    }
+  };
     const logout = () => {
       setUser(null);
       localStorage.removeItem('lumenToken');

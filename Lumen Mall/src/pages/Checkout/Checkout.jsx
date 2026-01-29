@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import styles from './Checkout.module.css';
-import { useLocation } from '../../context/LocationContext';
+import { useUserLocation } from '../../context/LocationContext';
 import { useNavigate } from 'react-router-dom';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { API_BASE_URL } from '../../config';
@@ -13,7 +13,7 @@ const Checkout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   
   const { user } = useAuth();
-  const { location } = useLocation();
+  const { location } = useUserLocation();
   const { cartItems, totalPrice, clearCart } = useCart();
   const navigate = useNavigate();
 

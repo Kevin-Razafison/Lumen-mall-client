@@ -84,7 +84,7 @@ const Login = () => {
         // This catches the "NetworkError" or internal JS crashes
         console.error("LOGIN_HANDLE_SUBMIT_ERROR:", err);
         
-        if (err.message.includes("NetworkError") || err.message.includes("fetch")) {
+      if (typeof err?.message === 'string' && err.message.includes("NetworkError")) {
           setError("Network error: Check your internet or backend status.");
         } else {
           setError(`UI Error: ${err.message}`);

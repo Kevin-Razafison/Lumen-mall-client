@@ -30,12 +30,10 @@ export const AuthProvider = ({ children }) => {
         return { success: false, message: errorData.message || "Invalid credentials" };
       }
 
-      // 2. Parse the JSON safely
+
       const data = await response.json();
 
-      // 3. MATCH BACKEND FIELDS EXACTLY
-      // Your UserController.java sends "fullName" and "token" directly
-      if (data && data.token && data.fullName) { 
+      if (data.token && data.fullName) {
         const userData = { 
           id: data.id, 
           email: data.email, 
@@ -47,12 +45,9 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('lumenUser', JSON.stringify(userData));
         setUser(userData);
 
-        return { success: true };
+        return { success: true }; // MAKE SURE THIS IS RETURNED
       }
-      
-      // If we get here, the server sent a 200 but the body was unexpected
-      console.error("Unexpected Backend Response Structure:", data);
-      return { success: false, message: "Server response was successful but data is missing." };
+      return { success: false, message: "Missing user data" };
 
     } catch (error) {
       if (error.name === 'AbortError') {

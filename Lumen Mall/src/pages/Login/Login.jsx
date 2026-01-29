@@ -66,18 +66,23 @@ const Login = () => {
     try {
       const result = await login(email, password);
       
-      // If result is undefined or success is false, we handle it here
-      if (result && result.success) {
+      // Check if result exists before looking for .success
+      if (result && result.success === true) {
         detectLocation();
-        navigate(from, { replace: true });
+        
+        // Use replace: true to prevent back-button loops
+        if (typeof navigate === 'function') {
+          navigate(from, { replace: true });
+        } else {
+          console.error("Navigation function is missing!");
+          window.location.href = from; // Fallback
+        }
       } else {
-        // This shows "Invalid credentials" or "Missing user data"
-        setError(result?.message || "Login failed. Please try again.");
+        setError(result?.message || "Invalid credentials");
       }
     } catch (err) {
-      // If we hit this, the JavaScript itself crashed
-      console.error("CRITICAL UI ERROR:", err); 
-      setError(`UI Error: ${err.message}. Check console for details.`);
+      console.error("CRITICAL UI ERROR:", err);
+      setError(`UI Error: ${err.message}`);
     } finally {
       setLoading(false);
     }

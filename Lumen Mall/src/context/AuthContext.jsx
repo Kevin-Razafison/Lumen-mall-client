@@ -11,13 +11,15 @@ export const AuthProvider = ({ children }) => {
     });
 
     const login = async (email, password) => {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 90000);
       try {
         const response = await fetch(`${API_BASE_URL}/api/users/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
         });
-
+        clearTimeout(timeoutId);
         // If the server sends back an error (401, 403, 500), handle it here
         if (!response.ok) {
           const errorData = await response.json();

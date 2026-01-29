@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useLocation } from '../../context/LocationContext';
+import { useUserLocation } from '../../context/LocationContext';
 import styles from './LocationModal.module.css';
 
 const LocationModal = ({ isOpen, onClose }) => {
-  const { setLocation } = useLocation();
+  const { setLocation } = useUserLocation();
   const [tempLocation, setTempLocation] = useState('');
   const [loading, setLoading] = useState(false);
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useLocation, Link } from 'react-router-dom'; 
+import { useLocation, useNavigate, Link } from 'react-router-dom'; 
 import { useUserLocation } from '../../context/LocationContext'; 
 import styles from './Login.module.css'; 
 import logo from '../../assets/Lumen-Mall-logo.png'; 
@@ -16,6 +16,7 @@ const Login = () => {
   const { login } = useAuth();
   const { setLocation, setIsDetecting } = useUserLocation(); 
   const location = useLocation();
+  const navigate = useNavigate(); // ← FIX: Add this line
 
   const from = location.state?.from?.pathname || "/";
 
@@ -58,40 +59,40 @@ const Login = () => {
   };
   
   const handleSubmit = async (e) => {
-      e.preventDefault();
-      setError('');
-      setLoading(true);
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
-      try {
-        // 1. Attempt login
-        const result = await login(email, password);
-        
-        // 2. Check for success explicitly
-        if (result && result.success) {
-          // Start location detection (don't await, let it run in background)
-          detectLocation();
+    try {
+      // 1. Attempt login
+      const result = await login(email, password);
+      
+      // 2. Check for success explicitly
+      if (result && result.success) {
+        // Start location detection (don't await, let it run in background)
+        detectLocation();
 
-          const target = from || "/";
-          console.log("Login successful. Redirecting to:", target);
+        const target = from || "/";
+        console.log("Login successful. Redirecting to:", target);
 
-          // 3. FIX: Check if navigate (N) exists before calling it
-          window.location.href = target;
-        } else {
-          // Handle server-side rejection (e.g. 401 Unauthorized)
-          setError(result?.message || "Invalid email or password.");
-        }
-      } catch (err) {
-        // This catches the "NetworkError" or internal JS crashes
-        console.error("LOGIN_HANDLE_SUBMIT_ERROR:", err);
-        
-      if (typeof err?.message === 'string' && err.message.includes("NetworkError")) {
-          setError("Network error: Check your internet or backend status.");
-        } else {
-          setError(`UI Error: ${err.message}`);
-        }
-      } finally {
-        setLoading(false);
+        // 3. FIX: Use navigate instead of window.location.href
+        navigate(target, { replace: true });
+      } else {
+        // Handle server-side rejection (e.g. 401 Unauthorized)
+        setError(result?.message || "Invalid email or password.");
       }
+    } catch (err) {
+      // This catches the "NetworkError" or internal JS crashes
+      console.error("LOGIN_HANDLE_SUBMIT_ERROR:", err);
+      
+      if (typeof err?.message === 'string' && err.message.includes("NetworkError")) {
+        setError("Network error: Check your internet or backend status.");
+      } else {
+        setError(`UI Error: ${err.message || 'An unexpected error occurred'}`);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

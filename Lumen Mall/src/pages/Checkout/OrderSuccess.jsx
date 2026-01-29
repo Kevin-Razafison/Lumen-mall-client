@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import styles from './OrderSuccess.module.css';
-import { API_BASE_URL } from '../../config';
 
 const OrderSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -9,26 +8,20 @@ const OrderSuccess = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   
-  const [orderInfo, setOrderInfo] = useState(() => {
-    const stored = sessionStorage.getItem('orderSuccessData');
-    return stored ? JSON.parse(stored) : null;
-  });
+  const [orderInfo, setOrderInfo] = useState(location.state || null);
   const paypalToken = searchParams.get('token');
 
   useEffect(() => {
     // PayPal specific: if token exists in URL, we must capture it
-    if (paypalToken && !orderInfo && !loading) {
+    if (paypalToken && !orderInfo) {
       capturePayPalPayment();
     }
-    if (orderInfo && !paypalToken) {
-      sessionStorage.removeItem('orderSuccessData');
-    }
-  }, [paypalToken,orderInfo]);
+  }, [paypalToken]);
 
   const capturePayPalPayment = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/payments/paypal/capture?token=${paypalToken}`,{
+      const response = await fetch(`http://localhost:8080/api/payments/paypal/capture?token=${paypalToken}`, {
         method: 'POST'
       });
       

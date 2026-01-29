@@ -58,36 +58,30 @@ const Login = () => {
     }
   };
   
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
-  setLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
-  try {
-    const result = await login(email, password);
-    
-    if (result.success) {
-      detectLocation();
-      navigate(from, { replace: true });
-    } else {
-      // This handles the "Invalid Credentials" or "Missing Data" errors
-      setError(result.message);
+    try {
+      const result = await login(email, password);
+      
+      // If result is undefined or success is false, we handle it here
+      if (result && result.success) {
+        detectLocation();
+        navigate(from, { replace: true });
+      } else {
+        // This shows "Invalid credentials" or "Missing user data"
+        setError(result?.message || "Login failed. Please try again.");
+      }
+    } catch (err) {
+      // If we hit this, the JavaScript itself crashed
+      console.error("CRITICAL UI ERROR:", err); 
+      setError(`UI Error: ${err.message}. Check console for details.`);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    // THIS IS THE CRITICAL PART:
-    console.error("FULL ERROR OBJECT:", err); // Look at your browser console for this!
-    
-    if (err.name === 'AbortError') {
-      setError("Connection timed out. Render is taking too long to wake up.");
-    } else if (err.message === "Failed to fetch") {
-      setError("Network error: Cannot reach the server. Check your API_BASE_URL.");
-    } else {
-      setError(`Unexpected Error: ${err.message}`);
-    }
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className={styles.loginContainer}>

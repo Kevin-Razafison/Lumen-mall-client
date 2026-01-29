@@ -3,29 +3,17 @@ import { useUserLocation } from '../../context/LocationContext';
 import styles from './LocationModal.module.css';
 
 const LocationModal = ({ isOpen, onClose }) => {
-  const { setLocation } = useUserLocation();
+  // Pull the global state and detection function from context
+  const { setLocation, detectLocation, isDetecting } = useUserLocation();
   const [tempLocation, setTempLocation] = useState('');
-  const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleAutoDetect = () => {
-    setLoading(true);
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          // Setting coordinates as the location string
-          setLocation(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
-          setLoading(false);
-          onClose();
-        },
-        (error) => {
-          alert("Location access denied. Please enter it manually.");
-          setLoading(false);
-        }
-      );
-    }
+  const handleAutoDetect = async () => {
+    // We use the central logic we wrote in LocationContext
+    await detectLocation();
+    // Close modal after detection finishes
+    onClose();
   };
 
   const handleSubmit = (e) => {
@@ -46,9 +34,9 @@ const LocationModal = ({ isOpen, onClose }) => {
           type="button" 
           onClick={handleAutoDetect} 
           className={styles.detectBtn}
-          disabled={loading}
+          disabled={isDetecting} // Uses global loading state
         >
-          {loading ? "Detecting..." : "📍 Use my current location"}
+          {isDetecting ? "Detecting..." : "📍 Use my current location"}
         </button>
 
         <div className={styles.separator}>or enter manually</div>

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import DesktopHeader from './DesktopHeader'
 import MobileHeader from './mobile/MobileHeader';
-import { useLocation } from '../../context/LocationContext';
+import { useUserLocation } from '../../context/LocationContext';
 
 const Header = ({ openLocationModal }) => {
-  const { location } = useLocation();
+  const { location } = useUserLocation();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {

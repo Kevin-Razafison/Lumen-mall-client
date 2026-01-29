@@ -16,9 +16,9 @@ const Login = () => {
   const { login } = useAuth();
   const { setLocation, setIsDetecting } = useUserLocation(); 
   const navigate = useNavigate();
-  const routerLocation = useLocation();
-  const from = routerLocation.state?.from?.pathname || "/";  const location = useLocation();
+  const location = useLocation();
 
+  const from = location.state?.from?.pathname || "/";
 
   const detectLocation = () => {
     if ("geolocation" in navigator) {
@@ -76,13 +76,7 @@ const Login = () => {
           console.log("Login successful. Redirecting to:", target);
 
           // 3. FIX: Check if navigate (N) exists before calling it
-          if (typeof navigate === 'function') {
-            navigate(target, { replace: true });
-          } else {
-            // EMERGENCY FALLBACK: If React Router is broken, use the browser
-            console.warn("React Navigate failed, using window.location");
-            window.location.href = target;
-          }
+          window.location.href = target;
         } else {
           // Handle server-side rejection (e.g. 401 Unauthorized)
           setError(result?.message || "Invalid email or password.");

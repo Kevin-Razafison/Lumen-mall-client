@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useLocation, useNavigate, Link } from 'react-router-dom'; 
+import { useLocation, Link } from 'react-router-dom'; 
 import { useUserLocation } from '../../context/LocationContext'; 
 import styles from './Login.module.css'; 
 import logo from '../../assets/Lumen-Mall-logo.png'; 
@@ -15,7 +15,6 @@ const Login = () => {
 
   const { login } = useAuth();
   const { setLocation, setIsDetecting } = useUserLocation(); 
-  const navigate = useNavigate();
   const location = useLocation();
 
   const from = location.state?.from?.pathname || "/";

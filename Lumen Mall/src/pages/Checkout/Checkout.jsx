@@ -3,7 +3,6 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import styles from './Checkout.module.css';
 import { useUserLocation } from '../../context/LocationContext';
-import { useNavigate } from 'react-router-dom';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { API_BASE_URL } from '../../config';
 
@@ -15,7 +14,6 @@ const Checkout = () => {
   const { user } = useAuth();
   const { location } = useUserLocation();
   const { cartItems, totalPrice, clearCart } = useCart();
-  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -130,13 +128,14 @@ const Checkout = () => {
 
       if (resultData) {
         clearCart();
-        navigate('/order-success', { 
-          state: { 
-            orderId: resultData.id, 
-            email: formData.email, 
-            total: finalGrandTotal 
-          } 
-        });
+          sessionStorage.setItem('orderSuccessData', JSON.stringify({
+            orderId: resultData.id,
+            email: formData.email,
+            total: finalGrandTotal
+          }));
+
+          window.location.href = '/order-success';
+
       }
 
     } catch (error) {

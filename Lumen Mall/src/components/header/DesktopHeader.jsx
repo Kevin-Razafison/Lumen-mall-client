@@ -8,7 +8,7 @@ import CartWidget from './CartWidget'
 import { useUserLocation } from '../../context/LocationContext';
 import { LuMapPin } from 'react-icons/lu';
 
-const Header = ({ openLocationModal }) => {
+const DesktopHeader = ({ openLocationModal }) => {
   const { location } = useUserLocation();
 
   return (
@@ -25,4 +25,4 @@ const Header = ({ openLocationModal }) => {
   );
 };
 
-export default Header
+export default DesktopHeader

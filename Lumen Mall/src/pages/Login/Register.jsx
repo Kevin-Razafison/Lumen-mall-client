@@ -7,7 +7,7 @@ import { API_BASE_URL } from '../../config';
 const Register = () => {
   const [formData, setFormData] = useState({ fullName: '', email: '', password: '' });
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // Toggle state
+  const [showPassword, setShowPassword] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,15 +18,19 @@ const Register = () => {
     e.preventDefault();
     setError('');
 
-    // 1. Client-side Validation: Match passwords
+    // Client-side validation
     if (formData.password !== confirmPassword) {
       setError("Passwords do not match!");
       return;
     }
 
-    // 2. Client-side Validation: Length check
     if (formData.password.length < 6) {
       setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    if (!formData.fullName.trim()) {
+      setError("Please enter your full name.");
       return;
     }
 
@@ -43,13 +47,20 @@ const Register = () => {
         setIsSuccess(true);
       } else {
         const errorData = await response.json();
-        setError(errorData.message || "Registration failed.");
+        setError(errorData.message || "Registration failed. Please try again.");
       }
     } catch (error) {
-      setError("Could not connect to the server.");
+      console.error("Registration error:", error);
+      setError("Could not connect to the server. Please check your internet connection.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (error) setError('');
   };
 
   if (isSuccess) {
@@ -59,11 +70,17 @@ const Register = () => {
         <div className={styles.loginCard} style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '50px', marginBottom: '20px' }}>✅</div>
           <h1 className={styles.title}>Account Created!</h1>
-          <p style={{ marginBottom: '25px', color: '#555' }}>
-            Welcome, <strong>{formData.fullName}</strong>! You can now sign in.
+          <p style={{ marginBottom: '15px', color: '#555', lineHeight: '1.5' }}>
+            Welcome, <strong>{formData.fullName}</strong>!
           </p>
-          <button onClick={() => navigate('/login')} className={styles.signInBtn}>
-            Sign In
+          <p style={{ marginBottom: '25px', color: '#666', fontSize: '14px' }}>
+            Please check your email to verify your account before signing in.
+          </p>
+          <button 
+            onClick={() => navigate('/login')} 
+            className={styles.signInBtn}
+          >
+            Go to Sign In
           </button>
         </div>
       </div>
@@ -76,19 +93,44 @@ const Register = () => {
       <div className={styles.loginCard}>
         <h1 className={styles.title}>Create Account</h1>
         
-        {error && <div className={styles.errorMessage} style={{ color: 'red', marginBottom: '10px' }}>⚠️ {error}</div>}
+        {error && (
+          <div 
+            className={styles.errorMessage} 
+            style={{ 
+              backgroundColor: '#fcf4f4',
+              border: '1px solid #d00',
+              borderRadius: '4px',
+              padding: '10px',
+              marginBottom: '15px',
+              color: '#c40000',
+              fontSize: '13px'
+            }}
+          >
+            ⚠️ {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <label className={styles.label}>Your Name</label>
           <input 
-            type="text" className={styles.input} required 
-            onChange={(e) => setFormData({...formData, fullName: e.target.value})} 
+            type="text" 
+            className={styles.input} 
+            value={formData.fullName}
+            onChange={(e) => handleInputChange('fullName', e.target.value)}
+            disabled={loading}
+            required 
+            placeholder="First and last name"
           />
           
           <label className={styles.label}>Email</label>
           <input 
-            type="email" className={styles.input} required 
-            onChange={(e) => setFormData({...formData, email: e.target.value})} 
+            type="email" 
+            className={styles.input} 
+            value={formData.email}
+            onChange={(e) => handleInputChange('email', e.target.value)}
+            disabled={loading}
+            required 
+            placeholder="name@example.com"
           />
           
           <label className={styles.label}>Password</label>
@@ -96,14 +138,27 @@ const Register = () => {
             <input 
               type={showPassword ? "text" : "password"} 
               className={styles.input} 
+              value={formData.password}
+              onChange={(e) => handleInputChange('password', e.target.value)}
+              disabled={loading}
               required 
-              onChange={(e) => setFormData({...formData, password: e.target.value})} 
+              placeholder="At least 6 characters"
             />
-            {/* Show/Hide Toggle Button */}
             <button 
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              style={{ position: 'absolute', right: '10px', top: '10px', background: 'none', border: 'none', cursor: 'pointer', color: '#007185' }}
+              style={{ 
+                position: 'absolute', 
+                right: '10px', 
+                top: '50%', 
+                transform: 'translateY(-50%)',
+                background: 'none', 
+                border: 'none', 
+                cursor: 'pointer', 
+                color: '#007185',
+                fontSize: '12px',
+                fontWeight: '600'
+              }}
             >
               {showPassword ? "Hide" : "Show"}
             </button>
@@ -113,17 +168,31 @@ const Register = () => {
           <input 
             type={showPassword ? "text" : "password"} 
             className={styles.input} 
+            value={confirmPassword}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              if (error) setError('');
+            }}
+            disabled={loading}
             required 
-            onChange={(e) => setConfirmPassword(e.target.value)} 
+            placeholder="Type password again"
           />
           
-          <button type="submit" className={styles.signInBtn} disabled={loading}>
-            {loading ? "Checking..." : "Create your account"}
+          <button 
+            type="submit" 
+            className={styles.signInBtn} 
+            disabled={loading}
+          >
+            {loading ? "Creating account..." : "Create your Lumen account"}
           </button>
         </form>
         
-        <p className={styles.disclaimer}>
-          Already have an account? <Link to="/login" style={{color: '#007185'}}>Sign-In</Link>
+        <p className={styles.disclaimer} style={{ marginTop: '15px' }}>
+          By creating an account, you agree to Lumen Mall's Conditions of Use and Privacy Notice.
+        </p>
+        
+        <p className={styles.disclaimer} style={{ marginTop: '15px', textAlign: 'center' }}>
+          Already have an account? <Link to="/login" style={{color: '#007185', fontWeight: '600'}}>Sign In</Link>
         </p>
       </div>
     </div>

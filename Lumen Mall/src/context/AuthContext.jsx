@@ -1,79 +1,164 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { API_BASE_URL } from '../config';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
+    try {
       const savedUser = localStorage.getItem('lumenUser');
-      // Safety check: only parse if it exists and isn't "undefined"
-      return (savedUser && savedUser !== "undefined") ? JSON.parse(savedUser) : null;
-    });
+      if (savedUser && savedUser !== "undefined" && savedUser !== "null") {
+        return JSON.parse(savedUser);
+      }
+    } catch (error) {
+      console.error("Error parsing saved user:", error);
+      localStorage.removeItem('lumenUser');
+    }
+    return null;
+  });
+
+  // Sync user state when storage changes (e.g., logout in another tab)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        const savedUser = localStorage.getItem('lumenUser');
+        if (!savedUser || savedUser === "undefined" || savedUser === "null") {
+          setUser(null);
+        } else {
+          const parsedUser = JSON.parse(savedUser);
+          setUser(parsedUser);
+        }
+      } catch (error) {
+        console.error("Error syncing user:", error);
+        setUser(null);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const login = async (email, password) => {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 90000); 
-    
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
-        signal: controller.signal 
+        signal: controller.signal
       });
-      
+
       clearTimeout(timeoutId);
 
-      // 1. Handle non-200 errors (401, 404, etc.)
+      // Handle HTTP errors
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({})); 
-        return { success: false, message: errorData.message || "Invalid credentials" };
+        const errorData = await response.json().catch(() => ({}));
+        return { 
+          success: false, 
+          message: errorData.message || "Invalid credentials. Please try again." 
+        };
       }
-
 
       const data = await response.json();
 
-      if (data.token && data.fullName) {
-        const userData = { 
-          id: data.id, 
-          email: data.email, 
-          fullName: data.fullName, 
-          role: data.role 
+      // Validate response data
+      if (!data.token || !data.email) {
+        return { 
+          success: false, 
+          message: "Invalid server response. Please try again." 
         };
-        
+      }
+
+      // Store user data
+      const userData = { 
+        id: data.id, 
+        email: data.email, 
+        fullName: data.fullName || data.email.split('@')[0],
+        role: data.role || 'ROLE_USER'
+      };
+
+      try {
         localStorage.setItem('lumenToken', data.token);
         localStorage.setItem('lumenUser', JSON.stringify(userData));
         setUser(userData);
-
-        return { success: true }; // MAKE SURE THIS IS RETURNED
+        
+        return { success: true };
+      } catch (storageError) {
+        console.error("Storage error:", storageError);
+        return { 
+          success: false, 
+          message: "Could not save login data. Please check browser settings." 
+        };
       }
-      return { success: false, message: "Missing user data" };
 
     } catch (error) {
+      clearTimeout(timeoutId);
+
       if (error.name === 'AbortError') {
-        return { success: false, message: "Server took too long to respond." };
+        return { 
+          success: false, 
+          message: "Request timeout. Server is taking too long to respond." 
+        };
       }
-      console.error("AUTH_CONTEXT_CRASH:", error);
-      throw error; // This triggers the 'catch' in Login.js
+
+      if (error.message && error.message.includes('fetch')) {
+        return { 
+          success: false, 
+          message: "Network error. Please check your internet connection." 
+        };
+      }
+
+      console.error("Login error:", error);
+      return { 
+        success: false, 
+        message: "An unexpected error occurred. Please try again." 
+      };
     }
   };
-    const logout = () => {
+
+  const logout = () => {
+    try {
       setUser(null);
       localStorage.removeItem('lumenToken');
       localStorage.removeItem('lumenUser');
-    };
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Force clear even if there's an error
+      setUser(null);
+    }
+  };
 
-    return (
-        <AuthContext.Provider value={{ 
-          user, 
-          setUser, // <--- ADD THIS LINE
-          login, 
-          logout, 
-          isAuthenticated: !!user 
-        }}>
-          {children}
-        </AuthContext.Provider>
-      );
+  const updateUser = (userData) => {
+    try {
+      const updatedUser = { ...user, ...userData };
+      localStorage.setItem('lumenUser', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+    } catch (error) {
+      console.error("Update user error:", error);
+    }
+  };
+
+  const value = {
+    user,
+    setUser: updateUser,
+    login,
+    logout,
+    isAuthenticated: !!user
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

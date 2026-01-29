@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useLocation as useRouterLocation, useNavigate, Link } from 'react-router-dom'; 
+import { useLocation, useNavigate, Link } from 'react-router-dom'; 
 import { useUserLocation } from '../../context/LocationContext'; 
 import styles from './Login.module.css'; 
 import logo from '../../assets/Lumen-Mall-logo.png'; 
-import { API_BASE_URL } from '../../config'; // <-- Don't forget this import!
+import { API_BASE_URL } from '../../config';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(''); 
-  const [resendMessage, setResendMessage] = useState(''); // To show success of resending
+  const [resendMessage, setResendMessage] = useState('');
   const [loading, setLoading] = useState(false); 
 
   const { login } = useAuth();
   const { setLocation, setIsDetecting } = useUserLocation(); 
   const navigate = useNavigate();
-  const routerLocation = useRouterLocation();
+  const location = useLocation();
 
-  const from = routerLocation.state?.from?.pathname || "/";
+  const from = location.state?.from?.pathname || "/";
 
   const detectLocation = () => {
     if ("geolocation" in navigator) {
@@ -52,7 +52,7 @@ const Login = () => {
         body: JSON.stringify({ email })
       });
       const data = await response.json();
-      setResendMessage(data.message); // "Verification email resent!"
+      setResendMessage(data.message || 'Verification email resent!');
     } catch (err) {
       setResendMessage("Failed to resend email.");
     }
@@ -61,28 +61,47 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setResendMessage('');
     setLoading(true);
 
     try {
       const result = await login(email, password);
       
-      // Check if result exists before looking for .success
-      if (result && result.success === true) {
+      if (result && result.success) {
+        // Start location detection in background (non-blocking)
         detectLocation();
         
-        // Use replace: true to prevent back-button loops
-        if (typeof navigate === 'function') {
-          navigate(from, { replace: true });
-        } else {
-          console.error("Navigation function is missing!");
-          window.location.href = from; // Fallback
-        }
+        // Safe navigation
+        const targetPath = from && from !== '/login' ? from : '/';
+        
+        console.log("Login successful, redirecting to:", targetPath);
+
+        // Use setTimeout to ensure state updates complete before navigation
+        setTimeout(() => {
+          try {
+            navigate(targetPath, { replace: true });
+          } catch (navError) {
+            console.error("Navigation error:", navError);
+            // Fallback to window.location if navigate fails
+            window.location.href = targetPath;
+          }
+        }, 100);
       } else {
-        setError(result?.message || "Invalid credentials");
+        setError(result?.message || "Invalid credentials. Please try again.");
       }
     } catch (err) {
-      console.error("CRITICAL UI ERROR:", err);
-      setError(`UI Error: ${err.message}`);
+      console.error("Login error:", err);
+      
+      // Handle specific error types
+      if (err.name === 'AbortError') {
+        setError("Request timeout. Please check your connection and try again.");
+      } else if (err.message && err.message.includes("NetworkError")) {
+        setError("Cannot reach server. Please check your internet connection.");
+      } else if (err.message && err.message.includes("fetch")) {
+        setError("Network error. Please check your API configuration.");
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -95,7 +114,6 @@ const Login = () => {
       <div className={styles.loginCard}>
         <h1 className={styles.title}>Sign-In</h1>
 
-        {/* --- DYNAMIC ERROR BOX --- */}
         {error && (
           <div className={styles.errorBox} style={{
             backgroundColor: '#fcf4f4',
@@ -109,16 +127,31 @@ const Login = () => {
             <h4 style={{ color: '#c40000', margin: '0 0 5px 0' }}>There was a problem</h4>
             <p style={{ margin: '0 0 10px 0' }}>{error}</p>
             
-            {/* Show Resend Button only if they need to verify */}
             {error.toLowerCase().includes("verify") && (
               <div style={{ marginTop: '10px', borderTop: '1px solid #ddd', paddingTop: '10px' }}>
                 <button 
                   onClick={handleResendEmail}
-                  style={{ background: 'none', border: 'none', color: '#007185', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+                  style={{ 
+                    background: 'none', 
+                    border: 'none', 
+                    color: '#007185', 
+                    cursor: 'pointer', 
+                    padding: 0, 
+                    textDecoration: 'underline',
+                    fontSize: '13px'
+                  }}
                 >
                   Resend verification email?
                 </button>
-                {resendMessage && <p style={{ color: 'green', marginTop: '5px', fontSize: '11px' }}>{resendMessage}</p>}
+                {resendMessage && (
+                  <p style={{ 
+                    color: resendMessage.includes('Failed') ? '#c40000' : '#067d62', 
+                    marginTop: '5px', 
+                    fontSize: '12px' 
+                  }}>
+                    {resendMessage}
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -131,6 +164,7 @@ const Login = () => {
             className={styles.input} 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={loading}
             required 
           />
           
@@ -140,11 +174,16 @@ const Login = () => {
             className={styles.input} 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
             required 
           />
           
-          <button type="submit" className={styles.signInBtn} disabled={loading}>
-            {loading ? "Checking..." : "Continue"}
+          <button 
+            type="submit" 
+            className={styles.signInBtn} 
+            disabled={loading}
+          >
+            {loading ? "Signing in..." : "Continue"}
           </button>
         </form>
         
@@ -157,7 +196,15 @@ const Login = () => {
         <div className={styles.divider}>
           <h5>New to Lumen Mall?</h5>
         </div>
-        <Link to="/register" className={styles.createAccountBtn} style={{textAlign: 'center', display: 'block', textDecoration: 'none'}}>
+        <Link 
+          to="/register" 
+          className={styles.createAccountBtn} 
+          style={{
+            textAlign: 'center', 
+            display: 'block', 
+            textDecoration: 'none'
+          }}
+        >
           Create your Lumen account
         </Link>
       </div>

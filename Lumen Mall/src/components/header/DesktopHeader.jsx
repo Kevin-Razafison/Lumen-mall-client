@@ -5,11 +5,11 @@ import SearchBar from './SearchBar'
 import DeliveryStatus from './DeliveryStatus'
 import UserAccount from './UserAccount'
 import CartWidget from './CartWidget'
-import { useLocation } from '../../context/LocationContext';
+import { useUserLocation } from '../../context/LocationContext';
 import { LuMapPin } from 'react-icons/lu';
 
 const Header = ({ openLocationModal }) => {
-  const { location } = useLocation();
+  const { location } = useUserLocation();
 
   return (
     <header className={styles.headerContainer}>

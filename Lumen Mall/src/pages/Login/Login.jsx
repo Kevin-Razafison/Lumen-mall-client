@@ -16,9 +16,9 @@ const Login = () => {
   const { login } = useAuth();
   const { setLocation, setIsDetecting } = useUserLocation(); 
   const navigate = useNavigate();
-  const location = useLocation();
+  const routerLocation = useRouterLocation();
+  const from = routerLocation.state?.from?.pathname || "/";  const location = useLocation();
 
-  const from = location.state?.from?.pathname || "/";
 
   const detectLocation = () => {
     if ("geolocation" in navigator) {
@@ -59,52 +59,46 @@ const Login = () => {
   };
   
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setResendMessage('');
-    setLoading(true);
+      e.preventDefault();
+      setError('');
+      setLoading(true);
 
-    try {
-      const result = await login(email, password);
-      
-      if (result && result.success) {
-        // Start location detection in background (non-blocking)
-        detectLocation();
+      try {
+        // 1. Attempt login
+        const result = await login(email, password);
         
-        // Safe navigation
-        const targetPath = from && from !== '/login' ? from : '/';
-        
-        console.log("Login successful, redirecting to:", targetPath);
+        // 2. Check for success explicitly
+        if (result && result.success) {
+          // Start location detection (don't await, let it run in background)
+          detectLocation();
 
-        // Use setTimeout to ensure state updates complete before navigation
-        setTimeout(() => {
-          try {
-            navigate(targetPath, { replace: true });
-          } catch (navError) {
-            console.error("Navigation error:", navError);
-            // Fallback to window.location if navigate fails
-            window.location.href = targetPath;
+          const target = from || "/";
+          console.log("Login successful. Redirecting to:", target);
+
+          // 3. FIX: Check if navigate (N) exists before calling it
+          if (typeof navigate === 'function') {
+            navigate(target, { replace: true });
+          } else {
+            // EMERGENCY FALLBACK: If React Router is broken, use the browser
+            console.warn("React Navigate failed, using window.location");
+            window.location.href = target;
           }
-        }, 100);
-      } else {
-        setError(result?.message || "Invalid credentials. Please try again.");
+        } else {
+          // Handle server-side rejection (e.g. 401 Unauthorized)
+          setError(result?.message || "Invalid email or password.");
+        }
+      } catch (err) {
+        // This catches the "NetworkError" or internal JS crashes
+        console.error("LOGIN_HANDLE_SUBMIT_ERROR:", err);
+        
+        if (err.message.includes("NetworkError") || err.message.includes("fetch")) {
+          setError("Network error: Check your internet or backend status.");
+        } else {
+          setError(`UI Error: ${err.message}`);
+        }
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Login error:", err);
-      
-      // Handle specific error types
-      if (err.name === 'AbortError') {
-        setError("Request timeout. Please check your connection and try again.");
-      } else if (err.message && err.message.includes("NetworkError")) {
-        setError("Cannot reach server. Please check your internet connection.");
-      } else if (err.message && err.message.includes("fetch")) {
-        setError("Network error. Please check your API configuration.");
-      } else {
-        setError("An unexpected error occurred. Please try again.");
-      }
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (

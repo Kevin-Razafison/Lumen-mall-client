@@ -74,7 +74,10 @@ const AppContent = () => {
 
       <Route 
         path="/admin/*" 
-        element={<ProtectedRoute adminOnly={true}><AdminDashboard /></ProtectedRoute>} 
+        element={
+        <ProtectedRoute adminOnly={true}>
+          <AdminDashboard />
+        </ProtectedRoute>} 
       >
         {/* These will render inside the AdminDashboard's Outlet */}
         <Route index element={<DashboardOverview />} />

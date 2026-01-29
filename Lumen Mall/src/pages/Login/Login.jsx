@@ -58,35 +58,36 @@ const Login = () => {
     }
   };
   
- const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setResendMessage('');
-    setLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
+  setLoading(true);
 
-    try {
-      const result = await login(email, password);
-      
-      if (result.success) {
-
-        detectLocation(); 
- 
-        setTimeout(() => {
-          navigate(from, { replace: true });
-        }, 100);
-      } else {
-        setError(result.message || "Invalid email or password");
-      }
-    } catch (err) {
-      if (err.message === "Failed to fetch") {
-        setError("Network error. Please check if the server is waking up.");
-      } else {
-        setError("Server error. Please check your connection.");
-      }
-    } finally {
-      setLoading(false);
+  try {
+    const result = await login(email, password);
+    
+    if (result.success) {
+      detectLocation();
+      navigate(from, { replace: true });
+    } else {
+      // This handles the "Invalid Credentials" or "Missing Data" errors
+      setError(result.message);
     }
-  };
+  } catch (err) {
+    // THIS IS THE CRITICAL PART:
+    console.error("FULL ERROR OBJECT:", err); // Look at your browser console for this!
+    
+    if (err.name === 'AbortError') {
+      setError("Connection timed out. Render is taking too long to wake up.");
+    } else if (err.message === "Failed to fetch") {
+      setError("Network error: Cannot reach the server. Check your API_BASE_URL.");
+    } else {
+      setError(`Unexpected Error: ${err.message}`);
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className={styles.loginContainer}>

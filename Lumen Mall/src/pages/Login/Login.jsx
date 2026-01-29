@@ -58,7 +58,7 @@ const Login = () => {
     }
   };
   
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setResendMessage('');
@@ -68,13 +68,21 @@ const Login = () => {
       const result = await login(email, password);
       
       if (result.success) {
-        detectLocation();
-        navigate(from, { replace: true });
+
+        detectLocation(); 
+ 
+        setTimeout(() => {
+          navigate(from, { replace: true });
+        }, 100);
       } else {
         setError(result.message || "Invalid email or password");
       }
     } catch (err) {
-      setError("Server error. Please check your connection.");
+      if (err.message === "Failed to fetch") {
+        setError("Network error. Please check if the server is waking up.");
+      } else {
+        setError("Server error. Please check your connection.");
+      }
     } finally {
       setLoading(false);
     }

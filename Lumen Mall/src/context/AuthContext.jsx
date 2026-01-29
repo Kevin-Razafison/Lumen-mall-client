@@ -12,15 +12,18 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 90000);
+      const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s for cold start
+      
       try {
         const response = await fetch(`${API_BASE_URL}/api/users/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
+          signal: controller.signal // Connect the timeout signal
         });
+        
         clearTimeout(timeoutId);
-        // If the server sends back an error (401, 403, 500), handle it here
+
         if (!response.ok) {
           const errorData = await response.json();
           return { success: false, message: errorData.message || "Invalid credentials" };
@@ -28,9 +31,15 @@ export const AuthProvider = ({ children }) => {
 
         const data = await response.json();
 
-        // CONSISTENT NAMING: use 'lumenToken' and 'lumenUser'
         if (data.token && data.fullName) { 
-          const userData = { id: data.id, email: data.email, fullName: data.fullName, role: data.role };
+          const userData = { 
+            id: data.id, 
+            email: data.email, 
+            fullName: data.fullName, 
+            role: data.role 
+          };
+          
+          localStorage.setItem('lumenToken', data.token);
           localStorage.setItem('lumenUser', JSON.stringify(userData));
           setUser(userData);
 
@@ -39,11 +48,13 @@ export const AuthProvider = ({ children }) => {
         
         return { success: false, message: "Server response missing user data" };
       } catch (error) {
+        if (error.name === 'AbortError') {
+          return { success: false, message: "Server took too long to respond. Please try again." };
+        }
         console.error("Login Context Error:", error);
-        // This throw is what triggers the "Check Connection" error in Login.js
         throw error; 
       }
-    };
+    }; 
 
     const logout = () => {
       setUser(null);

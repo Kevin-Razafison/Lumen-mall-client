@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./DeliveryStatus.module.css";
 import { useUserLocation } from "../../context/LocationContext";
 
-const DeliveryStatus = ({ location, onClick }) => {
+const DeliveryStatus = () => {
     const { location, isDetecting, detectLocation } = useUserLocation();
     return (
         <div className={styles.container} onClick={detectLocation}>

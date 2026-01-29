@@ -9,35 +9,30 @@ export const AuthProvider = ({ children }) => {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-const login = async (email, password) => {
+  const login = async (email, password) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json(); // Always parse the JSON to get messages
+      const data = await response.json();
 
       if (response.ok) {
-        const userWithToken = {
-          id: data.id,
-          email: data.email,
-          fullName: data.fullName,
-          role: data.role,
-          token: data.token 
-        };
-        
-        setUser(userWithToken);
-        localStorage.setItem('lumenUser', JSON.stringify(userWithToken));
-        return { success: true }; // Return object
+        // Make sure the names here (data.token, data.user) match your Backend response!
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser(data.user);
+        return { success: true };
       } else {
-        // Return the specific message from the Backend (e.g., "Please verify your email first!")
-        return { success: false, message: data.message || "Login failed" };
+        // This catches 401 Unauthorized or 403 Forbidden
+        return { success: false, message: data.message || "Invalid credentials" };
       }
     } catch (error) {
-      console.error("Login error:", error);
-      return { success: false, message: "Could not connect to server" };
+      console.error("Login Context Error:", error);
+      // This is what triggers your "Check Connection" message
+      throw error; 
     }
   };
   const logout = () => {

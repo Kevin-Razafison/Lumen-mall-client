@@ -31,6 +31,7 @@ export const AuthProvider = ({ children }) => {
 
         const data = await response.json();
 
+
         if (data.token && data.fullName) { 
           const userData = { 
             id: data.id, 
@@ -39,10 +40,11 @@ export const AuthProvider = ({ children }) => {
             role: data.role 
           };
           
-          localStorage.setItem('lumenToken', data.token);
+          // CRITICAL: You need BOTH of these
+          localStorage.setItem('lumenToken', data.token); 
           localStorage.setItem('lumenUser', JSON.stringify(userData));
+          
           setUser(userData);
-
           return { success: true };
         }
         

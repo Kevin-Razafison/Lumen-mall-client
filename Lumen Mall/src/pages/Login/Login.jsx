@@ -16,7 +16,7 @@ const Login = () => {
   const { login } = useAuth();
   const { setLocation, setIsDetecting } = useUserLocation(); 
   const navigate = useNavigate();
-  const routerLocation = useRouterLocation();
+  const routerLocation = useLocation();
   const from = routerLocation.state?.from?.pathname || "/";  const location = useLocation();
 
 

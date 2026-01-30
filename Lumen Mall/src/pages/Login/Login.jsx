@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useLocation, Link } from 'react-router-dom'; 
+import { useLocation, useNavigate, Link } from 'react-router-dom'; 
 import { useUserLocation } from '../../context/LocationContext'; 
 import styles from './Login.module.css'; 
 import logo from '../../assets/Lumen-Mall-logo.png'; 
@@ -16,7 +16,9 @@ const Login = () => {
   const { login } = useAuth();
   const { setLocation, setIsDetecting } = useUserLocation(); 
   const location = useLocation();
+  const navigate = useNavigate(); // Defined at the top level to avoid 'N is not a function'
 
+  // Determine where to redirect after login (default to home)
   const from = location.state?.from?.pathname || "/";
 
   const detectLocation = () => {
@@ -68,26 +70,32 @@ const Login = () => {
       
       // 2. Check for success
       if (result && result.success) {
+        // Run location detection in background
         detectLocation();
 
-        console.log("Login successful. Redirecting...");
+        console.log("Login successful. Redirecting to:", from);
 
-
-        window.location.href = from;
+        /**
+         * SUCCESSFUL REDIRECT:
+         * Using navigate with { replace: true } ensures the login page 
+         * is replaced in the history stack, preventing back-button issues.
+         */
+        navigate(from, { replace: true });
 
       } else {
+        // Handle server-side rejection (e.g. 401 Unauthorized)
         setError(result?.message || "Invalid email or password.");
         setLoading(false);
       }
     } catch (err) {
       console.error("LOGIN_FATAL_ERROR:", err);
       
+      // Handle Render cold starts or network drops
       if (err.name === 'AbortError' || err.message?.includes("fetch") || err.message?.includes("NetworkError")) {
-        setError("The server is taking too long to respond (Cold Start). Please wait 10 seconds and try again.");
+        setError("The server is taking too long to respond. Please wait 10 seconds and try again.");
       } else {
         setError(`System Error: ${err.message || 'An unexpected error occurred'}`);
       }
-    } finally {
       setLoading(false);
     }
   };

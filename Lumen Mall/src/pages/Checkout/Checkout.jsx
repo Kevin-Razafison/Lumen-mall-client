@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { useCart } from '../../context/CartContext';
-import styles from './Checkout.module.css';
-import { useUserLocation } from '../../context/LocationContext';
 import { useNavigate } from 'react-router-dom';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
+import { useUserLocation } from '../../context/LocationContext';
 import { API_BASE_URL } from '../../config';
+import styles from './Checkout.module.css';
 
 const Checkout = () => {
   const stripe = useStripe();
   const elements = useElements();
-  const [isProcessing, setIsProcessing] = useState(false);
+  const navigate = useNavigate();
   
   const { user } = useAuth();
   const { location } = useUserLocation();
   const { cartItems, totalPrice, clearCart } = useCart();
-  const navigate = useNavigate();
-
+  
+  const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -24,16 +24,13 @@ const Checkout = () => {
     city: '',
     zipCode: '',
   });
-
   const [paymentMethod, setPaymentMethod] = useState('Credit Card');
 
   const shipping = totalPrice > 100 ? 0 : 9.99; 
-  const taxRate = 0.08; // 8% tax
+  const taxRate = 0.08;
   const taxTotal = totalPrice * taxRate;
   const finalGrandTotal = totalPrice + shipping + taxTotal;
 
-  // --- RESTORED LOGIC ---
-  
   useEffect(() => {
     if (user) {
       setFormData(prev => ({
@@ -45,7 +42,7 @@ const Checkout = () => {
 
     if (location && location !== 'Select your address') {
       const parts = location.split(',');
-      const detectedCity = parts[0].trim();
+      const detectedCity = parts[0]?.trim() || '';
       
       setFormData(prev => ({
         ...prev,
@@ -54,48 +51,60 @@ const Checkout = () => {
     }
   }, [user, location]); 
 
-  // THIS WAS MISSING:
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // ----------------------
-
- const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsProcessing(true);
 
-    // Get the token right when we need it, inside the try block
-    const getAuthToken = () => localStorage.getItem('lumenToken');
+    const authToken = localStorage.getItem('lumenToken');
 
     try {
-      // 1. Handle Stripe
+      // 1. Handle Stripe Payment
       if (paymentMethod === 'Credit Card') {
-        if (!stripe || !elements) return;
+        if (!stripe || !elements) {
+          throw new Error('Stripe not loaded');
+        }
 
         const intentRes = await fetch(`${API_BASE_URL}/api/payments/create-payment-intent`, {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}` // Use the helper function
+            'Authorization': `Bearer ${authToken}`
           },
-          body: JSON.stringify({ amount: finalGrandTotal, email: formData.email })
+          body: JSON.stringify({ 
+            amount: finalGrandTotal, 
+            email: formData.email 
+          })
         });
         
-        const intentData = await intentRes.json();
-        if (!intentRes.ok) throw new Error(intentData.message || "Payment initiation failed");
+        if (!intentRes.ok) {
+          const errorData = await intentRes.json();
+          throw new Error(errorData.message || "Payment initiation failed");
+        }
 
+        const intentData = await intentRes.json();
         const cardElement = elements.getElement(CardElement);
+        
         const result = await stripe.confirmCardPayment(intentData.clientSecret, {
-          payment_method: { card: cardElement, billing_details: { name: formData.fullName, email: formData.email } },
+          payment_method: { 
+            card: cardElement, 
+            billing_details: { 
+              name: formData.fullName, 
+              email: formData.email 
+            } 
+          },
         });
 
-        if (result.error) throw new Error(result.error.message);
+        if (result.error) {
+          throw new Error(result.error.message);
+        }
       }
 
-      // ... (PayPal logic remains the same) ...
-
-      // 2. Prepare and Send Order
+      // 2. Create Order
       const orderData = {
         customerName: formData.fullName,
         customerEmail: formData.email,
@@ -113,31 +122,37 @@ const Checkout = () => {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getAuthToken()}` // Use the helper function here too
+          'Authorization': `Bearer ${authToken}`
         },
         body: JSON.stringify(orderData)
       });
 
-      const resultData = await orderResponse.json().catch(() => null);
-
       if (!orderResponse.ok) {
-        throw new Error(resultData?.message || resultData?.error || "Order failed");
+        const errorData = await orderResponse.json();
+        throw new Error(errorData?.message || errorData?.error || "Order failed");
       }
+
+      const resultData = await orderResponse.json();
 
       if (resultData) {
         clearCart();
         navigate('/order-success', { 
-          state: { orderId: resultData.id, email: formData.email, total: finalGrandTotal } 
+          state: { 
+            orderId: resultData.id, 
+            email: formData.email, 
+            total: finalGrandTotal 
+          } 
         });
       }
 
     } catch (error) {
       console.error("Checkout failed:", error);
-      alert(error.message);
+      alert(error.message || 'Checkout failed. Please try again.');
     } finally {
       setIsProcessing(false);
     }
   };
+
   return (
     <div className={styles.checkoutContainer}>
       <h1 className={styles.mainTitle}>Checkout</h1>
@@ -155,42 +170,87 @@ const Checkout = () => {
 
           <div className={styles.inputGroup}>
             <label>Full Name</label>
-            <input type="text" name="fullName" required value={formData.fullName} onChange={handleChange} />
+            <input 
+              type="text" 
+              name="fullName" 
+              required 
+              value={formData.fullName} 
+              onChange={handleChange} 
+            />
           </div>
 
           <div className={styles.inputGroup}>
             <label>Email Address</label>
-            <input type="email" name="email" required value={formData.email} onChange={handleChange} />
+            <input 
+              type="email" 
+              name="email" 
+              required 
+              value={formData.email} 
+              onChange={handleChange} 
+            />
           </div>
 
           <div className={styles.inputGroup}>
             <label>Street Address</label>
-            <input type="text" name="address" required value={formData.address} onChange={handleChange} />
+            <input 
+              type="text" 
+              name="address" 
+              required 
+              value={formData.address} 
+              onChange={handleChange} 
+            />
           </div>
 
           <div className={styles.row}>
             <div className={styles.inputGroup}>
               <label>City</label>
-              <input type="text" name="city" required value={formData.city} onChange={handleChange} />
+              <input 
+                type="text" 
+                name="city" 
+                required 
+                value={formData.city} 
+                onChange={handleChange} 
+              />
             </div>
             <div className={styles.inputGroup}>
               <label>Zip Code</label>
-              <input type="text" name="zipCode" required value={formData.zipCode} onChange={handleChange} />
+              <input 
+                type="text" 
+                name="zipCode" 
+                required 
+                value={formData.zipCode} 
+                onChange={handleChange} 
+              />
             </div>
           </div>
 
           <h2 className={styles.sectionTitle} style={{ marginTop: '2rem' }}>Payment Method</h2>
           <div className={styles.paymentOptions}>
             <label className={styles.radioLabel}>
-              <input type="radio" value="Credit Card" checked={paymentMethod === 'Credit Card'} onChange={(e) => setPaymentMethod(e.target.value)} />
+              <input 
+                type="radio" 
+                value="Credit Card" 
+                checked={paymentMethod === 'Credit Card'} 
+                onChange={(e) => setPaymentMethod(e.target.value)} 
+              />
               Credit Card
             </label>
             <label className={styles.radioLabel}>
-              <input type="radio" value="PayPal" checked={paymentMethod === 'PayPal'} onChange={(e) => setPaymentMethod(e.target.value)} />
+              <input 
+                type="radio" 
+                value="PayPal" 
+                checked={paymentMethod === 'PayPal'} 
+                onChange={(e) => setPaymentMethod(e.target.value)} 
+              />
               PayPal
             </label>
             <label className={styles.radioLabel}>
-              <input type="radio" value="Bank Transfer" checked={paymentMethod === 'Bank Transfer'} onChange={(e) => setPaymentMethod(e.target.value)} />
+              <input 
+                type="radio" 
+                value="Bank Transfer" 
+                checked={paymentMethod === 'Bank Transfer'} 
+                onChange={(e) => setPaymentMethod(e.target.value)} 
+              />
               Bank Transfer
             </label>
           </div>
@@ -264,7 +324,13 @@ const Checkout = () => {
           </div>
           <div className={styles.calcRow}>
             <span>Shipping:</span>
-            <span>{shipping === 0 ? <span className={styles.free}>FREE</span> : `$${shipping.toFixed(2)}`}</span>
+            <span>
+              {shipping === 0 ? (
+                <span className={styles.free}>FREE</span>
+              ) : (
+                `$${shipping.toFixed(2)}`
+              )}
+            </span>
           </div>
           <div className={styles.calcRow}>
             <span>Estimated Tax:</span>

@@ -13,6 +13,7 @@ const Orders = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Review System State
@@ -29,24 +30,58 @@ const Orders = () => {
     return index !== -1 ? index : 1; 
   };
 
-  const fetchOrders = () => {
-    const actualToken = user?.token;
-    if (user?.email && actualToken) {
-      fetch(`${API_BASE_URL}/api/orders/user/${user.email}`, {
+  const fetchOrders = async () => {
+    console.log('🔍 DEBUG - User object:', user);
+    console.log('🔍 DEBUG - User email:', user?.email);
+    console.log('🔍 DEBUG - User token:', user?.token ? 'EXISTS' : 'MISSING');
+    
+    const actualToken = localStorage.getItem('lumenToken'); // Get from localStorage instead
+    console.log('🔍 DEBUG - LocalStorage token:', actualToken ? 'EXISTS' : 'MISSING');
+    
+    if (!user?.email) {
+      console.error('❌ No user email found');
+      setError('User email not found. Please log in again.');
+      setLoading(false);
+      return;
+    }
+
+    if (!actualToken) {
+      console.error('❌ No auth token found');
+      setError('Authentication token missing. Please log in again.');
+      setLoading(false);
+      return;
+    }
+
+    const url = `${API_BASE_URL}/api/orders/user/${user.email}`;
+    console.log('🔍 DEBUG - Fetching from:', url);
+
+    try {
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${actualToken}`, 
           'Content-Type': 'application/json'
         }
-      })
-      .then(res => res.json())
-      .then(data => {
-        setOrders(data.sort((a, b) => b.id - a.id));
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Fetch error:", err);
-        setLoading(false);
       });
+
+      console.log('🔍 DEBUG - Response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ API Error:', errorText);
+        throw new Error(`Failed to fetch orders: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ DEBUG - Orders received:', data);
+
+      setOrders(data.sort((a, b) => b.id - a.id));
+      setLoading(false);
+      setError(null);
+
+    } catch (err) {
+      console.error("❌ Fetch error:", err);
+      setError(err.message || 'Failed to load orders');
+      setLoading(false);
     }
   };
 
@@ -140,10 +175,11 @@ const Orders = () => {
 
   const handleCancelOrder = (orderId) => {
     if (window.confirm("Are you sure you want to cancel this order?")) {
+      const token = localStorage.getItem('lumenToken');
       fetch(`${API_BASE_URL}/api/orders/${orderId}/status?status=CANCELLED`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${user?.token}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       })
@@ -175,6 +211,7 @@ const Orders = () => {
       return;
     }
 
+    const token = localStorage.getItem('lumenToken');
     const reviewData = {
       orderId: reviewingOrder.id,
       productId: selectedProductId.toString(),
@@ -186,7 +223,7 @@ const Orders = () => {
     fetch(`${API_BASE_URL}/api/reviews`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${user?.token}`,
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(reviewData)
@@ -205,7 +242,37 @@ const Orders = () => {
     .catch(err => console.error("Review submit error:", err));
   };
 
-  if (loading) return <div className={styles.loader}>Loading your orders...</div>;
+  if (loading) {
+    return (
+      <div className={styles.loader}>
+        Loading your orders...
+        <p style={{ fontSize: '12px', marginTop: '10px', color: '#666' }}>
+          Check browser console (F12) for debug info
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.ordersContainer}>
+        <div className={styles.noOrders} style={{ color: '#d00' }}>
+          <h3>Error Loading Orders</h3>
+          <p>{error}</p>
+          <button 
+            onClick={() => {
+              setLoading(true);
+              setError(null);
+              fetchOrders();
+            }}
+            style={{ marginTop: '20px', padding: '10px 20px' }}
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.ordersContainer}>

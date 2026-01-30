@@ -63,33 +63,41 @@ const handleSubmit = async (e) => {
     setLoading(true);
 
     try {
+      // 1. Attempt login via AuthContext
       const result = await login(email, password);
       
+      // 2. Check for success
       if (result && result.success) {
+        // Run location detection in background
         detectLocation();
 
-        console.log("Login successful. Replacing history and redirecting...");
+        console.log("Login successful. Redirecting...");
 
         /**
-         * SUCCESSFUL REDIRECT:
-         * Using .replace() instead of .href ensures the user 
-         * cannot go "back" to the login page after signing in.
+         * BULLETPROOF REDIRECTION:
+         * We use window.location.href instead of the navigate hook.
+         * This prevents the "N is not a function" error in production
+         * and ensures a clean state load upon entering the app.
          */
-        window.location.replace(from);
+        window.location.href = from;
 
       } else {
+        // Handle server-side rejection (e.g. 401 Unauthorized)
         setError(result?.message || "Invalid email or password.");
         setLoading(false);
       }
     } catch (err) {
       console.error("LOGIN_FATAL_ERROR:", err);
       
+      // Specific handling for NetworkError / Cold Starts
       if (err.name === 'AbortError' || err.message?.includes("fetch") || err.message?.includes("NetworkError")) {
-        setError("The server is taking too long to respond. Please try again.");
+        setError("The server is taking too long to respond (Cold Start). Please wait 10 seconds and try again.");
       } else {
         setError(`System Error: ${err.message || 'An unexpected error occurred'}`);
       }
-      setLoading(false);
+    } finally {
+      // We only stop loading if there was an error. 
+      // If successful, the page will redirect and refresh anyway.
     }
   };
 

@@ -17,7 +17,6 @@ const Login = () => {
   const { setLocation, setIsDetecting } = useUserLocation(); 
   const location = useLocation();
 
-  // Determine redirect target
   const from = location.state?.from?.pathname || "/";
 
   const detectLocation = () => {
@@ -59,33 +58,41 @@ const Login = () => {
   };
   
   const handleSubmit = async (e) => {
-      e.preventDefault();
-      setError('');
-      setLoading(true);
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
-      try {
-        const result = await login(email, password);
-        
-        if (result && result.success) {
-          // 1. Redirect IMMEDIATELY to stop the UI from rendering errors
-          window.location.href = from;
+    try {
+      // 1. Attempt login via AuthContext
+      const result = await login(email, password);
+      
+      // 2. Check for success
+      if (result && result.success) {
+        // Run location detection in background
+        detectLocation();
 
-          // 2. Fire location detection in the background 
-          detectLocation();
-        } else {
-          setError(result?.message || "Invalid email or password.");
-          setLoading(false);
-        }
-      } catch (err) {
+        console.log("Login successful. Redirecting...");
 
-        if (localStorage.getItem('lumenToken')) {
-          window.location.href = from;
-        } else {
-          setError("Connection issue. Please try again.");
-          setLoading(false);
-        }
+        window.location.href = from;
+
+      } else {
+        setError(result?.message || "Invalid email or password.");
+        setLoading(false);
       }
-    };
+    } catch (err) {
+      console.error("LOGIN_FATAL_ERROR:", err);
+      
+      // Specific handling for NetworkError / Cold Starts
+      if (err.name === 'AbortError' || err.message?.includes("fetch") || err.message?.includes("NetworkError")) {
+        setError("The server is taking too long to respond (Cold Start). Please wait 10 seconds and try again.");
+      } else {
+        setError(`System Error: ${err.message || 'An unexpected error occurred'}`);
+      }
+    } finally {
+      // We only stop loading if there was an error. 
+      // If successful, the page will redirect and refresh anyway.
+    }
+  };
 
   return (
     <div className={styles.loginContainer}>
@@ -145,8 +152,8 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
-            autoComplete="username"
             required 
+            autoComplete="username"
           />
           
           <label className={styles.label}>Password</label>
@@ -156,8 +163,8 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
-            autoComplete="current-password"
             required 
+            autoComplete="current-password"
           />
           
           <button 
@@ -165,7 +172,7 @@ const Login = () => {
             className={styles.signInBtn} 
             disabled={loading}
           >
-            {loading ? "Connecting to Server..." : "Continue"}
+            {loading ? "Signing in..." : "Continue"}
           </button>
         </form>
         

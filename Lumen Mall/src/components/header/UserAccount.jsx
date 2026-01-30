@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import LogoutModal from "../Modals/LogoutModal";
+import LogoutModal from "../Modals/LogoutModal"
 import styles from './UserAccount.module.css';
 
 const UserAccount = () => {

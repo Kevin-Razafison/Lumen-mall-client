@@ -70,11 +70,14 @@ const Checkout = () => {
       if (paymentMethod === 'Credit Card') {
         if (!stripe || !elements) return;
 
-        const intentRes = await fetch(`${API_BASE_URL}/api/payments/create-payment-intent`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ amount: finalGrandTotal, email: formData.email })
-        });
+      const intentRes = await fetch(`${API_BASE_URL}/api/payments/create-payment-intent`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Ensure token is sent here too
+        },
+        body: JSON.stringify({ amount: finalGrandTotal, email: formData.email })
+      });
         
         const { clientSecret } = await intentRes.json();
         const cardElement = elements.getElement(CardElement);
@@ -127,7 +130,7 @@ const Checkout = () => {
       });
 
       const resultData = await orderResponse.json().catch(() => null);
-      
+
       if (!orderResponse.ok) {
         const errorMessage = resultData?.message || "Something went wrong with the order.";
         throw new Error(errorMessage);

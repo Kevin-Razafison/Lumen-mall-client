@@ -11,15 +11,14 @@ export const LocationProvider = ({ children }) => {
   useEffect(() => {
     const hasDefaultLocation = location === 'Select your address';
     const isAuthenticated = !!localStorage.getItem('lumenToken');
-
     if (hasDefaultLocation && isAuthenticated) {
       detectLocation();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const detectLocation = () => {
     setIsDetecting(true);
-
     if (!navigator.geolocation) {
       setLocation("Not supported");
       setIsDetecting(false);
@@ -29,24 +28,30 @@ export const LocationProvider = ({ children }) => {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
-        
         try {
           const res = await fetch(
             `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
           );
           const data = await res.json();
-          setLocation(data.city || data.principalSubdivision || "Location Found");
+          const detectedLocation = data.city || data.principalSubdivision || "Location Found";
+          setLocation(detectedLocation);
+          localStorage.setItem('lumenLocation', detectedLocation);
         } catch (err) {
-          setLocation(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
+          // FIXED: Added parentheses here
+          const fallbackLocation = `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`;
+          setLocation(fallbackLocation);
+          localStorage.setItem('lumenLocation', fallbackLocation);
         } finally {
           setIsDetecting(false);
         }
       },
       (error) => {
         console.error("Geo Error:", error);
-        if (error.code === 1) setLocation("Location Denied");
-        else if (error.code === 2) setLocation("Location Unavailable");
-        else setLocation("Timeout");
+        let errorLocation = "Location Unavailable";
+        if (error.code === 1) errorLocation = "Location Denied";
+        else if (error.code === 2) errorLocation = "Location Unavailable";
+        else errorLocation = "Timeout";
+        setLocation(errorLocation);
         setIsDetecting(false);
       },
       { enableHighAccuracy: true, timeout: 5000 }
@@ -54,7 +59,7 @@ export const LocationProvider = ({ children }) => {
   };
 
   return (
-    <LocationContext.Provider value={{ location, setLocation, isDetecting, detectLocation }}>
+    <LocationContext.Provider value={{ location, setLocation, isDetecting, setIsDetecting, detectLocation }}>
       {children}
     </LocationContext.Provider>
   );

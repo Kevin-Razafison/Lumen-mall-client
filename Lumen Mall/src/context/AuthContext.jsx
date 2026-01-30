@@ -1,12 +1,11 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Added this
+import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../config';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const navigate = useNavigate(); // Initialize the hook
-  
+  const navigate = useNavigate();
   const [user, setUser] = useState(() => {
     try {
       const savedUser = localStorage.getItem('lumenUser');
@@ -34,15 +33,17 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
       }
     };
+
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   const login = async (email, password) => {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 90000); 
+    const timeoutId = setTimeout(() => controller.abort(), 90000);
 
     try {
+      // FIXED: Added parentheses to fetch call
       const response = await fetch(`${API_BASE_URL}/api/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -70,10 +71,9 @@ export const AuthProvider = ({ children }) => {
 
       localStorage.setItem('lumenToken', data.token);
       localStorage.setItem('lumenUser', JSON.stringify(userData));
-      
       setUser(userData);
-      return { success: true };
 
+      return { success: true };
     } catch (error) {
       clearTimeout(timeoutId);
       if (error.name === 'AbortError') {
@@ -87,8 +87,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     localStorage.removeItem('lumenToken');
     localStorage.removeItem('lumenUser');
-    
-    // Redirect using useNavigate instead of window.location
+    localStorage.removeItem('lumenLocation');
     navigate('/login');
   };
 

@@ -59,46 +59,33 @@ const Login = () => {
   };
   
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+      e.preventDefault();
+      setError('');
+      setLoading(true);
 
-    try {
-      // 1. Attempt login via AuthContext
-      const result = await login(email, password);
-      
-      // 2. Check for success
-      if (result && result.success) {
-        // Run location detection in background
-        detectLocation();
+      try {
+        const result = await login(email, password);
+        
+        if (result && result.success) {
+          // 1. Redirect IMMEDIATELY to stop the UI from rendering errors
+          window.location.href = from;
 
-        console.log("Login successful. Redirecting...");
+          // 2. Fire location detection in the background 
+          detectLocation();
+        } else {
+          setError(result?.message || "Invalid email or password.");
+          setLoading(false);
+        }
+      } catch (err) {
 
-        /**
-         * BULLETPROOF REDIRECTION:
-         * We use window.location.href instead of the navigate hook.
-         * This prevents the "N is not a function" error in production
-         * and ensures a clean state load upon entering the app.
-         */
-        window.location.href = from;
-
-      } else {
-        // Handle server-side rejection (e.g. 401 Unauthorized)
-        setError(result?.message || "Invalid email or password.");
+        if (localStorage.getItem('lumenToken')) {
+          window.location.href = from;
+        } else {
+          setError("Connection issue. Please try again.");
+          setLoading(false);
+        }
       }
-    } catch (err) {
-      console.error("LOGIN_FATAL_ERROR:", err);
-      
-      // Specific handling for NetworkError / Cold Starts
-      if (err.name === 'AbortError' || err.message?.includes("fetch") || err.message?.includes("NetworkError")) {
-        setError("The server is taking too long to respond (Cold Start). Please wait 10 seconds and try again.");
-      } else {
-        setError(`System Error: ${err.message || 'An unexpected error occurred'}`);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
   return (
     <div className={styles.loginContainer}>

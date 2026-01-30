@@ -2,18 +2,18 @@ import React from 'react';
 import styles from './DeliveryStatus.module.css';
 import { useUserLocation } from '../../context/LocationContext';
 
-const DeliveryStatus = () => {
-  const { location, isDetecting, detectLocation } = useUserLocation();
-
+const DeliveryStatus = ({ onClick }) => {
+  const { location, isDetecting } = useUserLocation();
+  
   return (
-    <div className={styles.container} onClick={detectLocation}>
+    <div className={styles.container} onClick={onClick}>
       <div className={styles.iconSection}>
         <img src="/icons/icons-position.png" alt="location" />
       </div>
       <div className={styles.textSection}>
         <span className={styles.label}>Deliver to</span>
         {isDetecting ? (
-          <div className={styles.skeleton}></div> // shimmer loading
+          <div className={styles.skeleton}></div>
         ) : (
           <span className={styles.location}>{location || 'Select your address'}</span>
         )}

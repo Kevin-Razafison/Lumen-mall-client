@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation as useRouteLocation } from 'react-router-dom';
+import { Routes, Route, useLocation as useRouteLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js'; 
@@ -29,7 +29,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 const AppContent = () => {
   const routeLocation = useRouteLocation();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const isAuthPage = [
     '/login', 
     '/register',
@@ -40,7 +40,7 @@ const AppContent = () => {
   return (
     <>
       {!isAuthPage && <Header openLocationModal={() => setIsModalOpen(true)} />}
-
+      
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
@@ -54,7 +54,7 @@ const AppContent = () => {
           path="/orders" 
           element={<ProtectedRoute><Orders /></ProtectedRoute>} 
         />
-
+        
         <Route 
           path="/checkout" 
           element={
@@ -65,18 +65,19 @@ const AppContent = () => {
             </ProtectedRoute>
           } 
         />
-
+        
         <Route 
           path="/order-success" 
           element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} 
         />
-
+        
         <Route 
           path="/admin/*" 
           element={
-          <ProtectedRoute adminOnly={true}>
-            <AdminDashboard />
-          </ProtectedRoute>} 
+            <ProtectedRoute adminOnly={true}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } 
         >
           <Route index element={<DashboardOverview />} />
           <Route path="inventory" element={<InventorySection />} />
@@ -85,12 +86,12 @@ const AppContent = () => {
           <Route path="users" element={<UsersSection />} />
           <Route path="reviews" element={<ReviewsSection />} />
         </Route>
-
+        
         <Route path="*" element={<Home />} /> 
       </Routes>
-
+      
       {!isAuthPage && <Footer />}
-
+      
       <LocationModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
@@ -99,11 +100,8 @@ const AppContent = () => {
   );
 };
 
-// Simplified App component: Router is now in main.jsx
 function App() {
-  return (
-    <AppContent />
-  );
+  return <AppContent />;
 }
 
 export default App;

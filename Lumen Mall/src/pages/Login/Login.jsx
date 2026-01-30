@@ -14,53 +14,11 @@ const Login = () => {
   const [loading, setLoading] = useState(false); 
 
   const { login } = useAuth();
-  const { setLocation, setIsDetecting } = useUserLocation(); 
+  const { detectLocation } = useUserLocation(); // Just get detectLocation from context
   const location = useLocation();
   const navigate = useNavigate();
 
   const from = location.state?.from?.pathname || "/";
-
-  /**
-   * REFACTORED: detectLocation now returns a Promise
-   * This allows us to use 'await' in the handleSubmit function.
-   */
-  const detectLocation = () => {
-    return new Promise((resolve) => {
-      if (!("geolocation" in navigator)) {
-        resolve(); // Geolocation not supported, just move on
-        return;
-      }
-
-      setIsDetecting(true);
-
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          try {
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-            );
-            const data = await response.json();
-            const city = data.address.city || data.address.town || "Unknown City";
-            const state = data.address.state || data.address.country;
-            setLocation(`${city}, ${state}`);
-          } catch (err) {
-            console.error("Reverse Geocode Error:", err);
-            setLocation(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
-          } finally {
-            setIsDetecting(false);
-            resolve(); // Finished successfully
-          }
-        },
-        (err) => {
-          console.error("Geolocation Error:", err);
-          setIsDetecting(false);
-          resolve(); // Resolve anyway so we don't block the user forever
-        },
-        { timeout: 5000 } // Don't wait more than 5 seconds
-      );
-    });
-  };
 
   const handleResendEmail = async () => {
     setResendMessage('Sending...');
@@ -87,12 +45,12 @@ const Login = () => {
       const result = await login(email, password);
       
       if (result && result.success) {
+        // 2. Trigger location detection in background (don't await)
+        detectLocation();
 
-        await detectLocation();
+        console.log("Login complete. Navigating...");
 
-        console.log("Login and Location check complete. Navigating...");
-
-        // 3. Final Redirect
+        // 3. Navigate immediately - don't wait for location
         navigate(from, { replace: true });
 
       } else {

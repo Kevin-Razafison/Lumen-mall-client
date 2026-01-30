@@ -57,36 +57,41 @@ const Login = () => {
     }
   };
   
-  const handleSubmit = async (e) => {
-      e.preventDefault();
-      setError('');
-      setLoading(true);
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
-      try {
-        const result = await login(email, password);
-        
-        if (result && result.success) {
-          detectLocation();
+    try {
+      const result = await login(email, password);
+      
+      if (result && result.success) {
+        detectLocation();
 
-          console.log("Login successful. Replacing history and redirecting...");
+        console.log("Login successful. Replacing history and redirecting...");
 
-          window.location.replace(from);
+        /**
+         * SUCCESSFUL REDIRECT:
+         * Using .replace() instead of .href ensures the user 
+         * cannot go "back" to the login page after signing in.
+         */
+        window.location.replace(from);
 
-        } else {
-          setError(result?.message || "Invalid email or password.");
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error("LOGIN_FATAL_ERROR:", err);
-        
-        if (err.name === 'AbortError' || err.message?.includes("fetch") || err.message?.includes("NetworkError")) {
-          setError("The server is taking too long to respond. Please try again.");
-        } else {
-          setError(`System Error: ${err.message || 'An unexpected error occurred'}`);
-        }
+      } else {
+        setError(result?.message || "Invalid email or password.");
         setLoading(false);
       }
-    };
+    } catch (err) {
+      console.error("LOGIN_FATAL_ERROR:", err);
+      
+      if (err.name === 'AbortError' || err.message?.includes("fetch") || err.message?.includes("NetworkError")) {
+        setError("The server is taking too long to respond. Please try again.");
+      } else {
+        setError(`System Error: ${err.message || 'An unexpected error occurred'}`);
+      }
+      setLoading(false);
+    }
+  };
 
   return (
     <div className={styles.loginContainer}>

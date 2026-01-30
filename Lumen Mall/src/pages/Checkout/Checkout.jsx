@@ -115,14 +115,19 @@ const Checkout = () => {
         }))
       };
 
+      const token = localStorage.getItem('lumenToken');
+
       const orderResponse = await fetch(`${API_BASE_URL}/api/orders`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Add the token here
+        },
         body: JSON.stringify(orderData)
       });
 
       const resultData = await orderResponse.json().catch(() => null);
-
+      
       if (!orderResponse.ok) {
         const errorMessage = resultData?.message || "Something went wrong with the order.";
         throw new Error(errorMessage);

@@ -1,0 +1,140 @@
+/* Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal Content Box */
+.modalContent {
+  background: white;
+  border-radius: 8px;
+  padding: 30px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Modal Title */
+.modalTitle {
+  margin: 0 0 15px 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #111;
+  text-align: center;
+}
+
+/* Modal Message */
+.modalMessage {
+  margin: 0 0 25px 0;
+  font-size: 15px;
+  color: #555;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* Modal Buttons Container */
+.modalButtons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* Confirm Button (Primary - Danger) */
+.confirmBtn {
+  flex: 1;
+  padding: 12px 20px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.confirmBtn:hover {
+  background-color: #c82333;
+}
+
+.confirmBtn:active {
+  transform: scale(0.98);
+}
+
+/* Cancel Button (Secondary) */
+.cancelBtn {
+  flex: 1;
+  padding: 12px 20px;
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelBtn:hover {
+  background-color: #e0e0e0;
+  border-color: #ccc;
+}
+
+.cancelBtn:active {
+  transform: scale(0.98);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .modalContent {
+    padding: 20px;
+    max-width: 95%;
+  }
+
+  .modalTitle {
+    font-size: 20px;
+  }
+
+  .modalMessage {
+    font-size: 14px;
+  }
+
+  .modalButtons {
+    flex-direction: column;
+  }
+
+  .confirmBtn,
+  .cancelBtn {
+    width: 100%;
+  }
+}

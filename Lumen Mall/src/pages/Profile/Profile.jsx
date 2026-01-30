@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import styles from './Profile.module.css';
 import { Link } from 'react-router-dom';
-
+import LogoutModal from '../../components/Modals/LogoutModal';
 import { API_BASE_URL } from '../../config';
 
 const Profile = () => {
-  const { user, setUser } = useAuth();
+  const { user, setUser, logout } = useAuth();
   const [formData, setFormData] = useState({
     fullName: user?.fullName || '',
     email: user?.email || '',
     imageUrl: user?.imageUrl || ''
   });
   const [isEditing, setIsEditing] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -25,65 +26,74 @@ const Profile = () => {
 
   const handleCancel = () => {
     setFormData({
-        fullName: user?.fullName || '',
-        email: user?.email || '',
-        imageUrl: user?.imageUrl || ''
+      fullName: user?.fullName || '',
+      email: user?.email || '',
+      imageUrl: user?.imageUrl || ''
     });
     setIsEditing(false);
-    };
-    const handleLogout = () => {
-        localStorage.removeItem('lumenUser');
-        setUser(null);
-        window.location.href = '/login';
-    };
+  };
 
-    const navigateTo = (path) => {
-      window.location.href = path;
-    };
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true);
+  };
 
-    const handleSave = async (e) => {
+  const confirmLogout = () => {
+    setShowLogoutConfirm(false);
+    logout();
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutConfirm(false);
+  };
+
+  const navigateTo = (path) => {
+    window.location.href = path;
+  };
+
+  const handleSave = async (e) => {
     e.preventDefault();
     try {
-        const response = await fetch(`${API_BASE_URL}/api/users/profile/update`, {
+      const response = await fetch(`${API_BASE_URL}/api/users/profile/update`, {
         method: 'PUT',
         headers: {
-            'Authorization': `Bearer ${user.token}`,
-            'Content-Type': 'application/json'
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(formData)
-        });
+      });
 
-        if (response.ok) {
+      if (response.ok) {
         const updatedData = await response.json(); 
         
-        // Merge current local state with the fresh data from DB
         const updatedUser = { 
-            ...user, 
-            ...updatedData // This contains the new email and new token
+          ...user, 
+          ...updatedData
         };
 
-        // 1. Update React State (Immediate UI change)
         setUser(updatedUser);
-
-        // 2. Update Local Storage (Persistence for refresh)
         localStorage.setItem('lumenUser', JSON.stringify(updatedUser));
         
         setIsEditing(false);
-        }
+      }
     } catch (err) {
-        console.error("Sync error:", err);
+      console.error("Sync error:", err);
     }
-    };
+  };
 
   return (
     <div className={styles.profilePageWrapper}>
+      <LogoutModal 
+        isOpen={showLogoutConfirm}
+        onConfirm={confirmLogout}
+        onCancel={cancelLogout}
+      />
+
       <div className={styles.heroWrapper}>
         <div className={styles.hero} style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${formData.imageUrl || 'https://via.placeholder.com/1200x450'})` }}>
           <form className={styles.content} onSubmit={handleSave}>
             
-            {/* TOP RIGHT LOGOUT - Useful since you have no NavBar */}
             {!isEditing && (
-              <button type="button" onClick={handleLogout} className={styles.logoutCorner}>
+              <button type="button" onClick={handleLogoutClick} className={styles.logoutCorner}>
                 LOGOUT
               </button>
             )}
@@ -113,7 +123,7 @@ const Profile = () => {
                     <span className={styles.statValue}>SHOP</span>
                   </div>
                   <div className={styles.statDivider}></div>
-                  <Link to="/orders" className={styles.statItem} onClick={() => document.getElementById('orders-section').scrollIntoView({behavior: 'smooth'})}>
+                  <Link to="/orders" className={styles.statItem} onClick={() => document.getElementById('orders-section')?.scrollIntoView({behavior: 'smooth'})}>
                     <span className={styles.statLabel}>VIEW MY</span>
                     <span className={styles.statValue}>ORDERS</span>
                   </Link>

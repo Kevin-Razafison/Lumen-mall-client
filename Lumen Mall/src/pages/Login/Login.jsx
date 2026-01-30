@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useLocation, useNavigate, Link } from 'react-router-dom'; 
+import { useLocation, Link } from 'react-router-dom'; 
 import { useUserLocation } from '../../context/LocationContext'; 
 import styles from './Login.module.css'; 
 import logo from '../../assets/Lumen-Mall-logo.png'; 
@@ -13,19 +13,12 @@ const Login = () => {
   const [resendMessage, setResendMessage] = useState('');
   const [loading, setLoading] = useState(false); 
 
-  const { login, isAuthenticated } = useAuth();
+  const { login } = useAuth();
   const { setLocation, setIsDetecting } = useUserLocation(); 
   const location = useLocation();
-  const navigate = useNavigate();
 
+  // Determine redirect target
   const from = location.state?.from?.pathname || "/";
-
-  // If already logged in, get them out of here immediately
-  useEffect(() => {
-    if (isAuthenticated) {
-      window.location.assign(from);
-    }
-  }, [isAuthenticated, from]);
 
   const detectLocation = () => {
     if ("geolocation" in navigator) {
@@ -71,27 +64,36 @@ const Login = () => {
     setLoading(true);
 
     try {
+      // 1. Attempt login via AuthContext
       const result = await login(email, password);
       
+      // 2. Check for success
       if (result && result.success) {
+        // Run location detection in background
         detectLocation();
-        
-        // This is the "Bulletproof" part. 
-        // window.location.assign bypasses the broken React Router hook entirely.
-        const target = from === "/login" ? "/" : from;
-        window.location.assign(target);
-        
+
+        console.log("Login successful. Redirecting...");
+
+        /**
+         * BULLETPROOF REDIRECTION:
+         * We use window.location.href instead of the navigate hook.
+         * This prevents the "N is not a function" error in production
+         * and ensures a clean state load upon entering the app.
+         */
+        window.location.href = from;
+
       } else {
+        // Handle server-side rejection (e.g. 401 Unauthorized)
         setError(result?.message || "Invalid email or password.");
       }
     } catch (err) {
       console.error("LOGIN_FATAL_ERROR:", err);
       
-      // Handle the Render Cold Start / Network Timeout specifically
-      if (err.name === 'AbortError' || err.message?.includes("fetch")) {
-        setError("The server is waking up (Render cold start). Please wait 10 seconds and try again.");
+      // Specific handling for NetworkError / Cold Starts
+      if (err.name === 'AbortError' || err.message?.includes("fetch") || err.message?.includes("NetworkError")) {
+        setError("The server is taking too long to respond (Cold Start). Please wait 10 seconds and try again.");
       } else {
-        setError(`System Error: ${err.message || 'Check console for details'}`);
+        setError(`System Error: ${err.message || 'An unexpected error occurred'}`);
       }
     } finally {
       setLoading(false);
@@ -116,18 +118,30 @@ const Login = () => {
             fontSize: '13px'
           }}>
             <h4 style={{ color: '#c40000', margin: '0 0 5px 0' }}>There was a problem</h4>
-            <p style={{ margin: '0' }}>{error}</p>
+            <p style={{ margin: '0 0 10px 0' }}>{error}</p>
             
             {error.toLowerCase().includes("verify") && (
               <div style={{ marginTop: '10px', borderTop: '1px solid #ddd', paddingTop: '10px' }}>
                 <button 
                   onClick={handleResendEmail}
-                  style={{ background: 'none', border: 'none', color: '#007185', cursor: 'pointer', padding: 0, textDecoration: 'underline', fontSize: '13px' }}
+                  style={{ 
+                    background: 'none', 
+                    border: 'none', 
+                    color: '#007185', 
+                    cursor: 'pointer', 
+                    padding: 0, 
+                    textDecoration: 'underline',
+                    fontSize: '13px'
+                  }}
                 >
                   Resend verification email?
                 </button>
                 {resendMessage && (
-                  <p style={{ color: resendMessage.includes('Failed') ? '#c40000' : '#067d62', marginTop: '5px', fontSize: '12px' }}>
+                  <p style={{ 
+                    color: resendMessage.includes('Failed') ? '#c40000' : '#067d62', 
+                    marginTop: '5px', 
+                    fontSize: '12px' 
+                  }}>
                     {resendMessage}
                   </p>
                 )}
@@ -144,8 +158,8 @@ const Login = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={loading}
-            required 
             autoComplete="username"
+            required 
           />
           
           <label className={styles.label}>Password</label>
@@ -155,8 +169,8 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             disabled={loading}
-            required 
             autoComplete="current-password"
+            required 
           />
           
           <button 
@@ -174,8 +188,18 @@ const Login = () => {
       </div>
 
       <div className={styles.footer}>
-        <div className={styles.divider}><h5>New to Lumen Mall?</h5></div>
-        <Link to="/register" className={styles.createAccountBtn} style={{ textAlign: 'center', display: 'block', textDecoration: 'none' }}>
+        <div className={styles.divider}>
+          <h5>New to Lumen Mall?</h5>
+        </div>
+        <Link 
+          to="/register" 
+          className={styles.createAccountBtn} 
+          style={{
+            textAlign: 'center', 
+            display: 'block', 
+            textDecoration: 'none'
+          }}
+        >
           Create your Lumen account
         </Link>
       </div>

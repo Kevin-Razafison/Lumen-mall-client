@@ -16,32 +16,50 @@ const Login = () => {
   const { login } = useAuth();
   const { setLocation, setIsDetecting } = useUserLocation(); 
   const location = useLocation();
-  const navigate = useNavigate(); // Defined at the top level to avoid 'N is not a function'
+  const navigate = useNavigate();
 
-  // Determine where to redirect after login (default to home)
   const from = location.state?.from?.pathname || "/";
 
+  /**
+   * REFACTORED: detectLocation now returns a Promise
+   * This allows us to use 'await' in the handleSubmit function.
+   */
   const detectLocation = () => {
-    if ("geolocation" in navigator) {
+    return new Promise((resolve) => {
+      if (!("geolocation" in navigator)) {
+        resolve(); // Geolocation not supported, just move on
+        return;
+      }
+
       setIsDetecting(true);
+
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
           try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+            );
             const data = await response.json();
             const city = data.address.city || data.address.town || "Unknown City";
             const state = data.address.state || data.address.country;
             setLocation(`${city}, ${state}`);
           } catch (err) {
+            console.error("Reverse Geocode Error:", err);
             setLocation(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
           } finally {
             setIsDetecting(false);
+            resolve(); // Finished successfully
           }
         },
-        () => setIsDetecting(false)
+        (err) => {
+          console.error("Geolocation Error:", err);
+          setIsDetecting(false);
+          resolve(); // Resolve anyway so we don't block the user forever
+        },
+        { timeout: 5000 } // Don't wait more than 5 seconds
       );
-    }
+    });
   };
 
   const handleResendEmail = async () => {
@@ -65,34 +83,26 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // 1. Attempt login via AuthContext
+      // 1. Attempt login
       const result = await login(email, password);
       
-      // 2. Check for success
       if (result && result.success) {
-        // Run location detection in background
-        detectLocation();
 
-        console.log("Login successful. Redirecting to:", from);
+        await detectLocation();
 
-        /**
-         * SUCCESSFUL REDIRECT:
-         * Using navigate with { replace: true } ensures the login page 
-         * is replaced in the history stack, preventing back-button issues.
-         */
+        console.log("Login and Location check complete. Navigating...");
+
+        // 3. Final Redirect
         navigate(from, { replace: true });
 
       } else {
-        // Handle server-side rejection (e.g. 401 Unauthorized)
         setError(result?.message || "Invalid email or password.");
         setLoading(false);
       }
     } catch (err) {
       console.error("LOGIN_FATAL_ERROR:", err);
-      
-      // Handle Render cold starts or network drops
-      if (err.name === 'AbortError' || err.message?.includes("fetch") || err.message?.includes("NetworkError")) {
-        setError("The server is taking too long to respond. Please wait 10 seconds and try again.");
+      if (err.name === 'AbortError' || err.message?.includes("fetch")) {
+        setError("The server is taking too long to respond. Please wait 10 seconds.");
       } else {
         setError(`System Error: ${err.message || 'An unexpected error occurred'}`);
       }
@@ -124,27 +134,11 @@ const Login = () => {
               <div style={{ marginTop: '10px', borderTop: '1px solid #ddd', paddingTop: '10px' }}>
                 <button 
                   onClick={handleResendEmail}
-                  style={{ 
-                    background: 'none', 
-                    border: 'none', 
-                    color: '#007185', 
-                    cursor: 'pointer', 
-                    padding: 0, 
-                    textDecoration: 'underline',
-                    fontSize: '13px'
-                  }}
+                  style={{ background: 'none', border: 'none', color: '#007185', cursor: 'pointer', padding: 0, textDecoration: 'underline', fontSize: '13px' }}
                 >
                   Resend verification email?
                 </button>
-                {resendMessage && (
-                  <p style={{ 
-                    color: resendMessage.includes('Failed') ? '#c40000' : '#067d62', 
-                    marginTop: '5px', 
-                    fontSize: '12px' 
-                  }}>
-                    {resendMessage}
-                  </p>
-                )}
+                {resendMessage && <p style={{ color: '#067d62', marginTop: '5px', fontSize: '12px' }}>{resendMessage}</p>}
               </div>
             )}
           </div>
@@ -173,12 +167,8 @@ const Login = () => {
             autoComplete="current-password"
           />
           
-          <button 
-            type="submit" 
-            className={styles.signInBtn} 
-            disabled={loading}
-          >
-            {loading ? "Signing in..." : "Continue"}
+          <button type="submit" className={styles.signInBtn} disabled={loading}>
+            {loading ? "Verifying..." : "Continue"}
           </button>
         </form>
         
@@ -188,18 +178,8 @@ const Login = () => {
       </div>
 
       <div className={styles.footer}>
-        <div className={styles.divider}>
-          <h5>New to Lumen Mall?</h5>
-        </div>
-        <Link 
-          to="/register" 
-          className={styles.createAccountBtn} 
-          style={{
-            textAlign: 'center', 
-            display: 'block', 
-            textDecoration: 'none'
-          }}
-        >
+        <div className={styles.divider}><h5>New to Lumen Mall?</h5></div>
+        <Link to="/register" className={styles.createAccountBtn} style={{ textAlign: 'center', display: 'block', textDecoration: 'none' }}>
           Create your Lumen account
         </Link>
       </div>

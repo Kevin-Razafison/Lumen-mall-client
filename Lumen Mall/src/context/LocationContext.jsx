@@ -9,10 +9,13 @@ export const LocationProvider = ({ children }) => {
   const [isDetecting, setIsDetecting] = useState(false);
 
   useEffect(() => {
-    if (location !== 'Select your address') {
-      localStorage.setItem('lumenLocation', location);
+    const hasDefaultLocation = location === 'Select your address';
+    const isAuthenticated = !!localStorage.getItem('lumenToken');
+
+    if (hasDefaultLocation && isAuthenticated) {
+      detectLocation();
     }
-  }, [location]);
+  }, []);
 
   const detectLocation = () => {
     setIsDetecting(true);

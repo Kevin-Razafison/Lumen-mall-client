@@ -59,7 +59,6 @@ const AppContent = () => {
           path="/checkout" 
           element={
             <ProtectedRoute>
-              {/* Changed "Element" to "Elements" */}
               <Elements stripe={stripePromise}>
                 <Checkout />
               </Elements>
@@ -72,21 +71,20 @@ const AppContent = () => {
           element={<ProtectedRoute><OrderSuccess /></ProtectedRoute>} 
         />
 
-      <Route 
-        path="/admin/*" 
-        element={
-        <ProtectedRoute adminOnly={true}>
-          <AdminDashboard />
-        </ProtectedRoute>} 
-      >
-        {/* These will render inside the AdminDashboard's Outlet */}
-        <Route index element={<DashboardOverview />} />
-        <Route path="inventory" element={<InventorySection />} />
-        <Route path="add-product" element={<AddProductForm />} />
-        <Route path="orders" element={<OrdersSection />} />
-        <Route path="users" element={<UsersSection />} />
-        <Route path="reviews" element={<ReviewsSection />} />
-      </Route>
+        <Route 
+          path="/admin/*" 
+          element={
+          <ProtectedRoute adminOnly={true}>
+            <AdminDashboard />
+          </ProtectedRoute>} 
+        >
+          <Route index element={<DashboardOverview />} />
+          <Route path="inventory" element={<InventorySection />} />
+          <Route path="add-product" element={<AddProductForm />} />
+          <Route path="orders" element={<OrdersSection />} />
+          <Route path="users" element={<UsersSection />} />
+          <Route path="reviews" element={<ReviewsSection />} />
+        </Route>
 
         <Route path="*" element={<Home />} /> 
       </Routes>
@@ -101,11 +99,10 @@ const AppContent = () => {
   );
 };
 
+// Simplified App component: Router is now in main.jsx
 function App() {
   return (
-    <Router>
-      <AppContent />
-    </Router>
+    <AppContent />
   );
 }
 

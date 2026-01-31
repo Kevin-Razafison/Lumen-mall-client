@@ -86,7 +86,12 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 0; /* REMOVE the 35px margin causing overflow */
+  margin-right: 0;
+}
+
+.searchButton img{
+    height: 70%;
+    width: 50%;
 }
 
 .searchRow {

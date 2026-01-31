@@ -50,7 +50,6 @@ const Orders = () => {
     }
 
     const url = `${API_BASE_URL}/api/orders/user/${user.email}`;
-    console.log('🔍 DEBUG - Fetching from:', url);
 
     try {
       const response = await fetch(url, {

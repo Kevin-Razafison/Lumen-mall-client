@@ -31,12 +31,9 @@ const Orders = () => {
   };
 
   const fetchOrders = async () => {
-    console.log('🔍 DEBUG - User object:', user);
-    console.log('🔍 DEBUG - User email:', user?.email);
-    console.log('🔍 DEBUG - User token:', user?.token ? 'EXISTS' : 'MISSING');
+
     
     const actualToken = localStorage.getItem('lumenToken'); // Get from localStorage instead
-    console.log('🔍 DEBUG - LocalStorage token:', actualToken ? 'EXISTS' : 'MISSING');
     
     if (!user?.email) {
       console.error('❌ No user email found');
@@ -63,23 +60,19 @@ const Orders = () => {
         }
       });
 
-      console.log('🔍 DEBUG - Response status:', response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ API Error:', errorText);
         throw new Error(`Failed to fetch orders: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log('✅ DEBUG - Orders received:', data);
 
       setOrders(data.sort((a, b) => b.id - a.id));
       setLoading(false);
       setError(null);
 
     } catch (err) {
-      console.error("❌ Fetch error:", err);
       setError(err.message || 'Failed to load orders');
       setLoading(false);
     }

@@ -50,35 +50,46 @@ const Profile = () => {
     window.location.href = path;
   };
 
-  const handleSave = async (e) => {
+const handleSave = async (e) => {
     e.preventDefault();
+    
+    // Retrieve the actual token from localStorage
+    const token = localStorage.getItem('lumenToken');
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/users/profile/update`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${user.token}`,
+          'Authorization': `Bearer ${token}`, // Use the local variable
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(formData)
       });
 
       if (response.ok) {
-        const updatedData = await response.json(); 
+        const result = await response.json(); 
+        
+        localStorage.setItem('lumenToken', result.token);
         
         const updatedUser = { 
-          ...user, 
-          ...updatedData
+          id: user.id, // Keep the existing ID
+          fullName: result.fullName,
+          email: result.email,
+          role: result.role,
+          imageUrl: result.imageUrl
         };
 
         setUser(updatedUser);
         localStorage.setItem('lumenUser', JSON.stringify(updatedUser));
         
         setIsEditing(false);
+      } else {
+        console.error("Server rejected update:", response.status);
       }
     } catch (err) {
       console.error("Sync error:", err);
     }
-  };
+};
 
   return (
     <div className={styles.profilePageWrapper}>

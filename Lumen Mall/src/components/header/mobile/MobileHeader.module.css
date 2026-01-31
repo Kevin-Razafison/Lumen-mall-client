@@ -1,23 +1,49 @@
-/* MobileHeader.module.css */
+/* ============================================
+   GLOBAL FIX - Add this to your main App.css or index.css
+   ============================================ */
 
-/* ===== HEADER ===== */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  width: 100%;
+  max-width: 100vw;
+}
+
+#root {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* ============================================
+   MOBILE HEADER FIXES
+   ============================================ */
+
+/* Fix for MobileHeader.module.css */
 .mobileHeader {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
+  width: 100%;
+  max-width: 100vw; /* Prevent overflow */
   background-color: #161822;
   z-index: 1000;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* ===== TOP ROW ===== */
 .topRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 56px;
   padding: 0 12px;
+  max-width: 100vw; /* Fix overflow */
 }
 
 .menuButton,
@@ -32,12 +58,7 @@
   justify-content: center;
   border-radius: 4px;
   transition: background-color 0.2s;
-  margin-right: 45px;
-}
-
-.menuButton:active,
-.cartButton:active {
-  background-color: rgba(255, 255, 255, 0.1);
+  margin-right: 0; /* REMOVE the 45px margin causing overflow */
 }
 
 .logo {
@@ -45,83 +66,14 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  max-width: calc(100% - 100px); /* Prevent logo from pushing buttons out */
 }
 
 .logo img {
-  height: 90px;
-  width: 80px;
-}
-
-.cartButton {
-  position: relative;
-  text-decoration: none;
-}
-
-.cartBadge {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  background-color: #f08804;
-  color: white;
-  font-size: 11px;
-  font-weight: bold;
-  border-radius: 10px;
-  min-width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4px;
-}
-
-/* ===== SEARCH ROW ===== */
-.searchRow {
-  padding: 0 12px 12px 12px;
-}
-
-.searchForm {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.searchInput {
-  flex: 1;
-  height: 38px;
-  background-color: #424242;
-  border: 1px solid #616161;
-  border-radius: 4px;
-  padding: 0 40px 0 12px;
-  color: #E0E0E0;
-  font-size: 15px;
-}
-
-.searchInput::placeholder {
-  color: #999;
-}
-
-.searchInput:focus {
-  outline: none;
-  border-color: #888;
-}
-
-.clearButton {
-  position: absolute;
-  right: 60px;
-  background: none;
-  border: none;
-  color: #888;
-  font-size: 18px;
-  cursor: pointer;
-  padding: 8px;
-}
-
-.clearButton:active {
-  color: white;
-}
-
-.searchForm {
-  position: relative;
+  height: 80px; /* Reduced from 90px */
+  width: 70px; /* Reduced from 80px */
+  max-width: 100%;
+  object-fit: contain;
 }
 
 .searchButton {
@@ -134,150 +86,201 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 35px;
+  margin-right: 0; /* REMOVE the 35px margin causing overflow */
 }
 
-.searchButton:active {
-  opacity: 0.8;
+.searchRow {
+  padding: 0 12px 12px 12px;
+  max-width: 100vw;
+  overflow: hidden;
 }
 
-.searchButton img {
-  height: 18px;
-  width: 18px;
-}
-
-/* ===== DRAWER ===== */
-.backdrop {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  z-index: 1001;
-  animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.drawer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 280px;
-  background-color: #1a1d29;
-  z-index: 1002;
-  display: flex;
-  flex-direction: column;
-  animation: slideIn 0.3s ease-out;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-.drawerHeader {
-  padding: 20px;
-  border-bottom: 1px solid #2a2d3a;
-}
-
-.drawerHeader h2 {
-  margin: 0;
-  color: #E0E0E0;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.drawerContent {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px 0;
-}
-
-/* ===== MENU ITEMS ===== */
-.menuItem {
+.searchForm {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px 20px;
+  gap: 4px;
+  max-width: 100%;
+}
+
+.searchInput {
+  flex: 1;
+  height: 38px;
+  background-color: #424242;
+  border: 1px solid #616161;
+  border-radius: 4px;
+  padding: 0 40px 0 12px;
+  color: #E0E0E0;
+  font-size: 15px;
+  max-width: 100%;
+}
+
+.clearButton {
+  position: absolute;
+  right: 60px; /* Adjusted from 60px to fit properly */
   background: none;
   border: none;
-  border-bottom: 1px solid #2a2d3a;
+  color: #888;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+/* ============================================
+   HERO SECTION FIXES
+   ============================================ */
+
+.heroWrapper {
   width: 100%;
-  text-align: left;
-  cursor: pointer;
-  text-decoration: none;
-  color: #E0E0E0;
-  transition: background-color 0.2s;
-}
-
-.menuItem:active {
-  background-color: rgba(255, 255, 255, 0.05);
-}
-
-.menuIcon {
-  color: #E0E0E0;
-  flex-shrink: 0;
-}
-
-.menuText {
+  max-width: 100vw; /* Prevent overflow */
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1;
+  justify-content: center;
+  padding: 20px 10px; /* Reduced side padding */
+  overflow: hidden; /* Prevent overflow */
 }
 
-.menuLabel {
-  font-size: 12px;
-  color: #999;
+.hero {
+  width: 100%; /* Changed from 70% */
+  max-width: 1200px;
+  height: 300px; /* Reduced from 450px for mobile */
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
-.menuValue {
-  font-size: 15px;
-  color: #E0E0E0;
-  font-weight: 500;
+.content {
+  text-align: center;
+  color: #ffffff;
+  padding: 15px;
+  max-width: 100%;
 }
 
-/* ===== SIGN OUT BUTTON ===== */
-.signOutButton {
-  margin: 16px 20px;
-  padding: 12px;
-  background-color: #f0c14b;
-  border: 1px solid #a88734;
-  border-radius: 4px;
-  color: #111;
-  font-size: 14px;
-  font-weight: 600;
+.title {
+  font-size: 2rem; /* Reduced from 3.5rem for mobile */
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: 1px; /* Reduced from 3px */
+  word-break: break-word;
+}
+
+.subtitle {
+  font-size: 0.9rem; /* Reduced from 1.2rem */
+  margin: 10px 0 20px 0;
+  opacity: 0.9;
+}
+
+.shopBtn {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+  padding: 10px 25px; /* Reduced from 35px */
+  font-size: 0.9rem; /* Reduced from 1rem */
+  font-weight: bold;
   cursor: pointer;
-  width: calc(100% - 40px);
-  transition: background-color 0.2s;
+  transition: 0.3s;
 }
 
-.signOutButton:active {
-  background-color: #ddb347;
+/* ============================================
+   PRODUCT GRID FIXES
+   ============================================ */
+
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem; /* Reduced from 2rem */
+  padding: 15px; /* Reduced from 20px */
+  width: 100%;
+  max-width: 100vw; /* Prevent overflow */
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
-/* ===== RESPONSIVE ADJUSTMENTS ===== */
+.noResults {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 15px; /* Reduced padding */
+  color: #888;
+}
+
+.noResults p {
+  font-size: 1rem; /* Reduced from 1.2rem */
+  margin-bottom: 10px;
+}
+
+/* ============================================
+   MOBILE RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .productSection {
+    padding: 20px 10px; /* Reduced from 15px */
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  .sectionTitle {
+    font-size: 1.3rem; /* Reduced from 1.4rem */
+    margin-bottom: 15px;
+    padding: 0 10px;
+  }
+
+  .productGrid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 10px;
+  }
+
+  .hero {
+    height: 250px;
+    border-radius: 6px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+    letter-spacing: 0.5px;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+  }
+
+  .shopBtn {
+    padding: 8px 20px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    height: 200px;
+  }
+
+  .title {
+    font-size: 1.3rem;
+  }
+
+  .productGrid {
+    grid-template-columns: 1fr;
+    padding: 8px;
+    gap: 12px;
+  }
+}
+
 @media (max-width: 360px) {
   .drawer {
     width: 260px;
   }
-  
+
   .searchInput {
     font-size: 14px;
+  }
+
+  .logo img {
+    height: 60px;
+    width: 55px;
   }
 }

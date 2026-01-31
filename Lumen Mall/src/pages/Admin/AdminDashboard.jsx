@@ -3,14 +3,13 @@ import { Outlet, useLocation } from 'react-router-dom';
 import styles from './AdminDashboard.module.css';
 import { useAuth } from '../../context/AuthContext';
 import Sidebar from './components/Sidebar';
-import { LuMenu, LuX } from 'react-icons/lu'; // Ensure these are installed
+import { LuMenu, LuX } from 'react-icons/lu'; 
 import { API_BASE_URL } from '../../config';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-  const loc = useLocation(); // Use 'loc' to avoid collision with global 'location'
+  const loc = useLocation(); 
   
-  // 1. ADDED THIS STATE (Fixes the ReferenceError)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [inventory, setInventory] = useState([]);
@@ -18,9 +17,16 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [reviews, setReviews] = useState([]);
 
-  const secureHeaders = {
-    'Authorization': `Bearer ${user?.token}`,
-    'Content-Type': 'application/json'
+  /**
+   * FIX 1: Generate headers dynamically from localStorage.
+   * This ensures we don't send "Bearer undefined".
+   */
+  const getSecureHeaders = () => {
+    const token = localStorage.getItem('lumenToken');
+    return {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
   };
 
   // Close sidebar on mobile when navigating
@@ -28,6 +34,10 @@ const AdminDashboard = () => {
     setIsSidebarOpen(false);
   }, [loc.pathname]);
 
+  /**
+   * FIX 2: Centralized Fetch Logic
+   * We now check loc.pathname to decide what to load.
+   */
   useEffect(() => {
     const path = loc.pathname;
     if (path.includes('inventory')) fetchInventory();
@@ -39,6 +49,7 @@ const AdminDashboard = () => {
 
   const fetchInventory = async () => {
     try {
+      // Public route, no token needed
       const response = await fetch(`${API_BASE_URL}/api/products`);
       const data = await response.json();
       setInventory(Array.isArray(data) ? data : []);
@@ -49,9 +60,13 @@ const AdminDashboard = () => {
   };
 
   const fetchAllReviews = async () => {
-    if (!user?.token) return;
+    const token = localStorage.getItem('lumenToken');
+    if (!token) return;
+
     try {
-      const response = await fetch(`${API_BASE_URL}/api/reviews/all`, { headers: secureHeaders });
+      const response = await fetch(`${API_BASE_URL}/api/reviews/all`, { 
+        headers: getSecureHeaders() 
+      });
       const data = await response.json();
       setReviews(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -60,9 +75,13 @@ const AdminDashboard = () => {
   };
 
   const fetchOrders = async () => {
-    if (!user?.token) return;
+    const token = localStorage.getItem('lumenToken');
+    if (!token) return;
+
     try {
-      const response = await fetch(`${API_BASE_URL}/api/orders/all`, { headers: secureHeaders });
+      const response = await fetch(`${API_BASE_URL}/api/orders/all`, { 
+        headers: getSecureHeaders() 
+      });
       const data = await response.json();
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -71,9 +90,13 @@ const AdminDashboard = () => {
   };
 
   const fetchUsers = async () => {
-    if (!user?.token) return;
+    const token = localStorage.getItem('lumenToken');
+    if (!token) return;
+
     try {
-      const response = await fetch(`${API_BASE_URL}/api/users/all`, { headers: secureHeaders });
+      const response = await fetch(`${API_BASE_URL}/api/users/all`, { 
+        headers: getSecureHeaders() 
+      });
       const data = await response.json();
       setUsers(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -83,7 +106,6 @@ const AdminDashboard = () => {
 
   return (
     <div className={styles.adminContainer}>
-      {/* 2. Mobile Toggle Button */}
       <button 
         className={styles.mobileToggle} 
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -91,7 +113,6 @@ const AdminDashboard = () => {
         {isSidebarOpen ? <LuX /> : <LuMenu />}
       </button>
 
-      {/* 3. Pass the state to Sidebar */}
       <Sidebar isOpen={isSidebarOpen} /> 
 
       <main className={styles.content}>
@@ -100,14 +121,16 @@ const AdminDashboard = () => {
           orders, setOrders, 
           users, setUsers, 
           reviews, setReviews,
-          secureHeaders,
+          // FIX 3: Pass the dynamic header function or the current headers
+          secureHeaders: getSecureHeaders(),
           fetchInventory, 
+          fetchOrders, // Added this so children can refresh the list
           fetchAllReviews,
+          fetchUsers,
           currentUserId: user?.id
         }} />
       </main>
 
-      {/* 4. Overlay for mobile */}
       {isSidebarOpen && <div className={styles.overlay} onClick={() => setIsSidebarOpen(false)}></div>}
     </div>
   );

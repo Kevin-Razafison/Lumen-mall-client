@@ -9,6 +9,43 @@
     box-sizing: border-box; /* Prevents padding from adding to width */
 }
 
+.headerRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.refreshBtn {
+    background: #f0f2f2;
+    border: 1px solid #d5dbdb;
+    border-radius: 4px;
+    padding: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s;
+    font-size: 1.2rem;
+    color: #111;
+}
+
+.refreshBtn:hover {
+    background: #e7e9e9;
+    border-color: #adb1b1;
+}
+
+.refreshBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.spin {
+    animation: rotate 0.8s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 .tableWrapper {
     width: 100%;
     overflow-x: auto; /* Allows side-swiping on phones */

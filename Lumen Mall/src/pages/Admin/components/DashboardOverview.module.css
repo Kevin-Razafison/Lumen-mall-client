@@ -5,6 +5,10 @@
     margin-bottom: 100px;
 }
 
+.overviewWrapper h1{
+    color: white;
+}
+
 .title {
     margin-bottom: 1rem;
     font-weight: 600;

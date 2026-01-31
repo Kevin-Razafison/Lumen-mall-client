@@ -61,6 +61,49 @@ html, body {
   margin-right: 0; /* REMOVE the 45px margin causing overflow */
 }
 
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #2a2d3a;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: none;
+  color: #E0E0E0;
+  transition: background-color 0.2s;
+}
+
+.menuItem:active {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.menuIcon {
+  color: #E0E0E0;
+  flex-shrink: 0;
+}
+
+.menuText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.menuLabel {
+  font-size: 12px;
+  color: #999;
+}
+
+.menuValue {
+  font-size: 15px;
+  color: #E0E0E0;
+  font-weight: 500;
+}
+
 .logo {
   flex: 1;
   display: flex;
@@ -90,8 +133,8 @@ html, body {
 }
 
 .searchButton img{
-    height: 70%;
-    width: 50%;
+    height: 50%;
+    width: 40%;
 }
 
 .searchRow {

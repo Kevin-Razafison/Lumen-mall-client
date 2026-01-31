@@ -1,15 +1,17 @@
-// MobileHeader.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { LuMenu, LuX, LuMapPin, LuUser, LuShoppingCart } from 'react-icons/lu';
 import { useAuth } from '../../../context/AuthContext';
 import { useCart } from '../../../context/CartContext';
+import LogoutModal from '../../Modals/LogoutModal';
 import styles from './MobileHeader.module.css';
 import logo from '../../../assets/Lumen-Mall-logo.png';
 
 const MobileHeader = ({ openLocationModal, location }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  
   const { user, logout, isAuthenticated } = useAuth();
   const { cartCount } = useCart();
 
@@ -24,8 +26,28 @@ const MobileHeader = ({ openLocationModal, location }) => {
     // Add your search logic here
   };
 
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
+    setShowLogoutConfirm(false);
+    setIsMenuOpen(false);
+    logout();
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutConfirm(false);
+  };
+
   return (
     <>
+      <LogoutModal 
+        isOpen={showLogoutConfirm}
+        onConfirm={confirmLogout}
+        onCancel={cancelLogout}
+      />
+
       <header className={styles.mobileHeader}>
         {/* Top Row: Menu, Logo, Cart */}
         <div className={styles.topRow}>
@@ -121,10 +143,7 @@ const MobileHeader = ({ openLocationModal, location }) => {
               {/* Sign Out Button */}
               {isAuthenticated && (
                 <button 
-                  onClick={() => {
-                    logout();
-                    toggleMenu();
-                  }} 
+                  onClick={handleLogoutClick}
                   className={styles.signOutButton}
                 >
                   Sign Out

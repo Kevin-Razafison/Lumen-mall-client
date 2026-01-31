@@ -46,6 +46,69 @@ html, body {
   max-width: 100vw; /* Fix overflow */
 }
 
+.menuButton,
+.cartButton {
+  background: none;
+  border: none;
+  color: #E0E0E0;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  margin-right: 0; /* REMOVE the 45px margin causing overflow */
+}
+
+.menuButton:active,
+.cartButton:active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ===== DRAWER ===== */
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1001;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  background-color: #1a1d29;
+  z-index: 1002;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease-out;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
 
 .drawerHeader {
   padding: 20px;
@@ -126,6 +189,17 @@ html, body {
 
 .signOutButton:active {
   background-color: #ddb347;
+}
+
+/* ===== RESPONSIVE ADJUSTMENTS ===== */
+@media (max-width: 360px) {
+  .drawer {
+    width: 260px;
+  }
+  
+  .searchInput {
+    font-size: 14px;
+  }
 }
 
 .logo {

@@ -1,90 +1,50 @@
-🚀 Lumen Mall | Full-Stack E-Commerce & Admin Suite
+Lumen Mall - Frontend (React)
 
-Lumen Mall is a high-performance, full-stack e-commerce platform built for the modern web. It features a sleek, responsive customer storefront and a comprehensive Admin Management Suite for handling inventory, orders, users, and community moderation.
-🌟 Key Features
-🛒 Customer Experience
+The client-side of the Lumen Mall e-commerce platform. Built with React 18 and Vite, featuring a smooth Single Page Application (SPA) experience, real-time location detection, and Stripe/PayPal payment integrations.
+ Key Features
 
-    Responsive Storefront: Fully optimized for desktop, tablet, and mobile browsing.
+    Dynamic Product Catalog: Filtering, category sorting, and detailed product views.
 
-    Secure Authentication: JWT-based login and registration system.
+    Global Context Management: Centralized AuthContext, CartContext, and LocationContext.
 
-    Dynamic Catalog: Filter products by category, price, and "New Arrivals."
+    Secure Checkout: Integrated with Stripe (Card) and PayPal (Redirect).
 
-    Reviews & Ratings: Community-driven feedback system with admin moderation.
+    Admin Dashboard: Manage inventory, track customer orders, and update order statuses.
 
-🛡️ Admin Management Suite
+    Responsive UI: Optimized for mobile, tablet, and desktop with CSS Modules.
 
-    Live Dashboard: Overview of monthly revenue, total orders, and top-performing products.
+🛠 Tech Stack
 
-    Inventory Control: Real-time stock tracking, quick restock actions, and inline product editing.
+    Framework: React (Vite)
 
-    Order Management: End-to-end order lifecycle tracking (Awaiting Payment → Shipped → Completed).
+    Routing: React Router v6
 
-    User Moderation: Manage user roles (User/Admin) with built-in security to prevent self-lockout.
+    Styling: CSS Modules & React Icons
 
-    Review Moderation: Reply directly to customer feedback or delete inappropriate content.
+    State Management: React Context API
 
-💻 Tech Stack
-Layer	Technology
-Frontend	React 18, React Router 6 (Outlet Context), CSS Modules
-Backend	Java, Spring Boot, Spring Security
-Database	PostgreSQL / MySQL
-Authentication	JSON Web Tokens (JWT), BCrypt Password Hashing
-State Management	React Context API & Outlet Context
-🛠️ Installation & Setup
-Prerequisites
+    Payments: @stripe/react-stripe-js, @stripe/stripe-js
 
-    Node.js (v16 or higher)
+⚙️ Installation
 
-    JDK 17 or higher
-
-    Maven (for backend dependencies)
-
-Backend Setup
-
-    Navigate to the server directory.
-
-    Configure your database in src/main/resources/application.properties.
-
-    Run the application:
+    Clone the repo:
     Bash
 
-    mvn spring-boot:run
-
-Frontend Setup
-
-    Navigate to the client directory.
+    git clone <your-repo-url>
+    cd lumen-mall-client
 
     Install dependencies:
     Bash
 
     npm install
 
-    Start the development server:
+    Environment Variables: Create a .env file in the root:
+    Code snippet
+
+    VITE_API_BASE_URL=https://lumen-mall-server.onrender.com
+    VITE_STRIPE_PUBLIC_KEY=your_stripe_key_here
+
+    Run Development Server:
     Bash
 
-    npm start
-
-📸 Screenshots
-
-    Admin Inventory: Featuring responsive data tables with horizontal scroll support.
-
-    Analytics Dashboard: Visualizing revenue trends and key performance indicators.
-
-    Add Product Form: Optimized for mobile with asynchronous image uploading.
-
-🔒 Security Features
-
-    Protected Routes: Frontend routes are guarded; unauthorized users are redirected to login.
-
-    Secure Headers: Every administrative API call is protected via Authorization headers.
-
-    Role-Based Access Control (RBAC): Specific endpoints and UI sections are restricted based on user authority.
-
-📝 Future Roadmap
-
-    [ ] Add real-time stock/inventory check logic in OrderService.
-
-    [ ] Implement Stripe/PayPal payment gateway integration.
-
-    [ ] Add dark mode support for the Admin Suite.
+    npm run dev

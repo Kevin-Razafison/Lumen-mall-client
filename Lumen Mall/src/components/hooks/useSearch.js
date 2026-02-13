@@ -4,13 +4,10 @@ export const useSearch = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const updateSearchURL = (value) => {
+  const updateSearchURL = (value) => {      // ✅ same logic as SearchBar
     const newParams = new URLSearchParams(searchParams);
-    if (value.trim()) {
-      newParams.set('search', value);
-    } else {
-      newParams.delete('search');
-    }
+    if (value.trim()) newParams.set('search', value);
+    else newParams.delete('search');
     navigate({ search: newParams.toString() });
   };
 

@@ -28,30 +28,34 @@ const Home = () => {
   }, []);
 
   const getFilteredProducts = () => {
-    // 1. Handle "All" category - bypass filters and show everything
-    if (categoryTerm.toLowerCase() === 'all') {
-      return products;
+    let filtered = products;
+
+    // Apply search filter if present
+    if (searchTerm) {
+      filtered = filtered.filter(product => 
+        product.name.toLowerCase().includes(searchTerm)
+      );
     }
 
-    // 2. Handle Search or specific Category filtering
-    if (searchTerm || (categoryTerm && categoryTerm.toLowerCase() !== 'all')) {
-      return products.filter(product => {
-        const matchesSearch = product.name.toLowerCase().includes(searchTerm);
-        const matchesCategory = categoryTerm 
-          ? product.category?.toLowerCase() === categoryTerm.toLowerCase() 
-          : true;
-        return matchesSearch && matchesCategory;
+    // Apply category filter if present (and not "All")
+    if (categoryTerm && categoryTerm.toLowerCase() !== 'all') {
+      filtered = filtered.filter(product => 
+        product.category?.toLowerCase() === categoryTerm.toLowerCase()
+      );
+    }
+
+    
+    if (!searchTerm && !categoryTerm) {
+      const fourteenDaysAgo = new Date();
+      fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+
+      filtered = filtered.filter(product => {
+        const productDate = new Date(product.createdAt);
+        return productDate >= fourteenDaysAgo;
       });
     }
 
-    // 3. Default Landing View: Show only New Arrivals (Last 14 days)
-    const fourteenDaysAgo = new Date();
-    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-
-    return products.filter(product => {
-      const productDate = new Date(product.createdAt);
-      return productDate >= fourteenDaysAgo;
-    });
+    return filtered;
   };
 
   const displayProducts = getFilteredProducts();

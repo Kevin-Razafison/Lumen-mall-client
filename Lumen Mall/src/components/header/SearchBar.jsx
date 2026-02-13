@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import styles from './SearchBar.module.css';
 
 const SearchBar = () => {
     const [searchParams] = useSearchParams();
     const [query, setQuery] = useState(searchParams.get('search') || '');
     const navigate = useNavigate();
+    const { pathname } = useLocation(); 
 
     useEffect(() => {
         setQuery(searchParams.get('search') || '');
@@ -18,7 +19,11 @@ const SearchBar = () => {
         } else {
             newParams.delete('search');
         }
+        if (pathname !== '/') {
+            navigate(`/?${newParams.toString()}`);
+        } else {
         navigate({ search: newParams.toString() });
+        }
     };
 
     const handleSearch = (e) => {

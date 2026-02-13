@@ -9,12 +9,14 @@ const CategoryNav = () => {
   const categories = ['New', 'All', 'Electronics', 'Smart Home', 'Wearables', 'Audio'];
   
   const handleCategoryClick = (category) => {
+    const newParams = new URLSearchParams(searchParams);
+    
     if (category === 'New') {
-      searchParams.delete('category'); // Landing on Home/New Arrivals
+      newParams.delete('category'); // Landing on Home/New Arrivals
     } else {
-      searchParams.set('category', category);
+      newParams.set('category', category);
     }
-    setSearchParams(searchParams);
+    setSearchParams(newParams); 
   };
 
   return (

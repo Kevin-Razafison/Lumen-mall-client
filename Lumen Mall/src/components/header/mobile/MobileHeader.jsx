@@ -4,7 +4,8 @@ import { LuMenu, LuX, LuMapPin, LuUser, LuShoppingCart } from 'react-icons/lu';
 import { useAuth } from '../../../context/AuthContext';
 import { useCart } from '../../../context/CartContext';
 import LogoutModal from '../../Modals/LogoutModal';
-import { useSearch } from '../../../hooks/useSearch';
+import { useSearch } from '../../hooks/useSearch.js';
+import { useSearchParams } from 'react-router-dom'; // only needed for sync effect
 import styles from './MobileHeader.module.css';
 import logo from '../../../assets/Lumen-Mall-logo.png';
 
@@ -12,10 +13,16 @@ const MobileHeader = ({ openLocationModal, location }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  
+  const [searchParams] = useSearchParams(); // for syncing input with URL
+
   const { user, logout, isAuthenticated } = useAuth();
   const { cartCount } = useCart();
   const { updateSearchURL } = useSearch();
+
+  // Sync input with URL search param
+  useEffect(() => {
+    setSearchQuery(searchParams.get('search') || '');
+  }, [searchParams]);
 
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? 'hidden' : 'unset';
@@ -26,6 +33,11 @@ const MobileHeader = ({ openLocationModal, location }) => {
   const handleSearch = (e) => {
     e.preventDefault();
     updateSearchURL(searchQuery);
+  };
+
+  const handleClear = () => {
+    setSearchQuery('');
+    updateSearchURL(''); // ✅ clear URL search param
   };
 
   const handleLogoutClick = () => {
@@ -51,7 +63,6 @@ const MobileHeader = ({ openLocationModal, location }) => {
       />
 
       <header className={styles.mobileHeader}>
-        {/* Top Row: Menu, Logo, Cart */}
         <div className={styles.topRow}>
           <button 
             className={styles.menuButton} 
@@ -73,7 +84,6 @@ const MobileHeader = ({ openLocationModal, location }) => {
           </Link>
         </div>
 
-        {/* Search Row */}
         <div className={styles.searchRow}>
           <form className={styles.searchForm} onSubmit={handleSearch}>
             <input
@@ -87,7 +97,7 @@ const MobileHeader = ({ openLocationModal, location }) => {
               <button
                 type="button"
                 className={styles.clearButton}
-                onClick={() => setSearchQuery('')}
+                onClick={handleClear}   // ✅ now clears both input and URL
                 aria-label="Clear search"
               >
                 ✕

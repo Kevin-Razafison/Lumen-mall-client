@@ -11,11 +11,6 @@ const SearchBar = () => {
         setQuery(searchParams.get('search') || '');
     }, [searchParams]);
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        updateSearchURL(query);
-    };
-
     const updateSearchURL = (value) => {
         const newParams = new URLSearchParams(searchParams);
         if (value.trim()) {
@@ -23,12 +18,17 @@ const SearchBar = () => {
         } else {
             newParams.delete('search');
         }
-        navigate(`/?${newParams.toString()}`);
+        navigate({ search: newParams.toString() });
+    };
+
+    const handleSearch = (e) => {
+        e.preventDefault();
+        updateSearchURL(query);
     };
 
     const handleClear = () => {
         setQuery('');
-        updateSearchURL(''); 
+        updateSearchURL('');
     };
 
     return (

@@ -4,6 +4,7 @@ import { LuMenu, LuX, LuMapPin, LuUser, LuShoppingCart } from 'react-icons/lu';
 import { useAuth } from '../../../context/AuthContext';
 import { useCart } from '../../../context/CartContext';
 import LogoutModal from '../../Modals/LogoutModal';
+import { useSearch } from '../../../hooks/useSearch';
 import styles from './MobileHeader.module.css';
 import logo from '../../../assets/Lumen-Mall-logo.png';
 
@@ -14,6 +15,7 @@ const MobileHeader = ({ openLocationModal, location }) => {
   
   const { user, logout, isAuthenticated } = useAuth();
   const { cartCount } = useCart();
+  const { updateSearchURL } = useSearch();
 
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? 'hidden' : 'unset';
@@ -23,7 +25,7 @@ const MobileHeader = ({ openLocationModal, location }) => {
   
   const handleSearch = (e) => {
     e.preventDefault();
-    // Add your search logic here
+    updateSearchURL(searchQuery);
   };
 
   const handleLogoutClick = () => {
